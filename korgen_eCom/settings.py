@@ -154,4 +154,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "/static/"
+# Where your project's source static files live (development)
+STATICFILES_DIRS = [
+    BASE_DIR / "korgen_eCom" / "static",          # e.g. <project_root>/static/
+    # or BASE_DIR / "korgen_eCon" / "static"  # if that's your real structure
+]
+
+# Where your project's collected static files go (production)
+STATIC_ROOT = BASE_DIR / "staticfiles"
