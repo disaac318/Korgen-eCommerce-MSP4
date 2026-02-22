@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'home',
 
 ]
 
@@ -62,6 +63,8 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
+            #  os.path.join(BASE_DIR, 'templates'),
+            #  os.path.join(BASE_DIR, 'templates', 'allauth'),
              BASE_DIR / 'templates' / 'allauth',
              BASE_DIR / 'templates',
         ],
