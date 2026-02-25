@@ -2,5 +2,287 @@
 {% load static %}
 
 {% block content %}
-     <h1 class="display-4 text-success">It Works!</h1>
-{% endblock content %}
+
+
+<!-- ========== Site header ends ========== -->
+
+<!-- ========== Main content starts ========== -->
+
+<!-- <main class="container">
+     <div class="row">
+          <div class="col">
+               <h1 class="text-center text-success pt-5 bg-opacity-25 bg">It is a successful landing page</h1>
+          </div>
+     </div>
+</main> -->
+
+<!-- ========== Main content ends ========== -->
+
+
+<!-- ========== Main content starts ========== -->
+<main">
+
+     <!-- Hero / banner -->
+     <section class="section-intro padding-y-sm bg-opacity-25 bg-warning"
+          aria-label="Featured promotion">
+          <div class="container">
+               <figure class="intro-banner-wrap mb-0 mt-5 d-none d-md-block">
+                    <img src="{% static 'images/banners/1.webp' %}"
+                         class="img-fluid w-100 rounded "
+                         alt="Featured promotion banner">
+               </figure>
+          </div>
+     </section>
+
+     <!-- Popular products -->
+     <section class="section-name padding-y-sm bg-opacity-25 bg-warning "
+          aria-labelledby="popular-products-title">
+          <div class="container">
+
+               <header class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <h2 id="popular-products-title"
+                         class="section-title h3 mb-0">Popular products</h2>
+                    <a href="./store.html"
+                         class="btn btn-secondary">Store Dashboard</a>
+               </header>
+
+               <section aria-label="Product list">
+                    <div class="row g-3">
+
+                         <article class="col-12 col-md-4 col-lg-3">
+
+                              <div class="card card-product-grid h-100">
+                                   <a href="./product-detail.html"
+                                        class="img-wrap">
+                                        <img src="{% static 'images/items/1.png' %}"
+                                             class="card-img-top d-block mx-auto"
+                                             alt="Product 1">
+                                   </a>
+                                   <div class="card-body info-wrap">
+                                        <h3 class="h6 mb-1">
+                                             <a href="./product-detail.html"
+                                                  class="title text-decoration-none text-center">Just another
+                                                  product name</a>
+                                        </h3>
+
+                                        <div class="mt-auto ">
+                                             <p class="mb-2 fw-bold text-center">£179.00</p>
+                                             <a href="#"
+                                                  class="price btn btn-warning w-100">Add to cart</a>
+                                        </div>
+                                   </div>
+
+                              </div>
+                         </article>
+
+                         <article class="col-12 col-md-4 col-lg-3">
+                              <div class="card card-product-grid h-100">
+                                   <a href="./product-detail.html"
+                                        class="img-wrap">
+                                        <img src="{% static 'images/items/2.jpg' %}"
+                                             class="card-img-top d-block mx-auto"
+                                             alt="Product 2">
+                                   </a>
+
+                                   <div class="card-body info-wrap">
+                                        <h3 class="h6 mb-1">
+                                             <a href="./product-detail.html"
+                                                  class="title text-decoration-none text-center">Some item
+                                                  name here</a>
+                                        </h3>
+
+                                        <div class="mt-auto ">
+                                             <p class="mb-2 fw-bold text-center">£280.00</p>
+                                             <a href="#"
+                                                  class="price btn btn-warning w-100">Add to cart</a>
+                                        </div>
+
+                                   </div>
+                              </div>
+                         </article>
+
+                         <article class="col-12 col-md-4 col-lg-3">
+                              <div class="card card-product-grid h-100">
+                                   <a href="./product-detail.html"
+                                        class="img-wrap">
+                                        <img src="{% static 'images/items/3.jpg' %}"
+                                             class="card-img-top d-block mx-auto"
+                                             alt="Product 3">
+                                   </a>
+                                   <div class="card-body info-wrap">
+                                        <h3 class="h6 mb-1">
+                                             <a href="./product-detail.html"
+                                                  class="title text-decoration-none text-center">Great product
+                                                  name
+                                                  here</a>
+                                        </h3>
+
+                                        <div class="mt-auto ">
+                                             <p class="mb-2 fw-bold text-center">£56.00</p>
+                                             <a href="#"
+                                                  class="price btn btn-warning w-100">Add to cart</a>
+                                        </div>
+
+                                   </div>
+                              </div>
+                         </article>
+
+                         <article class="col-12 col-md-4 col-lg-3">
+                              <div class="card card-product-grid h-100">
+                                   <a href="./product-detail.html"
+                                        class="img-wrap">
+                                        <img src="{% static 'images/items/4.png' %}"
+                                             class="card-img-top d-block mx-auto"
+                                             alt="Product 4">
+                                   </a>
+                                   <div class="card-body info-wrap">
+                                        <h3 class="h6 mb-1">
+                                             <a href="./product-detail.html"
+                                                  class="title text-decoration-none">Just another product
+                                                  name</a>
+                                        </h3>
+
+                                        <div class="mt-auto ">
+                                             <p class="mb-2 fw-bold text-center">£179.00</p>
+                                             <a href="#"
+                                                  class="price btn btn-warning w-100">Add to cart</a>
+                                        </div>
+
+                                   </div>
+                              </div>
+                         </article>
+
+                         <article class="col-12 col-md-4 col-lg-3">
+                              <div class="card card-product-grid h-100">
+                                   <a href="./product-detail.html"
+                                        class="img-wrap">
+                                        <img src="{% static 'images/items/5.jpg' %}"
+                                             class="card-img-top d-block mx-auto"
+                                             alt="Product 5">
+                                   </a>
+                                   <div class="card-body info-wrap">
+                                        <h3 class="h6 mb-1">
+                                             <a href="./product-detail.html"
+                                                  class="title text-decoration-none text-center">Some item
+                                                  name here</a>
+                                        </h3>
+
+                                        <div class="mt-auto ">
+                                             <p class="mb-2 fw-bold text-center">£280.00</p>
+                                             <a href="#"
+                                                  class="price btn btn-warning w-100">Add to cart</a>
+                                        </div>
+
+                                   </div>
+                              </div>
+                         </article>
+
+                         <article class="col-12 col-md-4 col-lg-3">
+                              <div class="card card-product-grid h-100">
+                                   <a href="./product-detail.html"
+                                        class="img-wrap">
+                                        <img src="{% static 'images/items/6.jpg' %}"
+                                             class="card-img-top d-block mx-auto"
+                                             alt="Product 6">
+                                   </a>
+                                   <div class="card-body info-wrap">
+                                        <h3 class="h6 mb-1">
+                                             <a href="./product-detail.html"
+                                                  class="title text-decoration-none text-center">Some item
+                                                  name here</a>
+                                        </h3>
+
+                                        <div class="mt-auto ">
+                                             <p class="mb-2 fw-bold text-center">£280.00</p>
+                                             <a href="#"
+                                                  class="price btn btn-warning w-100">Add to cart</a>
+                                        </div>
+
+                                   </div>
+                              </div>
+                         </article>
+
+                         <article class="col-12 col-md-4 col-lg-3">
+                              <div class="card card-product-grid h-100">
+                                   <a href="./product-detail.html"
+                                        class="img-wrap">
+                                        <img src="{% static 'images/items/7.jpg' %}"
+                                             class="card-img-top d-block mx-auto"
+                                             alt="Product 7">
+                                   </a>
+                                   <div class="card-body info-wrap">
+                                        <h3 class="h6 mb-1">
+                                             <a href="./product-detail.html"
+                                                  class="title text-decoration-none text-center"> chuck
+                                                  taylor</a>
+                                        </h3>
+
+                                        <div class="mt-auto ">
+                                             <p class="mb-2 fw-bold text-center">£56.00</p>
+                                             <a href="#"
+                                                  class="price btn btn-warning w-100">Add to cart</a>
+                                        </div>
+
+                                   </div>
+                              </div>
+                         </article>
+
+                         <article class="col-12 col-md-4 col-lg-3">
+                              <div class="card card-product-grid h-100">
+                                   <a href="./product-detail.html"
+                                        class="img-wrap">
+                                        <img src="{% static 'images/items/8.jpg' %}"
+                                             class="card-img-top d-block mx-auto"
+                                             alt="Product 8">
+                                   </a>
+                                   <div class="card-body info-wrap">
+                                        <h3 class="h6 mb-1">
+                                             <a href="./product-detail.html"
+                                                  class="title text-decoration-none text-center">Just another
+                                                  product
+                                                  name</a>
+                                        </h3>
+
+                                        <div class="mt-auto ">
+                                             <p class="mb-2 fw-bold text-center">£179.00</p>
+                                             <a href="#"
+                                                  class="price btn btn-warning w-100">Add to cart</a>
+                                        </div>
+                                   </div>
+                              </div>
+                         </article>
+
+                         <article class="col-12 col-md-4 col-lg-3">
+                              <div class="card card-product-grid h-100">
+                                   <a href="./product-detail.html"
+                                        class="img-wrap">
+                                        <img src="{% static 'images/items/9.jpg' %}"
+                                             class="card-img-top d-block mx-auto"
+                                             alt="Product 9">
+                                   </a>
+                                   <div class="card-body info-wrap">
+                                        <h3 class="h6 mb-1">
+                                             <a href="./product-detail.html"
+                                                  class="title text-decoration-none text-center">Just another
+                                                  product
+                                                  name</a>
+                                        </h3>
+
+                                        <div class="mt-auto ">
+                                             <p class="mb-2 fw-bold text-center">£179.00</p>
+                                             <a href="#"
+                                                  class="price btn btn-warning w-100">Add to cart</a>
+                                        </div>
+                                   </div>
+                              </div>
+                         </article>
+
+                    </div>
+               </section>
+
+          </div>
+     </section>
+
+     </main>
+
+     {% endblock content %}

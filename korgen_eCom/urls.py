@@ -23,5 +23,6 @@ from django.urls import include  #added for django-allauth
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),  #addded for django-allauth
-    path('', include('home.urls')), 
+    path('', include('home.urls')),
+    path('cart/', views.cart_view, name='cart'),
 ]

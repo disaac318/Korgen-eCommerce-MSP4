@@ -1,0 +1,151 @@
+{% load static %}
+
+<!-- ========== Site header starts ========== -->
+<header class="section-header sticky-top">
+
+     <!-- Utility bar / top nav starts -->
+     <div class="bg-opacity-25 bg-warning py-2">
+          <div class="container">
+               <nav class="d-flex align-items-center justify-content-center justify-content-md-start flex-wrap gap-5 small"
+                    aria-label="Utility navigation">
+                    <a href="mailto:info@korgen.com"
+                         class="text-secondary text-decoration-none d-flex align-items-center gap-2">
+                         <i class="fa-regular fa-envelope"
+                              aria-hidden="true"></i>
+                         <span>Email</span>
+                    </a>
+                    <a href="tel:+447368135847"
+                         class="text-secondary text-decoration-none d-flex align-items-center gap-2">
+                         <i class="fa fa-phone"
+                              aria-hidden="true"></i>
+                         <span>Call us at +44 736 8135847</span>
+                    </a>
+               </nav>
+          </div>
+     </div>
+     <!-- Utility bar / top nav ends -->
+
+     <!--  ===== Primary header / main nav starts  ===== -->
+     <div class="header-main  py-3">
+
+          <div class="container">
+
+               <nav class="row g-3 align-items-center"
+                    aria-label="Primary navigation">
+
+                    <!-- ========== Brand ========== -->
+                    <div class="col-auto nav1">
+                         <a href="./"
+                              class="d-flex align-items-center"
+                              aria-label="Korgen home">
+                              <img class="logo"
+                                   src="{% static 'images/korgen-logo.png' %}"
+                                   alt="Korgen logo"
+                                   width="150" />
+                         </a>
+                    </div>
+                    <!-- ========== Brand ========== -->
+
+                    <!-- ========== Category menu ========== -->
+                    <div class="col-auto nav2 ms-auto text-end dropdown-overlap">
+                         <div class="dropdown">
+                              <button type="button"
+                                   class="btn btn-secondary d-flex align-items-center gap-2"
+                                   data-bs-toggle="dropdown"
+                                   aria-expanded="false">
+                                   <!-- <i class="fa fa-bars"
+                                                  aria-hidden="true"></i> -->
+                                   <span>Categories</span>
+                              </button>
+
+                              <ul class="dropdown-menu dropdown-menu-end shadow"
+                                   style="z-index: 1080;">
+                                   <li><a class="dropdown-item"
+                                             href="#">Machinery / Mechanical Parts / Tools</a></li>
+                                   <li><a class="dropdown-item"
+                                             href="#">Consumer Electronics / Home Appliances</a></li>
+                                   <li><a class="dropdown-item"
+                                             href="#">Auto / Transportation</a></li>
+                                   <li><a class="dropdown-item"
+                                             href="#">Apparel / Textiles / Timepieces</a></li>
+                                   <li><a class="dropdown-item"
+                                             href="#">Home &amp; Garden / Construction / Lights</a></li>
+                                   <li><a class="dropdown-item"
+                                             href="#">Beauty &amp; Personal Care / Health</a></li>
+                              </ul>
+                         </div>
+                    </div>
+                    <!-- ========== Category menu ========== -->
+
+                    <!-- ========== Store  ======== -->
+                    <div class="col-auto nav2 text-end">
+
+                         <a href="./store.html"
+                              class="btn btn-secondary"><i class="bi bi-shop"></i></a>
+                    </div>
+                    <!-- ========== Store  ======== -->
+
+                    <!-- ========== Search Bar ========== -->
+                    <div class="col-12 col-lg nav2">
+                         <form action="#"
+                              class="search"
+                              role="search"
+                              aria-label="Site search">
+                              <div class="input-group">
+                                   <label class="visually-hidden"
+                                        for="siteSearch">Search products</label>
+                                   <input id="siteSearch"
+                                        type="search"
+                                        class="form-control bg-warning bg-opacity-10 border-secondary rounded-start-2"
+                                        placeholder="Search your product here..."
+                                        aria-label="Search products">
+                                   <button class="btn btn-secondar"
+                                        type="submit"
+                                        aria-label="Search">
+                                        <i class="fa fa-search"
+                                             aria-hidden="true"></i>
+                                   </button>
+                              </div>
+                         </form>
+                    </div>
+                    <!-- ========== Search Bar ========== -->
+
+                    <!-- ============ Account + Cart ========== -->
+                    <div
+                         class="col-12 col-lg-auto d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start align-items-center nav2 text-center text-lg-start">
+                         <section class="small"
+                              aria-label="Account">
+                              <p class="text-muted mb-0">Welcome guest!</p>
+                              <p class="mb-0">
+                                   <a href="./signin.html"
+                                        class="text-secondary text-decoration-none fw-bold">Sign in</a>
+                                   <span class="text-muted px-1"
+                                        aria-hidden="true">|</span>
+                                   <a href="./register.html"
+                                        class="text-secondary text-decoration-none fw-bold">Register</a>
+                              </p>
+                         </section>
+
+                         <a class="btn btn-secondary position-relative"
+                              href="{% url 'cart' %}"
+                              aria-label="Cart">
+                              <i class="bi bi-cart3 me-1"
+                                   aria-hidden="true"></i>
+                              Cart
+                              <span id="cartCount"
+                                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
+                                   aria-label="Items in cart">
+                                   12
+                              </span>
+                         </a>
+                    </div>
+                    <!-- ============ Account + Cart ========== -->
+
+               </nav>
+
+          </div>
+
+     </div>
+     <!-- ===== Primary header / main nav ends ===== -->
+
+</header>
