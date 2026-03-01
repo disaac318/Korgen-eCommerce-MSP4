@@ -41,10 +41,14 @@
 
      </head>
 
+
+
      <body>
 
           <!-- Navigation Bar -->
           {% include 'includes/navbar.html' %}
+          <!-- Navigation Bar -->
+
 
           <header class="container-fluid sticky-top"></header>
 
@@ -57,18 +61,11 @@
           {% block content %}{% endblock %}
 
 
-          <!--  ========== Footer Starts ========== -->
-          <!-- <footer class="text-center  mt-3 mb-5">
-                    <small>©2026 <strong class="korgenTheme footer-logo-type fw-bolder h6 text-w">Korgen&trade;</strong>
-                         by
-                         <span class=""> The App Alchemy</span> <br>
-                         <div class="fw-bold">Powered by Django</div>
-                    </small>
-               </footer> -->
-          <!--  ========== Footer Ends ========== -->
+
 
           <!-- Footer -->
           {% include 'includes/footer.html' %}
+          <!-- Footer -->
 
 
           {% block post_loadjs %}
@@ -107,8 +104,8 @@
                     });
                });
           </script>
-          <!-- ======== Javascript Utilities ======== -->{% endblock extra_js %}
-
+          <!-- ======== Javascript Utilities ======== -->
+          {% endblock extra_js %}
           {% endblock post_loadjs %}
 
 
