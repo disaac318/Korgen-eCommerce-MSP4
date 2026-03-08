@@ -17,12 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from . import views
-from django.urls import include  #added for django-allauth
+from django.urls import include
+from django.conf.urls.static import static 
+from django.conf import settings                         
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.urls')),  #addded for django-allauth
+    path('accounts/', include('allauth.urls')),    #addded for django-allauth
     path('', include('home.urls')),
-    path('cart/', views.cart_view, name='cart'),
-]
+
+]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

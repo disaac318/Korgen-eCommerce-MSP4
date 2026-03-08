@@ -169,9 +169,15 @@ USE_TZ = True
 STATIC_URL = "/static/"
 # Where your project's source static files live (development)
 STATICFILES_DIRS = [
-    BASE_DIR / "korgen_eCom" / "static",          # e.g. <project_root>/static/
+    BASE_DIR / "korgen_eCom" / "static",
+
+    # e.g. <project_root>/static/
     # or BASE_DIR / "korgen_eCon" / "static"  # if that's your real structure
 ]
 
 # Where your project's collected static files go (production)
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Media files configuration
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
