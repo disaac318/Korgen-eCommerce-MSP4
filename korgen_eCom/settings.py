@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     # Local apps
     'home',
     'category',
+    'accounts.apps.AccountsConfig',
 
 ]
 
@@ -116,6 +117,8 @@ LOGIN_REDIRECT_URL = '/'
 
 
 WSGI_APPLICATION = 'korgen_eCom.wsgi.application'
+
+AUTH_USER_MODEL = 'accounts.Account'  # Custom user model
 
 
 # Database
