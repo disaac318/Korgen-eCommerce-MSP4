@@ -60,19 +60,20 @@
 
                               <ul class="dropdown-menu dropdown-menu-end shadow"
                                    style="z-index: 1080;">
-                                   <li><a class="dropdown-item"
-                                             href="#">Machinery / Mechanical Parts / Tools</a></li>
-                                   <li><a class="dropdown-item"
-                                             href="#">Consumer Electronics / Home Appliances</a></li>
-                                   <li><a class="dropdown-item"
-                                             href="#">Auto / Transportation</a></li>
-                                   <li><a class="dropdown-item"
-                                             href="#">Apparel / Textiles / Timepieces</a></li>
-                                   <li><a class="dropdown-item"
-                                             href="#">Home &amp; Garden / Construction / Lights</a></li>
-                                   <li><a class="dropdown-item"
-                                             href="#">Beauty &amp; Personal Care / Health</a></li>
+                                   {% for category in categories %}
+                                   <li>
+                                        <a class="dropdown-item"
+                                             href="{% url 'products_by_category' category.slug %}">
+                                             {{ category.category_name }}
+                                        </a>
+                                   </li>
+                                   {% empty %}
+                                   <li>
+                                        <span class="dropdown-item-text text-muted">No categories available</span>
+                                   </li>
+                                   {% endfor %}
                               </ul>
+
                          </div>
                     </div>
                     <!-- ========== Category menu ========== -->
