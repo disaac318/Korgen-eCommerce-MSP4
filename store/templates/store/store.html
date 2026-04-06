@@ -11,7 +11,7 @@
           <div class="container">
                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 mt-3">
                     <h1 class="h3 mb-0">Our Store</h1>
-                    
+
                </div>
 
                <div class="row g-4">
@@ -29,6 +29,7 @@
 
                               <!-- Categories -->
                               <section class="border-top">
+
                                    <h3 class="h6 m-0">
                                         <button
                                              class="btn btn-link w-100 text-decoration-none d-flex justify-content-between align-items-center px-3 py-3"
@@ -47,21 +48,26 @@
                                         class="collapse show">
                                         <div class="card-body pt-0">
                                              <ul class="list-unstyled mb-0">
-                                                  <li><a class="link-secondary text-decoration-none d-block py-1"
-                                                            href="#">People</a></li>
-                                                  <li><a class="link-secondary text-decoration-none d-block py-1"
-                                                            href="#">Watches</a></li>
-                                                  <li><a class="link-secondary text-decoration-none d-block py-1"
-                                                            href="#">Cinema</a></li>
-                                                  <li><a class="link-secondary text-decoration-none d-block py-1"
-                                                            href="#">Clothes</a></li>
-                                                  <li><a class="link-secondary text-decoration-none d-block py-1"
-                                                            href="#">Home items</a></li>
-                                                  <li><a class="link-secondary text-decoration-none d-block py-1"
-                                                            href="#">Animals</a></li>
+                                                  <li>
+                                                       <a class="link-secondary text-decoration-none d-block py-1"
+                                                            href="{% url 'store' %}">
+                                                            All Products
+                                                       </a>
+                                                  </li>
+
+                                                  {% for category in categories %}
+                                                  <li>
+                                                       <a class="link-secondary text-decoration-none d-block py-1"
+                                                            href="{% url 'products_by_category' category.slug %}">
+                                                            {{ category.category_name }}
+                                                       </a>
+                                                  </li>
+                                                  {% endfor %}
                                              </ul>
+
                                         </div>
                                    </div>
+
                               </section>
 
                               <!-- Sizes (Bootstrap 5 toggle buttons) -->
