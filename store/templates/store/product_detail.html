@@ -4,6 +4,24 @@
 
 {% block content %}
 
+<style>
+     @keyframes sold-out-blink {
+          0%,
+          100% {
+               opacity: 1;
+          }
+
+          50% {
+               opacity: 0.25;
+          }
+     }
+
+     .sold-out-flash {
+          animation: sold-out-blink 2s ease-in-out infinite !important;
+          display: inline-block;
+     }
+</style>
+
 <!-- ========== Main content starts ========== -->
 
 <main class=" bg-opacity-10 bg-warning py-5">
@@ -136,7 +154,8 @@
                                                   aria-hidden="true"></i> Add to cart</span>
                                         {% else %}
                                         <span class="btn btn-secondary w-100 mt-4"
-                                             disabled>Sold Out</span>
+                                             role="status"
+                                             aria-disabled="true"><span class="sold-out-flash">Sold Out</span></span>
                                         {% endif %}
 
                                    </fieldset>

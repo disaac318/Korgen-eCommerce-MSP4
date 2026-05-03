@@ -96,6 +96,29 @@ header.section-header.fixed-top ~ main {
   border-color: #881E1E;
 }
 
+
+/* Sold out flash */
+.sold-out-flash {
+    animation: sold-out-flash 0.9s ease-in-out infinite;
+    will-change: opacity, background-color, color;
+}
+
+@keyframes sold-out-flash {
+    0%,
+    100% {
+        background-color: var(--bs-secondary);
+        color: #fff;
+        opacity: 1;
+    }
+
+    50% {
+        background-color: #dc3545;
+        color: #fff;
+        opacity: 0.35;
+    }
+}
+
+
 /* .text-emphasis {
      color: var(--bs-emphasis-color);
 } */
