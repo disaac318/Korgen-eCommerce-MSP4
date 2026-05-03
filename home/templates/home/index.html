@@ -40,7 +40,7 @@
                          <!-- products card here -->
                          <article class="col-12 col-md-4 col-lg-3">
                               <div class="card card-product-grid h-100">
-                                   <a href="./product-detail.html"
+                                   <a href="{% url 'product_detail' product.category.slug product.slug %}"
                                         class="img-wrap">
                                         <img src="{{ product.images.url }}"
                                              class="card-img-top d-block mx-auto"
@@ -48,7 +48,7 @@
                                    </a>
                                    <div class="card-body info-wrap">
                                         <h5 class="mb-1">
-                                             <a href="./product-detail.html"
+                                             <a href="{% url 'product_detail' product.category.slug product.slug %}"
                                                   class="title text-decoration-none text-center">{{ product.product_name}}</a>
                                         </h5>
 

@@ -130,8 +130,14 @@
 
                                         </div>
 
-                                        <span class="btn btn-warning w-100 mt-4"><i class="bi bi-cart3 me-1"
-                                   aria-hidden="true"></i>  Add to cart</span>
+                                        <hr>
+                                        {% if single_product.stock > 0 %}
+                                        <span class="btn btn-warning w-100 mt-2"><i class="bi bi-cart3 me-1"
+                                                  aria-hidden="true"></i> Add to cart</span>
+                                        {% else %}
+                                        <span class="btn btn-secondary w-100 mt-4"
+                                             disabled>Sold Out</span>
+                                        {% endif %}
 
                                    </fieldset>
                               </form>
