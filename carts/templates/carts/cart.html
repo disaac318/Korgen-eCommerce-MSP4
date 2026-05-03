@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<!-- ========== Main content starts ========== -->
+
+<main class="mt-5 bg-opacity-10 bg-warning pb-5"
+     style="min-height: 40vh;">
+     <div class="container">
+
+          <div class="row g-4">
+
+               <!-- Cart items -->
+               <section class="col-12 col-lg-9"
+                    aria-label="Cart items">
+                    <div class="card border-0 shadow-sm">
+
+                         <div class="table-responsive border rounded-3">
+                              <table class="table table-borderless table-hover align-middle mb-0">
+                                   <caption class="visually-hidden">Items in your cart</caption>
+
+                                   <thead class="table-light">
+                                        <tr class="small text-uppercase">
+                                             <th scope="col"
+                                                  
+                                                  <h6>Product</h6>
+                                             </th>
+                                             <th scope="col"
+                                                  style="width: 140px;">
+                                                  <h6>Quantity</h6>
+                                             </th>
+                                             <th scope="col"
+                                                  class="ps-4"
+                                                  style="width: 140px;">
+                                                  <h6>Price</h6>
+                                             </th>
+                                             <th scope="col"
+                                                  style="width: 140px;"
+                                                  class="text-end pe-4">
+                                                  <h6>Action</h6>
+                                             </th>
+                                        </tr>
+                                   </thead>
+
+                                   <tbody>
+                                        <!---------------------- Items ---------------------->
+                                        <tr>
+                                             <td class="ps-4">
+                                                  <article class="d-flex align-items-center gap-3">
+                                                       <img src="{% static 'images/items/9.jpg' %}"
+                                                            alt="DJI Osmo Action 5 Pro"
+                                                            class="rounded"
+                                                            style="width: 64px; height: 64px; object-fit: cover;">
+                                                       <div>
+                                                            <h2 class="h6 mb-1">
+                                                                 <a href="#"
+                                                                      class="text-decoration-none text-dark">DJI
+                                                                      Osmo Action 5 Pro Standard Combo</a>
+                                                            </h2>
+                                                            <p class="text-muted small mb-0">Waterproof Camera
+                                                                 With 1/1.3" Sensor, 4K/120fps Video Recording
+                                                            </p>
+                                                       </div>
+                                                  </article>
+                                             </td>
+
+
+                                             <!-- fix this to become responsive -->
+                                             <td class="align-middle cart-qty">
+                                                  <div class="input-group input-group-sm flex-nowrap cart-qty-group"
+                                                       aria-label="Quantity controls for DJI Osmo Action 5 Pro">
+                                                       <button class="btn btn-outline-secondary"
+                                                            type="button"
+                                                            aria-label="Decrease quantity"
+                                                            data-qty-btn="dec">
+                                                            <i class="fa fa-minus"
+                                                                 aria-hidden="true"></i>
+                                                       </button>
+                                                       <input type="number"
+                                                            class="form-control text-center"
+                                                            value="1"
+                                                            min="1"
+                                                            inputmode="numeric"
+                                                            aria-label="Quantity">
+                                                       <button class="btn btn-outline-secondary"
+                                                            type="button"
+                                                            aria-label="Increase quantity"
+                                                            data-qty-btn="inc">
+                                                            <i class="fa fa-plus"
+                                                                 aria-hidden="true"></i>
+                                                       </button>
+                                                  </div>
+                                             </td>
+                                             <!-- fix this to become responsive -->
+
+                                             <td class="ps-4">
+                                                  <p class="mb-0 fw-semibold lead">£1156.00</p>
+                                                  <p class="mb-0 small text-muted">£279 each</p>
+                                             </td>
+
+                                             <td class="text-end pe-4">
+                                                  <button type="button"
+                                                       class="btn btn-danger btn-sm ">Remove</button>
+                                             </td>
+                                        </tr>
+                                        <!---------------------- Items ---------------------->
+
+                                        
+
+                                   </tbody>
+                              </table>
+                         </div>
+                    </div>
+
+
+               </section>
+
+               <!-- Order Summary -->
+               <aside class="col-12 col-lg-3"
+                    aria-label="Order summary">
+                    <section class="card shadow-sm">
+
+                         <div class="card-body p-4">
+                              <h2 class="h5 fw-bold">Order Summary</h2>
+
+                              <dl class="row mb-0">
+                                   <dt class="col-6 fw-normal text-muted">Total price</dt>
+                                   <dd class="col-6 text-end mb-2">$69.97</dd>
+
+                                   <dt class="col-6 fw-normal text-muted">Tax</dt>
+                                   <dd class="col-6 text-end mb-2">$10.00</dd>
+
+                                   <dt class="col-6 fw-semibold">Total</dt>
+                                   <dd class="col-6 text-end fw-semibold">$59.97</dd>
+                              </dl>
+
+                              <hr>
+
+                              <p class="text-center mb-3">
+                                   <img src="{% static 'images/misc/payments.png' %}"
+                                        alt="Accepted payment methods"
+                                        height="26">
+                              </p>
+
+                              <a href="./place-order.html"
+                                   class="btn btn-success w-100">Checkout</a>
+                              <a href="./store.html"
+                                   class="btn btn-warning w-100 mt-2">Continue Shopping</a>
+                         </div>
+                    </section>
+               </aside>
+
+          </div>
+     </div>
+</main>
+
+<!-- ========== Main content ends ========== -->
+
+{% endblock content %}

@@ -99,7 +99,7 @@ header.section-header.fixed-top ~ main {
 
 /* Sold out flash */
 .sold-out-flash {
-    animation: sold-out-flash 0.9s ease-in-out infinite;
+    animation: sold-out-flash 0.1s ease-in-out infinite;
     will-change: opacity, background-color, color;
 }
 
@@ -114,7 +114,7 @@ header.section-header.fixed-top ~ main {
     50% {
         background-color: #dc3545;
         color: #fff;
-        opacity: 0.35;
+        opacity: 0.25;
     }
 }
 

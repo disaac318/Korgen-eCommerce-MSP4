@@ -6,6 +6,7 @@
 
 <style>
      @keyframes sold-out-blink {
+
           0%,
           100% {
                opacity: 1;
@@ -155,7 +156,9 @@
                                         {% else %}
                                         <span class="btn btn-secondary w-100 mt-4"
                                              role="status"
-                                             aria-disabled="true"><span class="sold-out-flash">Sold Out</span></span>
+                                             aria-disabled="true"><span
+                                                  class="sold-out-flash text-warning fw-bold ">Sold
+                                                  Out</span></span>
                                         {% endif %}
 
                                    </fieldset>
