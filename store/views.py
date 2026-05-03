@@ -1,5 +1,3 @@
-from itertools import product
-
 from django.shortcuts import get_object_or_404, render
 
 from category.models import Category
@@ -25,4 +23,15 @@ def store(request, category_slug=None):
 
 
 def product_detail(request, category_slug, product_slug):
-        return render(request, 'store/product_detail.html')
+    single_product = get_object_or_404(
+        Product,
+        category__slug=category_slug,
+        slug=product_slug,
+        is_available=True,
+    )
+
+    context = {
+        'single_product': single_product,
+    }
+
+    return render(request, 'store/product_detail.html', context)
