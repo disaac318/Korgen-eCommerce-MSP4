@@ -151,8 +151,8 @@
 
                                         <hr>
                                         {% if single_product.stock > 0 %}
-                                        <span class="btn btn-warning w-100 mt-2"><i class="bi bi-cart3 me-1"
-                                                  aria-hidden="true"></i> Add to cart</span>
+                                        <a href="{% url 'add_cart' single_product.id %}" class="btn btn-warning w-100 mt-2"><i class="bi bi-cart3 me-1"
+                                                  aria-hidden="true"></i> Add to cart</a>
                                         {% else %}
                                         <span class="btn btn-secondary w-100 mt-4"
                                              role="status"
