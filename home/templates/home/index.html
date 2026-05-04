@@ -54,7 +54,7 @@
 
                                         <div class="mt-auto ">
                                              <p class="mb-2 fw-bold text-center">£ {{ product.price }}</p>
-                                             <a href="#"
+                                             <a href="{% url 'add_cart' product.id %}"
                                                   class="price btn btn-warning w-100">Add to cart</a>
                                         </div>
                                    </div>

@@ -1,13 +1,13 @@
 from django.shortcuts import redirect, render
 from carts.models import Cart, CartItem
 from store.models import Product
-from django.http import HttpResponse
 
 # Create your views here.
 def _cart_id(request):
     cart = request.session.session_key
     if not cart:
-        cart = request.session.create()
+        request.session.create()
+        cart = request.session.session_key
     return cart
 
 
@@ -31,10 +31,54 @@ def add_cart(request, product_id):
             cart=cart,
         )
         cart_item.save()
-    return HttpResponse(cart_item.product) 
-    exit()
 
     return redirect('cart')
 
-def cart(request):
-    return render(request, 'carts/cart.html')
+
+def remove_from_cart(request, product_id):
+    product = Product.objects.get(id=product_id)
+    cart = Cart.objects.get(cart_id=_cart_id(request))
+    cart_item = CartItem.objects.get(product=product, cart=cart)
+
+    if cart_item.quantity > 1:
+        cart_item.quantity -= 1
+        cart_item.save()
+    else:
+        cart_item.delete()
+
+    return redirect('cart')
+
+
+def delete_cart_item(request, product_id):
+    product = Product.objects.get(id=product_id)
+    cart = Cart.objects.get(cart_id=_cart_id(request))
+    cart_item = CartItem.objects.get(product=product, cart=cart)
+    cart_item.delete()
+
+    return redirect('cart')
+
+
+def cart(request, total=0, quantity=0, cart_items=None):
+    tax = 0
+    grand_total = 0
+
+    try:
+        cart = Cart.objects.get(cart_id=_cart_id(request))
+        cart_items = CartItem.objects.filter(cart=cart, is_active=True)
+        for cart_item in cart_items:
+            total += cart_item.sub_total()
+            quantity += cart_item.quantity
+
+        tax = total * 20 / 100
+        grand_total = total + tax
+    except Cart.DoesNotExist:
+        cart_items = []
+
+    context = {
+        'total': total,
+        'tax': tax,
+        'grand_total': grand_total,
+        'quantity': quantity,
+        'cart_items': cart_items,
+    }
+    return render(request, 'carts/cart.html', context)

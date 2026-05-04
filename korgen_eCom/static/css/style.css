@@ -118,6 +118,17 @@ header.section-header.fixed-top ~ main {
     }
 }
 
+.cart-qty input[type="number"]::-webkit-inner-spin-button,
+.cart-qty input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.cart-qty input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
 
 /* .text-emphasis {
      color: var(--bs-emphasis-color);
