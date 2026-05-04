@@ -212,8 +212,8 @@
                                                   <p class="mb-2">
                                                        <span class="fw-bold">${{ product.price }}</span>
                                                   </p>
-                                                  <a href="#"
-                                                       class="btn btn-warning w-100">Add to cart</a>
+	                                                  <a href="{% url 'add_cart' product.id %}"
+	                                                       class="btn btn-warning w-100">Add to cart</a>
                                              </div>
                                         </div>
                                    </div>
