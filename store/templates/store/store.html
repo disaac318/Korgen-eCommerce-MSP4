@@ -173,7 +173,7 @@
                                              </div>
 
                                              <button type="submit"
-                                                  class="btn btn-primary w-100 mt-3">Apply</button>
+                                                  class="btn btn-secondary w-100 mt-3">Apply</button>
                                         </div>
                                    </div>
                               </section>
@@ -230,23 +230,58 @@
 
                          <!-- ==================== Products content ends ==================== -->
 
+                         <!-- ==================== Pagination starts ==================== -->
+
                          <nav class="mt-4"
                               aria-label="Product pages">
-                              <ul class="pagination mb-0">
-                                   <li class="page-item disabled"
-                                        aria-disabled="true">
-                                        <span class="page-link">Previous</span>
-                                   </li>
-                                   <li class="page-item active"
-                                        aria-current="page"><span class="page-link">1</span></li>
-                                   <li class="page-item"><a class="page-link"
-                                             href="#">2</a></li>
-                                   <li class="page-item"><a class="page-link"
-                                             href="#">3</a></li>
-                                   <li class="page-item"><a class="page-link"
-                                             href="#">Next</a></li>
-                              </ul>
+	                              {% if products.has_other_pages %}
+	                              <ul class="pagination mb-0">
+	                                   {% if products.has_previous %}
+	                                   <li class="page-item">
+	                                        <a class="page-link"
+	                                             href="?page={{ products.previous_page_number }}">Previous</a>
+	                                   </li>
+	                                   {% else %}
+	                                   <li class="page-item disabled"
+	                                        aria-disabled="true">
+	                                        <span class="page-link">Previous</span>
+	                                   </li>
+	                                   {% endif %}
+
+		                                   {% for page_number in page_range %}
+		                                   {% if page_number == products.paginator.ELLIPSIS %}
+		                                   <li class="page-item disabled"
+		                                        aria-disabled="true">
+		                                        <span class="page-link">{{ page_number }}</span>
+		                                   </li>
+		                                   {% elif products.number == page_number %}
+		                                   <li class="page-item active"
+		                                        aria-current="page">
+		                                        <span class="page-link">{{ page_number }}</span>
+		                                   </li>
+		                                   {% else %}
+	                                   <li class="page-item">
+	                                        <a class="page-link"
+	                                             href="?page={{ page_number }}">{{ page_number }}</a>
+	                                   </li>
+	                                   {% endif %}
+	                                   {% endfor %}
+
+	                                   {% if products.has_next %}
+	                                   <li class="page-item">
+	                                        <a class="page-link"
+	                                             href="?page={{ products.next_page_number }}">Next</a>
+	                                   </li>
+	                                   {% else %}
+	                                   <li class="page-item disabled"
+	                                        aria-disabled="true">
+	                                        <span class="page-link">Next</span>
+	                                   </li>
+	                                   {% endif %}
+	                              </ul>
+	                              {% endif %}
                          </nav>
+                         <!-- ==================== Pagination ends ==================== -->
 
                     </section>
 
