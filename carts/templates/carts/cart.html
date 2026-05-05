@@ -1,20 +1,22 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static humanize %}
 
 {% block content %}
 
 
 <!-- ========== Main content starts ========== -->
 
-<main class="mt-5 bg-opacity-10 bg-warning pb-5"
+<main class="pt-5 bg-opacity-10 bg-warning pb-5"
      style="min-height: 40vh;">
      <div class="container">
 
           <div class="row g-4">
 
                <!-- Cart items -->
-               <section class="col-12 col-lg-9"
+               <section class="col-12 {% if cart_items %}col-lg-9{% else %}col-lg-12{% endif %}"
                     aria-label="Cart items">
+
+
                     <div class="card border-0 shadow-sm">
 
                          <div class="table-responsive border rounded-3">
@@ -23,7 +25,8 @@
 
                                    <thead class="table-light">
                                         <tr class="small text-uppercase">
-                                             <th scope="col" class="ps-4">
+                                             <th scope="col"
+                                                  class="ps-4">
                                                   <h6>Product</h6>
                                              </th>
                                              <th scope="col"
@@ -47,13 +50,13 @@
                                         {% for cart_item in cart_items %}
                                         <!---------------------- Items ---------------------->
                                         <tr>
-                                             <td class="ps-4">
+                                             <td class="ps-4 py-4">
                                                   <article class="d-flex align-items-center gap-3">
                                                        <img src="{{ cart_item.product.images.url }}"
                                                             alt="{{ cart_item.product.product_name }}"
                                                             class="rounded"
                                                             style="width: 64px; height: 64px; object-fit: cover;">
-                                                       <div>
+	                                                       <div>
 	                                                            <h2 class="h6 mb-1">
 	                                                                 <a href="{% url 'product_detail' cart_item.product.category.slug cart_item.product.slug %}"
 	                                                                      class="text-decoration-none text-dark">{{ cart_item.product.product_name }}</a>
@@ -65,13 +68,13 @@
 
 
                                              <!-- Increment and decrement quantity -->
-	                                             <td class="align-middle cart-qty">
-	                                                  <div class="input-group input-group-sm flex-nowrap cart-qty-group"
-	                                                       aria-label="Quantity controls for {{ cart_item.product.product_name }}">
-	                                                       <a href="{% url 'remove_from_cart' cart_item.product.id %}"
-	                                                            class="btn btn-outline-secondary"
-	                                                            aria-label="Decrease quantity"
-	                                                            role="button">
+                                             <td class="align-middle cart-qty">
+                                                  <div class="input-group input-group-sm flex-nowrap cart-qty-group"
+                                                       aria-label="Quantity controls for {{ cart_item.product.product_name }}">
+                                                       <a href="{% url 'remove_from_cart' cart_item.product.id %}"
+                                                            class="btn btn-outline-secondary"
+                                                            aria-label="Decrease quantity"
+                                                            role="button">
                                                             <i class="fa fa-minus"
                                                                  aria-hidden="true"></i>
                                                        </a>
@@ -87,34 +90,36 @@
                                                             role="button">
                                                             <i class="fa fa-plus"
                                                                  aria-hidden="true"></i>
-                                                  </a>
+                                                       </a>
                                                   </div>
                                              </td>
                                              <!-- Increment and decrement quantity -->
 
-                                             <td class="ps-4">
-                                                  <p class="mb-0 fw-semibold lead">£{{ cart_item.sub_total }}</p>
-                                                  <p class="mb-0 small text-muted">£{{ cart_item.product.price }} each
-                                                  </p>
+	                                             <td class="ps-4">
+	                                                  <p class="mb-0 fw-semibold lead">£{{ cart_item.sub_total|floatformat:2|intcomma }}</p>
+	                                                  <p class="mb-0 small text-muted">£{{ cart_item.product.price|floatformat:2|intcomma }} each</p>
                                              </td>
 
-	                                             <td class="text-end pe-4">
-	                                                  <a href="{% url 'delete_cart_item' cart_item.product.id %}"
-	                                                       class="btn btn-danger btn-sm"
-	                                                       onclick="return confirm('This item and all its quantity will be deleted from your cart. Continue?');">Remove</a>
+                                             <td class="text-end pe-4">
+                                                  <a href="{% url 'delete_cart_item' cart_item.product.id %}"
+                                                       class="btn btn-danger btn-sm"
+                                                       onclick="return confirm('This item and all its quantity will be deleted from your cart. Continue?');">Remove</a>
                                              </td>
                                         </tr>
                                         {% empty %}
                                         <tr>
                                              <td colspan="4"
-                                                  class="text-center p-4">Your cart is empty.</td>
+                                                  class="text-center p-4 ">
+                                                  <p class="mb-3 display-6">Your cart is empty.</p>
+                                                  <a href="{% url 'store' %}"
+                                                       class="btn btn-warning w-50">Continue Shopping</a>
+                                             </td>
                                         </tr>
                                         {% endfor %}
                                         <!---------------------- Items ---------------------->
 
-
-
                                    </tbody>
+
                               </table>
                          </div>
                     </div>
@@ -123,6 +128,8 @@
                </section>
 
                <!-- Order Summary -->
+               {% if cart_items %}
+
                <aside class="col-12 col-lg-3"
                     aria-label="Order summary">
                     <section class="card shadow-sm">
@@ -130,16 +137,16 @@
                          <div class="card-body p-4">
                               <h2 class="h5 fw-bold">Order Summary</h2>
 
-	                              <dl class="row mb-0">
-	                                   <dt class="col-6 fw-normal text-muted">Total price</dt>
-	                                   <dd class="col-6 text-end mb-2">£{{ total|floatformat:2 }}</dd>
+                              <dl class="row mb-0">
+                                   <dt class="col-6 fw-normal text-muted">Total price</dt>
+                                   <dd class="col-6 text-end mb-2">£{{ total|floatformat:2|intcomma }}</dd>
 
-	                                   <dt class="col-6 fw-normal text-muted">Tax</dt>
-	                                   <dd class="col-6 text-end mb-2">£{{ tax|floatformat:2 }}</dd>
+                                   <dt class="col-6 fw-normal text-muted">Tax</dt>
+                                   <dd class="col-6 text-end mb-2">£{{ tax|floatformat:2|intcomma }}</dd>
 
-	                                   <dt class="col-6 fw-semibold">Total</dt>
-	                                   <dd class="col-6 text-end fw-semibold">£{{ grand_total|floatformat:2 }}</dd>
-	                              </dl>
+                                   <dt class="col-6 fw-semibold">Total</dt>
+                                   <dd class="col-6 text-end fw-semibold">£{{ grand_total|floatformat:2|intcomma }}</dd>
+                              </dl>
 
                               <hr>
 
@@ -149,13 +156,14 @@
                                         height="26">
                               </p>
 
-	                              <a href="#"
-	                                   class="btn btn-success w-100">Checkout</a>
+                              <a href="#"
+                                   class="btn btn-success w-100">Checkout</a>
                               <a href="{% url 'store' %}"
                                    class="btn btn-warning w-100 mt-2">Continue Shopping</a>
                          </div>
                     </section>
                </aside>
+               {% endif %}
 
           </div>
      </div>
