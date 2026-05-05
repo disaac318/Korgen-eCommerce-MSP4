@@ -149,17 +149,22 @@
 
                                         </div>
 
-                                        <hr>
-                                        {% if single_product.stock > 0 %}
-                                        <a href="{% url 'add_cart' single_product.id %}" class="btn btn-warning w-100 mt-2"><i class="bi bi-cart3 me-1"
-                                                  aria-hidden="true"></i> Add to cart</a>
-                                        {% else %}
-                                        <span class="btn btn-secondary w-100 mt-4"
-                                             role="status"
-                                             aria-disabled="true"><span
-                                                  class="sold-out-flash text-warning fw-bold ">Sold
-                                                  Out</span></span>
-                                        {% endif %}
+	                                        <hr>
+	                                        {% if single_product.stock > 0 %}
+	                                             {% if in_cart %}
+	                                             <p class="alert alert-success text-center mb-2"
+	                                                  role="status">Already in Cart</p>
+	                                             <a href="{% url 'cart' %}"
+	                                                  class="btn btn-secondary w-100">View Cart</a>
+	                                             {% else %}
+	                                             <a href="{% url 'add_cart' single_product.id %}"
+	                                                  class="btn btn-warning w-100 mt-2"><i class="bi bi-cart3 me-1"
+	                                                       aria-hidden="true"></i> Add to cart</a>
+	                                             {% endif %}
+	                                        {% else %}
+	                                        <p class="alert alert-secondary mb-0"
+	                                             role="status">Sold Out</p>
+	                                        {% endif %}
 
                                    </fieldset>
                               </form>
