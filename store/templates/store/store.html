@@ -23,9 +23,6 @@
                               action="#"
                               method="get">
 
-                              <!-- <div class="card-body pb-0">
-                                   <h2 class="h6 mb-0">Filters</h2>
-                              </div> -->
 
                               <!-- Categories -->
                               <section class="border-top">
@@ -48,19 +45,19 @@
                                         class="collapse show">
                                         <div class="card-body pt-0">
                                              <ul class="list-unstyled mb-0">
-                                                  <li>
-                                                       <a class="link-secondary text-decoration-none d-block py-1"
-                                                            href="{% url 'store' %}">
-                                                            All Products
-                                                       </a>
+	                                                  <li>
+	                                                       <a class="link-secondary text-decoration-none d-block py-1 {% if not selected_category %}fw-bold{% endif %}"
+	                                                            href="{% url 'store' %}">
+	                                                            All Products
+	                                                       </a>
                                                   </li>
 
-                                                  {% for category in categories %}
-                                                  <li>
-                                                       <a class="link-secondary text-decoration-none d-block py-1"
-                                                            href="{% url 'products_by_category' category.slug %}">
-                                                            {{ category.category_name }}
-                                                       </a>
+	                                                  {% for category in categories %}
+	                                                  <li>
+	                                                       <a class="link-secondary text-decoration-none d-block py-1 {% if selected_category.slug == category.slug %}fw-bold{% endif %}"
+	                                                            href="{% url 'products_by_category' category.slug %}">
+	                                                            {{ category.category_name }}
+	                                                       </a>
                                                   </li>
                                                   {% endfor %}
                                              </ul>

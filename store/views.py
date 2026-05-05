@@ -9,15 +9,17 @@ from django.core.paginator import Paginator
 # Create your views here.
 def store(request, category_slug=None):
     products = Product.objects.filter(is_available=True).order_by('id')
+    selected_category = None
 
     if category_slug is not None:
-        category = get_object_or_404(Category, slug=category_slug)
-        products = products.filter(category=category)
+        selected_category = get_object_or_404(Category, slug=category_slug)
+        products = products.filter(category=selected_category)
 
     product_count = products.count()
     context = {
         'products': products,
         'product_count_label': f"{product_count} item{'s' if product_count != 1 else ''} found.",
+        'selected_category': selected_category,
     }
 
     paginator = Paginator(products, 8)
