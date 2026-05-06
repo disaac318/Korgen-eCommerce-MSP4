@@ -12,6 +12,10 @@ def _cart_id(request):
 
 
 def add_cart(request, product_id):
+    color = request.GET.get('color')
+    size = request.GET.get('size')
+    return_url = request.GET.get('return_url', 'store')
+
     product = Product.objects.get(id=product_id)
 
     try:
@@ -21,7 +25,7 @@ def add_cart(request, product_id):
         cart.save()
 
     try:
-        cart_item = CartItem.objects.get(product=product, cart=cart)
+        cart_item = CartItem.objects.get(product=product, cart=cart, color=color, size=size)
         cart_item.quantity += 1
         cart_item.save()
     except CartItem.DoesNotExist:
@@ -29,6 +33,8 @@ def add_cart(request, product_id):
             product=product,
             quantity=1,
             cart=cart,
+            color=color,
+            size=size
         )
         cart_item.save()
 

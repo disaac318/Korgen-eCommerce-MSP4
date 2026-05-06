@@ -30,11 +30,12 @@
 
           <h1 class="h3">Product Detail</h1>
 
-          <!-- Product card -->
+          <!-------------- Product card ------------>
           <section class="card">
                <div class="row g-0">
 
-                    <!-- Gallery -->
+                    <!--------------- Gallery -------------->
+
                     <div class="col-12 col-md-6">
                          <figure class="m-0 p-3">
                               <a href="#"
@@ -46,7 +47,8 @@
                          </figure>
                     </div>
 
-                    <!-- Product info -->
+                    <!--------- Product info ---------->
+
                     <div class="col-12 col-md-6 border-md-start">
                          <article class="p-4">
                               <header class="mb-3">
@@ -62,13 +64,36 @@
 
                               <hr>
 
-                              <!-- Options form -->
 
-                              <form action="#"
+                              <!-------------------- Product options -------------->
+
+                              <form action="{% url 'add_cart' single_product.id %}"
+                                   method="post"
                                    aria-label="Product options">
+                                   {% csrf_token %}
 
-                                   <!-- Color -->
-                                   <fieldset class="mb-3 mt-4">
+
+                                   <!-- Colour Options dropdown menu -->
+                                   <div class="mb-3 mt-4">
+                                        <label for="colorSelect"
+                                             class="form-label h4 mb-2">Choose color</label>
+                                        <select name="color"
+                                             class="form-select form-select-sm"
+                                             id="colorSelect"
+                                             aria-label="Choose color">
+                                             <option value="red">Red</option>
+                                             <option value="yellow">Yellow</option>
+                                             <option value="green">Green</option>
+                                             <option value="silver">Silver</option>
+                                             <option value="gray">Gray</option>
+                                             <option value="gold"
+                                                  selected>Gold</option>
+                                             <option value="black">Black</option>
+                                        </select>
+
+
+                                        <!-- Color -->
+                                        <!-- <fieldset class="mb-3 mt-4">
                                         <legend class="h4 mb-2">Choose color</legend>
                                         <div class="btn-group"
                                              role="group"
@@ -106,67 +131,83 @@
                                              <label class="btn btn-outline-secondary btn-sm"
                                                   for="colorBlack">Black</label>
                                         </div>
-                                   </fieldset>
+                                   </fieldset> -->
 
-                                   <!-- Size -->
-                                   <fieldset class="mb-3 mt-4">
-                                        <legend class="h4 mb-2">Select size</legend>
-                                        <div class="btn-group"
-                                             role="group"
+                                        <!-- Select Sizes Dropdown Menu   -->
+                                        <label for="sizeSelect"
+                                             class="form-label h4 mb-2 mt-3 ">Select size</label>
+                                        <select name="size"
+                                             class="form-select form-select-sm mb-5"
+                                             id="sizeSelect"
                                              aria-label="Select size">
-                                             <input type="radio"
-                                                  class="btn-check"
-                                                  name="size"
-                                                  id="sizeS"
-                                                  autocomplete="off">
-                                             <label class="btn btn-outline-secondary btn-sm"
-                                                  for="sizeS">S</label>
+                                             <option value="S">S</option>
+                                             <option value="M"
+                                                  selected>M</option>
+                                             <option value="L">L</option>
+                                             <option value="XL">XL</option>
+                                             <option value="XXL">XXL</option>
+                                        </select>
 
-                                             <input type="radio"
-                                                  class="btn-check"
-                                                  name="size"
-                                                  id="sizeM"
-                                                  autocomplete="off"
-                                                  checked>
-                                             <label class="btn btn-outline-secondary btn-sm"
-                                                  for="sizeM">M</label>
+                                        <!-- Size -->
+                                        <!-- <fieldset class="mb-3 mt-4">
+                                             <legend class="h4 mb-2">Select size</legend> -->
+                                        <!-- <div class="btn-group"
+                                                  role="group"
+                                                  aria-label="Select size">
+                                                  <input type="radio"
+                                                       class="btn-check"
+                                                       name="size"
+                                                       id="sizeS"
+                                                       autocomplete="off">
+                                                  <label class="btn btn-outline-secondary btn-sm"
+                                                       for="sizeS">S</label>
 
-                                             <input type="radio"
-                                                  class="btn-check"
-                                                  name="size"
-                                                  id="sizeL"
-                                                  autocomplete="off">
-                                             <label class="btn btn-outline-secondary btn-sm"
-                                                  for="sizeL">L</label>
+                                                  <input type="radio"
+                                                       class="btn-check"
+                                                       name="size"
+                                                       id="sizeM"
+                                                       autocomplete="off"
+                                                       checked>
+                                                  <label class="btn btn-outline-secondary btn-sm"
+                                                       for="sizeM">M</label>
 
-                                             <input type="radio"
-                                                  class="btn-check"
-                                                  name="size"
-                                                  id="sizeXL"
-                                                  autocomplete="off">
-                                             <label class="btn btn-outline-secondary btn-sm"
-                                                  for="sizeXL">XL</label>
+                                                  <input type="radio"
+                                                       class="btn-check"
+                                                       name="size"
+                                                       id="sizeL"
+                                                       autocomplete="off">
+                                                  <label class="btn btn-outline-secondary btn-sm"
+                                                       for="sizeL">L</label>
 
-                                        </div>
+                                                  <input type="radio"
+                                                       class="btn-check"
+                                                       name="size"
+                                                       id="sizeXL"
+                                                       autocomplete="off">
+                                                  <label class="btn btn-outline-secondary btn-sm"
+                                                       for="sizeXL">XL</label>
 
-	                                        <hr>
-	                                        {% if single_product.stock > 0 %}
-	                                             {% if in_cart %}
-	                                             <p class="alert alert-success text-center mb-2"
-	                                                  role="status">Already in Cart</p>
-	                                             <a href="{% url 'cart' %}"
-	                                                  class="btn btn-secondary w-100">View Cart</a>
-	                                             {% else %}
-	                                             <a href="{% url 'add_cart' single_product.id %}"
-	                                                  class="btn btn-warning w-100 mt-2"><i class="bi bi-cart3 me-1"
-	                                                       aria-hidden="true"></i> Add to cart</a>
-	                                             {% endif %}
-	                                        {% else %}
-	                                        <p class="alert alert-secondary mb-0"
-	                                             role="status">Sold Out</p>
-	                                        {% endif %}
+                                             </div> -->
 
-                                   </fieldset>
+                                        <!-- <hr> -->
+                                        {% if single_product.stock > 0 %}
+                                        {% if in_cart %}
+                                        <p class="alert alert-success text-center fw-bold mb-2"
+                                             role="status">Already in Cart</p>
+                                        <a href="{% url 'cart' %}"
+                                             class="btn btn-secondary mt-2 w-100">View Cart</a>
+                                        {% else %}
+                                        <button type="submit"
+                                             class="btn btn-warning w-100 mt-2"><i class="bi bi-cart3 me-1"
+                                                  aria-hidden="true"></i> Add to cart</button>
+                                        {% endif %}
+                                        {% else %}
+                                        <p class="alert alert-danger sold-out-flash text-center w-100 fw-bold mb-0"
+                                             role="status">Sold Out</p>
+                                        {% endif %}
+
+                                        </fieldset>
+                                   </div>
                               </form>
 
 
