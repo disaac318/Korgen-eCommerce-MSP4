@@ -11,24 +11,49 @@ def _cart_id(request):
     return cart
 
 
+def _get_selected_variations(request, product):
+    selected_variations = []
+    ignored_fields = {'csrfmiddlewaretoken', 'confirm'}
+
+    for variation_category, variation_value in request.POST.items():
+        if variation_category in ignored_fields or not variation_value:
+            continue
+
+        variation = Variation.objects.filter(
+            product=product,
+            variation_category__iexact=variation_category,
+            variation_value__iexact=variation_value,
+            is_active=True,
+        ).first()
+
+        if variation:
+            selected_variations.append(variation)
+
+    return selected_variations
+
+
+def _get_matching_cart_item(cart_items, selected_variations):
+    selected_variation_ids = sorted(
+        variation.id for variation in selected_variations
+    )
+
+    for cart_item in cart_items:
+        cart_item_variation_ids = sorted(
+            cart_item.variations.values_list('id', flat=True)
+        )
+
+        if cart_item_variation_ids == selected_variation_ids:
+            return cart_item
+
+    return None
+
+
 def add_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     product_variations = []
 
     if request.method == 'POST':
-        for variation_category, variation_value in request.POST.items():
-            if variation_category == 'csrfmiddlewaretoken' or not variation_value:
-                continue
-
-            variation = Variation.objects.filter(
-                product=product,
-                variation_category__iexact=variation_category,
-                variation_value__iexact=variation_value,
-                is_active=True,
-            ).first()
-
-            if variation:
-                product_variations.append(variation)
+        product_variations = _get_selected_variations(request, product)
     elif product.variation_set.filter(is_active=True).exists():
         return redirect(
             'product_detail',
@@ -39,17 +64,19 @@ def add_cart(request, product_id):
     cart, _ = Cart.objects.get_or_create(cart_id=_cart_id(request))
 
     cart_items = CartItem.objects.filter(product=product, cart=cart).prefetch_related('variations')
-    product_variation_ids = sorted(variation.id for variation in product_variations)
+    cart_item = _get_matching_cart_item(cart_items, product_variations)
 
-    for cart_item in cart_items:
-        cart_item_variation_ids = sorted(
-            cart_item.variations.values_list('id', flat=True)
-        )
+    if cart_item and request.POST.get('confirm') != 'yes':
+        context = {
+            'cart_item': cart_item,
+            'product': product,
+            'product_variations': product_variations,
+        }
+        return render(request, 'carts/confirm_add.html', context)
 
-        if cart_item_variation_ids == product_variation_ids:
-            cart_item.quantity += 1
-            cart_item.save()
-            break
+    if cart_item:
+        cart_item.quantity += 1
+        cart_item.save()
     else:
         cart_item = CartItem.objects.create(
             product=product,

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+
+<main class="pt-5 pb-5 bg-opacity-10 bg-warning"
+     style="min-height: 40vh;">
+     <div class="container">
+          <section class="mx-auto"
+               style="max-width: 640px;"
+               aria-labelledby="confirm-add-heading">
+               <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                         <h1 id="confirm-add-heading"
+                              class="h4 mb-3">This item is already in your cart</h1>
+
+                         <p class="mb-2 fw-semibold">{{ product.product_name }}</p>
+
+                         {% if product_variations %}
+                         <p class="text-muted small mb-2">
+                              {% for variation in product_variations %}
+                              {{ variation.variation_category|capfirst }}: {{ variation.variation_value|capfirst }}{% if not forloop.last %}, {% endif %}
+                              {% endfor %}
+                         </p>
+                         {% endif %}
+
+                         <p class="text-muted mb-4">
+                              Current quantity: {{ cart_item.quantity }}.
+                         </p>
+
+                         <div class="d-flex flex-column flex-sm-row gap-2">
+                              <form action="{% url 'add_cart' product.id %}"
+                                   method="post"
+                                   class="flex-fill">
+                                   {% csrf_token %}
+
+                                   {% for variation in product_variations %}
+                                   <input type="hidden"
+                                        name="{{ variation.variation_category }}"
+                                        value="{{ variation.variation_value }}">
+                                   {% endfor %}
+
+                                   <input type="hidden"
+                                        name="confirm"
+                                        value="yes">
+
+                                   <button type="submit"
+                                        class="btn btn-warning w-100">
+                                        Add one more
+                                   </button>
+                              </form>
+
+                              <a href="{% url 'product_detail' product.category.slug product.slug %}"
+                                   class="btn btn-outline-danger flex-fill">Cancel</a>
+                         </div>
+                    </div>
+               </div>
+          </section>
+     </div>
+</main>
+
+{% endblock %}
