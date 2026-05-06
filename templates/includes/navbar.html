@@ -90,7 +90,8 @@
 
                     <!-- ========== Search Bar ========== -->
                     <div class="col-12 col-lg nav2">
-                         <form action="#"
+                         <form action="{% url 'search' %}"
+                              method="get"
                               class="search"
                               role="search"
                               aria-label="Site search">
@@ -101,6 +102,7 @@
                                         type="search"
                                         class="form-control bg-warning bg-opacity-10 border-secondary rounded-start-2"
                                         placeholder="Search your product here..."
+                                        name="keyword"
                                         aria-label="Search products">
                                    <button class="btn btn-secondary rounded-end-2"
                                         type="submit"
@@ -135,11 +137,11 @@
                               <i class="bi bi-cart3 me-1"
                                    aria-hidden="true"></i>
                               Cart
-	                              <span id="cartCount"
-	                                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
-	                                   aria-label="Items in cart">
-	                                   {{ cart_count }}
-	                              </span>
+                              <span id="cartCount"
+                                   class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
+                                   aria-label="Items in cart">
+                                   {{ cart_count }}
+                              </span>
                          </a>
                     </div>
                     <!-- ============ Account + Cart ========== -->

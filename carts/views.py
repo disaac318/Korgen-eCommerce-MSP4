@@ -50,10 +50,13 @@ def remove_from_cart(request, product_id):
 
 
 def delete_cart_item(request, product_id):
-    product = Product.objects.get(id=product_id)
-    cart = Cart.objects.get(cart_id=_cart_id(request))
-    cart_item = CartItem.objects.get(product=product, cart=cart)
-    cart_item.delete()
+    try:
+        product = Product.objects.get(id=product_id)
+        cart = Cart.objects.get(cart_id=_cart_id(request))
+        cart_item = CartItem.objects.get(product=product, cart=cart)
+        cart_item.delete()
+    except (Product.DoesNotExist, Cart.DoesNotExist, CartItem.DoesNotExist):
+        pass
 
     return redirect('cart')
 
