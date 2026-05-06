@@ -1,8 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 from category.models import Category
-from carts.views import _cart_id
 from .models import Product
-from carts.models import CartItem
 from django.core.paginator import Paginator
 
 
@@ -44,14 +42,8 @@ def product_detail(request, category_slug, product_slug):
         slug=product_slug,
         is_available=True,
     )
-    in_cart = CartItem.objects.filter(
-        cart__cart_id=_cart_id(request),
-        product=single_product,
-    ).exists()
-
     context = {
         'single_product': single_product,
-        'in_cart': in_cart,
     }
 
     return render(request, 'store/product_detail.html', context)

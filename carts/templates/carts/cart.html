@@ -61,8 +61,15 @@
 	                                                                 <a href="{% url 'product_detail' cart_item.product.category.slug cart_item.product.slug %}"
 	                                                                      class="text-decoration-none text-dark">{{ cart_item.product.product_name }}</a>
 	                                                            </h2>
-	                                                            <p class="text-muted small mb-0">{{ cart_item.product.description }}</p>
-                                                       </div>
+		                                                            <p class="text-muted small mb-0">{{ cart_item.product.description }}</p>
+                                                                      {% if cart_item.variations.all %}
+                                                                      <p class="text-muted small mb-0">
+                                                                           {% for variation in cart_item.variations.all %}
+                                                                           {{ variation.variation_category|capfirst }}: {{ variation.variation_value|capfirst }}{% if not forloop.last %}, {% endif %}
+                                                                           {% endfor %}
+                                                                      </p>
+                                                                      {% endif %}
+	                                                       </div>
                                                   </article>
                                              </td>
 
@@ -71,7 +78,7 @@
                                              <td class="align-middle cart-qty">
                                                   <div class="input-group input-group-sm flex-nowrap cart-qty-group"
                                                        aria-label="Quantity controls for {{ cart_item.product.product_name }}">
-                                                       <a href="{% url 'remove_from_cart' cart_item.product.id %}"
+                                                       <a href="{% url 'remove_from_cart' cart_item.id %}"
                                                             class="btn btn-outline-secondary"
                                                             aria-label="Decrease quantity"
                                                             role="button">
@@ -84,7 +91,7 @@
                                                             min="1"
                                                             inputmode="numeric"
                                                             aria-label="Quantity">
-                                                       <a href="{% url 'add_cart' cart_item.product.id %}"
+                                                       <a href="{% url 'increment_cart_item' cart_item.id %}"
                                                             class="btn btn-outline-secondary"
                                                             aria-label="Increase quantity"
                                                             role="button">
@@ -101,7 +108,7 @@
                                              </td>
 
                                              <td class="text-end pe-4">
-                                                  <a href="{% url 'delete_cart_item' cart_item.product.id %}"
+                                                  <a href="{% url 'delete_cart_item' cart_item.id %}"
                                                        class="btn btn-danger btn-sm"
                                                        onclick="return confirm('This item and all its quantity will be deleted from your cart. Continue?');">Remove</a>
                                              </td>
