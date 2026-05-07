@@ -129,6 +129,12 @@ header.section-header.fixed-top ~ main {
     -moz-appearance: textfield;
 }
 
+input.form-control::placeholder,
+textarea.form-control::placeholder {
+    color: var(--bs-secondary-color) !important;
+    opacity: 0.35 !important;
+}
+
 
 /* .text-emphasis {
      color: var(--bs-emphasis-color);

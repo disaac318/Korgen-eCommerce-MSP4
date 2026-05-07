@@ -54,12 +54,12 @@
                                    class="flex-fill">
                                    {% csrf_token %}
                                    <button type="submit"
-                                        class="btn btn-danger w-100">Remove item</button>
+                                        class="btn btn-warning w-100">Remove item(s)</button>
                               </form>
                               {% endif %}
 
                               <a href="{% url 'cart' %}"
-                                   class="btn btn-outline-secondary flex-fill">Cancel</a>
+                                   class="btn btn-outline-danger flex-fill">Cancel</a>
                          </div>
                     </div>
                </div>

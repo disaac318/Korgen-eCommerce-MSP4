@@ -26,7 +26,7 @@
      <!-- Utility bar / top nav ends -->
 
      <!--  ===== Primary header / main nav starts  ===== -->
-     <div class="header-main  py-3">
+     <div class="header-main  py-3 shadow-sm">
 
           <div class="container">
 
@@ -122,11 +122,11 @@
                               aria-label="Account">
                               <p class="text-muted mb-0">Welcome guest!</p>
                               <p class="mb-0">
-                                   <a href="./signin.html"
+                                   <a href="{% url 'accounts:login' %}"
                                         class="text-secondary text-decoration-none fw-bold">Sign in</a>
                                    <span class="text-muted px-1"
                                         aria-hidden="true">|</span>
-                                   <a href="./register.html"
+                                   <a href="{% url 'accounts:register' %}"
                                         class="text-secondary text-decoration-none fw-bold">Register</a>
                               </p>
                          </section>

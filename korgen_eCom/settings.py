@@ -42,7 +42,7 @@ INSTALLED_APPS = [
 
     # Third-party apps
     'allauth',
-    # 'allauth.account',                     # provides Email addresses
+    'allauth.account',                     # provides Email addresses
     'allauth.socialaccount',
 
     # Local apps
