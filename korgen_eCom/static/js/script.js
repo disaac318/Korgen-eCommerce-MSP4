@@ -145,3 +145,17 @@ function updateHeaderHeightCSSVar() {
 window.addEventListener('load', updateHeaderHeightCSSVar);
 window.addEventListener('resize', updateHeaderHeightCSSVar);
 document.addEventListener('DOMContentLoaded', updateHeaderHeightCSSVar);
+
+setTimeout(function () {
+    document.querySelectorAll('#message .alert').forEach(function (alertEl) {
+        if (window.bootstrap) {
+            bootstrap.Alert.getOrCreateInstance(alertEl).close();
+            return;
+        }
+
+        alertEl.classList.remove('show');
+        setTimeout(function () {
+            alertEl.remove();
+        }, 150);
+    });
+}, 3000);

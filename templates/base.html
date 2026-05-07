@@ -52,20 +52,7 @@
 
           <header class="container-fluid sticky-top"></header>
 
-          {% if messages %}
-          <div class="message-container container mt-3">
-               {% for message in messages %}
-               <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show"
-                    role="alert">
-                    {{ message }}
-                    <button type="button"
-                         class="btn-close"
-                         data-bs-dismiss="alert"
-                         aria-label="Close"></button>
-               </div>
-               {% endfor %}
-          </div>
-          {% endif %}
+          {% include 'includes/alert.html' %}
 
           {% block page_header %}{% endblock %}
 
@@ -96,7 +83,7 @@
                crossorigin="anonymous"></script>
 
           <!-- local script (Django static) -->
-          <script src="{% static 'js/script.js' %}"></script>
+          <script src="{% static 'js/script.js' %}?v=alert-autoclose"></script>
 
           <script>
                document.addEventListener("DOMContentLoaded", () => {

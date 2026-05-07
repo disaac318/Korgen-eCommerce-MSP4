@@ -187,3 +187,12 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # Media files configuration
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+from django.contrib.messages import constants as messages
+
+MESSAGE_TAGS = {
+    messages.ERROR: "danger",
+    messages.WARNING: "warning",
+    messages.SUCCESS: "success",
+    messages.INFO: "info"
+}
