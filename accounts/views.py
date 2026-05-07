@@ -1,16 +1,27 @@
-from django.shortcuts import render
-from accounts.forms import RegistrationForm
+from django.contrib import messages
+from django.shortcuts import redirect, render
 
-# Create your views here.
+from .forms import RegistrationForm
+
 def register(request):
-     form = RegistrationForm()
-     context = {
-          'form': form,
-     }
-     return render(request, 'accounts/register.html', context)
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Account created successfully. You can now log in.')
+            return redirect('accounts:login')
+
+        messages.error(request, 'Please correct the errors below and try again.', extra_tags='danger')
+    else:
+        form = RegistrationForm()
+
+    return render(request, 'accounts/register.html', {'form': form})
+
 
 def login(request):
-     return render(request, 'accounts/login.html')
+    return render(request, 'accounts/login.html')
+
 
 def logout(request):
-     return render(request, 'accounts/logout.html')
+    return render(request, 'accounts/logout.html')

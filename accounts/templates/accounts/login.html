@@ -16,9 +16,11 @@
                                    <p class="text-muted small mb-0">Access your account to continue.</p>
                               </header>
 
-                              <form action="#"
+                              <form action="{% url 'accounts:login' %}"
                                    method="post"
                                    aria-label="Sign in form">
+                                   {% csrf_token %}
+
                                    <div class="mb-3">
                                         <label for="email"
                                              class="form-label">Email address</label>
