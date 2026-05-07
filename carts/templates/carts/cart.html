@@ -78,7 +78,7 @@
                                              <td class="align-middle cart-qty">
                                                   <div class="input-group input-group-sm flex-nowrap cart-qty-group"
                                                        aria-label="Quantity controls for {{ cart_item.product.product_name }}">
-                                                       <a href="{% url 'remove_from_cart' cart_item.id %}"
+                                                       <a href="{% url 'confirm_remove_from_cart' cart_item.id %}"
                                                             class="btn btn-outline-secondary"
                                                             aria-label="Decrease quantity"
                                                             role="button">
@@ -108,9 +108,9 @@
                                              </td>
 
                                              <td class="text-end pe-4">
-                                                  <a href="{% url 'delete_cart_item' cart_item.id %}"
+                                                  <a href="{% url 'confirm_delete_cart_item' cart_item.id %}"
                                                        class="btn btn-danger btn-sm"
-                                                       onclick="return confirm('This item and all its quantity will be deleted from your cart. Continue?');">Remove</a>
+                                                       role="button">Remove</a>
                                              </td>
                                         </tr>
                                         {% empty %}

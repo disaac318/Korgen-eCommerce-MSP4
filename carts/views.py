@@ -98,9 +98,34 @@ def increment_cart_item(request, cart_item_id):
     return redirect('cart')
 
 
-def remove_from_cart(request, cart_item_id):
+def confirm_remove_from_cart(request, cart_item_id):
     cart = Cart.objects.get(cart_id=_cart_id(request))
-    cart_item = CartItem.objects.get(id=cart_item_id, cart=cart)
+    cart_item = get_object_or_404(CartItem, id=cart_item_id, cart=cart)
+
+    context = {
+        'cart_item': cart_item,
+        'action_type': 'decrease',
+    }
+    return render(request, 'carts/confirm_remove.html', context)
+
+
+def confirm_delete_cart_item(request, cart_item_id):
+    cart = Cart.objects.get(cart_id=_cart_id(request))
+    cart_item = get_object_or_404(CartItem, id=cart_item_id, cart=cart)
+
+    context = {
+        'cart_item': cart_item,
+        'action_type': 'delete',
+    }
+    return render(request, 'carts/confirm_remove.html', context)
+
+
+def remove_from_cart(request, cart_item_id):
+    if request.method != 'POST':
+        return redirect('cart')
+
+    cart = Cart.objects.get(cart_id=_cart_id(request))
+    cart_item = get_object_or_404(CartItem, id=cart_item_id, cart=cart)
 
     if cart_item.quantity > 1:
         cart_item.quantity -= 1
@@ -112,12 +137,12 @@ def remove_from_cart(request, cart_item_id):
 
 
 def delete_cart_item(request, cart_item_id):
-    try:
-        cart = Cart.objects.get(cart_id=_cart_id(request))
-        cart_item = CartItem.objects.get(id=cart_item_id, cart=cart)
-        cart_item.delete()
-    except (Cart.DoesNotExist, CartItem.DoesNotExist):
-        pass
+    if request.method != 'POST':
+        return redirect('cart')
+
+    cart = Cart.objects.get(cart_id=_cart_id(request))
+    cart_item = get_object_or_404(CartItem, id=cart_item_id, cart=cart)
+    cart_item.delete()
 
     return redirect('cart')
 

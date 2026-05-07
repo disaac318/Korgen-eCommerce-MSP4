@@ -42,8 +42,13 @@ def product_detail(request, category_slug, product_slug):
         slug=product_slug,
         is_available=True,
     )
+    color_variations = single_product.variation_set.colors()
+    size_variations = single_product.variation_set.sizes()
+
     context = {
         'single_product': single_product,
+        'color_variations': color_variations,
+        'size_variations': size_variations,
     }
 
     return render(request, 'store/product_detail.html', context)

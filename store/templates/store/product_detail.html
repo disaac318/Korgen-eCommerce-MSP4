@@ -73,8 +73,9 @@
                                    {% csrf_token %}
 
 
-                                   <!-- Colour Options dropdown menu -->
                                    <div class="mb-3 mt-4">
+                                        {% if color_variations %}
+                                        <!-- Colour Options dropdown menu -->
                                         <label for="colorSelect"
                                              class="form-label h4 mb-2">Choose color</label>
                                         <select name="color"
@@ -85,11 +86,12 @@
                                              <option value=""
                                                   disabled
                                                   selected>Choose your color</option>
-                                             {% for i in single_product.variation_set.colors %}
-                                             <option value="{{ i.variation_value | lower }}">{{ i.variation_value | capfirst }}</option>
+                                             {% for color in color_variations %}
+                                             <option value="{{ color.variation_value | lower }}">{{ color.variation_value | capfirst }}</option>
                                              {% endfor %}
 
                                         </select>
+                                        {% endif %}
 
 
                                         <!-- Color -->
@@ -134,6 +136,7 @@
                                    </fieldset> -->
 
                                         <!-- Select Sizes Dropdown Menu   -->
+                                        {% if size_variations %}
                                         <label for="sizeSelect"
                                              class="form-label h4 mb-2 mt-4 ">Select size</label>
                                         <select name="size"
@@ -142,10 +145,11 @@
                                              aria-label="Select size"
                                              required>
                                              <option value="" disabled selected>Choose your size</option>
-                                             {% for size in single_product.variation_set.sizes %}
+                                             {% for size in size_variations %}
                                              <option value="{{ size.variation_value | lower }}">{{ size.variation_value | capfirst }}</option>
                                              {% endfor %}
                                         </select>
+                                        {% endif %}
 
                                         <!-- Size -->
                                         <!-- <fieldset class="mb-3 mt-4">
