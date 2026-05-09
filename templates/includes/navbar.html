@@ -118,6 +118,21 @@
                     <!-- ============ Account + Cart ========== -->
                     <div
                          class="col-12 col-lg-auto d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start align-items-center nav2 text-center text-lg-start">
+
+	                         {% if user.is_authenticated %}
+	                         <section class="small"
+	                              aria-label="Account">
+	                              <p class="text-muted mb-0">Welcome {{ user.first_name }}!</p>
+	                              <form action="{% url 'accounts:logout' %}"
+	                                   method="post"
+	                                   class="mb-0">
+	                                   {% csrf_token %}
+	                                   <button type="submit"
+	                                        class="btn btn-link p-0 text-secondary text-decoration-none fw-bold">Sign
+	                                        out</button>
+	                              </form>
+	                         </section>
+                         {% else %}
                          <section class="small"
                               aria-label="Account">
                               <p class="text-muted mb-0">Welcome guest!</p>
@@ -130,6 +145,7 @@
                                         class="text-secondary text-decoration-none fw-bold">Register</a>
                               </p>
                          </section>
+                         {% endif %}
 
                          <a class="btn btn-secondary position-relative"
                               href="{% url 'cart' %}"

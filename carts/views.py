@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from carts.models import Cart, CartItem
 from store.models import Product, Variation
@@ -48,6 +49,7 @@ def _get_matching_cart_item(cart_items, selected_variations):
     return None
 
 
+@login_required(login_url='accounts:login')
 def add_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     product_variations = []
@@ -89,6 +91,7 @@ def add_cart(request, product_id):
     return redirect('cart')
 
 
+@login_required(login_url='accounts:login')
 def increment_cart_item(request, cart_item_id):
     cart = Cart.objects.get(cart_id=_cart_id(request))
     cart_item = CartItem.objects.get(id=cart_item_id, cart=cart)
@@ -98,6 +101,7 @@ def increment_cart_item(request, cart_item_id):
     return redirect('cart')
 
 
+@login_required(login_url='accounts:login')
 def confirm_remove_from_cart(request, cart_item_id):
     cart = Cart.objects.get(cart_id=_cart_id(request))
     cart_item = get_object_or_404(CartItem, id=cart_item_id, cart=cart)
@@ -109,6 +113,7 @@ def confirm_remove_from_cart(request, cart_item_id):
     return render(request, 'carts/confirm_remove.html', context)
 
 
+@login_required(login_url='accounts:login')
 def confirm_delete_cart_item(request, cart_item_id):
     cart = Cart.objects.get(cart_id=_cart_id(request))
     cart_item = get_object_or_404(CartItem, id=cart_item_id, cart=cart)
@@ -120,6 +125,7 @@ def confirm_delete_cart_item(request, cart_item_id):
     return render(request, 'carts/confirm_remove.html', context)
 
 
+@login_required(login_url='accounts:login')
 def remove_from_cart(request, cart_item_id):
     if request.method != 'POST':
         return redirect('cart')
@@ -136,6 +142,7 @@ def remove_from_cart(request, cart_item_id):
     return redirect('cart')
 
 
+@login_required(login_url='accounts:login')
 def delete_cart_item(request, cart_item_id):
     if request.method != 'POST':
         return redirect('cart')
@@ -150,6 +157,16 @@ def delete_cart_item(request, cart_item_id):
 def cart(request, total=0, quantity=0, cart_items=None):
     tax = 0
     grand_total = 0
+
+    if not request.user.is_authenticated:
+        context = {
+            'total': total,
+            'tax': tax,
+            'grand_total': grand_total,
+            'quantity': quantity,
+            'cart_items': [],
+        }
+        return render(request, 'carts/cart.html', context)
 
     try:
         cart = Cart.objects.get(cart_id=_cart_id(request))

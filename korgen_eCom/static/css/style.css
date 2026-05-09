@@ -135,6 +135,14 @@ textarea.form-control::placeholder {
     opacity: 0.35 !important;
 }
 
+/* .message-region {
+    background-color: rgba(var(--bs-warning-rgb), 0.25);
+} */
+
+/* .message-container .alert {
+    margin-bottom: 0;
+} */
+
 .alert-flash {
     animation: alert-flash 0.8s ease-in-out 3;
 }
