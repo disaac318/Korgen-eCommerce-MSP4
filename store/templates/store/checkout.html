@@ -6,242 +6,201 @@
 <main class="pt-5 bg-opacity-25 bg-warning pb-5"
      style="min-height: 40vh;">
      <div class="container">
+          <form action="{% url 'checkout' %}"
+               method="post"
+               aria-label="Checkout form">
+               {% csrf_token %}
 
-          <!-- ========== Main content starts ========== -->
+               <div class="row g-4">
+                    <div class="col-lg-6">
+                         <section class="card shadow-sm">
+                              <div class="card-body p-4">
+                                   <h1 class="card-title mb-3 h5 fw-bold">Billing Address</h1>
 
-          <div class="row g-4">
-               <div class="col-lg-6">
-
-                    <section class="card shadow-sm">
-
-                         <div class="card-body p-4">
-                              <h4 class="card-title mb-3 h5 fw-bold">Billing Address</h4>
-
-                              <form action="">
-                                   <div class="form-row">
-
-                                        <div class="row g-3">
-                                             <div class="col-md-6 mb-3">
-                                                  <div class="form-floating">
-
-                                                       <input type="text"
-                                                            class="form-control"
-                                                            id="firstName"
-                                                            name="first_name"
-                                                            placeholder="First name">
-
-                                                       <label for="firstName">First name</label>
-
-                                                  </div>
-                                             </div>
-
-                                             <div class="col-md-6">
-                                                  <div class="form-floating">
-
-                                                       <input type="text"
-                                                            class="form-control"
-                                                            id="lastName"
-                                                            name="last_name"
-                                                            placeholder="Last name">
-                                                       <label for="lastName">Last name</label>
-
-                                                  </div>
-                                             </div>
-                                        </div>
-
-
-                                        <div class="col form-group mb-3">
-                                             <div class="form-floating">
-                                                  
-                                                  <input type="email"
-                                                       class="form-control"
-                                                       id="email"
-                                                       name="email"
-                                                       placeholder="Email"
-                                                       required>
-                                                       <label for="email">Email</label>
-                                             </div>
-                                        </div>
-
-                                        <div class="col form-group mb-3">
-                                             <div class="form-floating">
-                                                  
-                                                  <input type="tel"
-                                                       class="form-control"
-                                                       id="phone"
-                                                       name="phone"
-                                                       placeholder="Phone Number"
-                                                       required>
-                                                       <label for="phone">Phone Number</label>
-                                             </div>
-                                        </div>
-
-                                        <div class="col form-group mb-3">
-                                             <div class="form-floating">
-                                                  
-                                                  <input type="text"
-                                                       class="form-control"
-                                                       id="address"
-                                                       name="address"
-                                                       placeholder="Address Line 1"
-                                                       required>
-                                                       <label for="address">Address Line 1</label>
-                                             </div>
-                                        </div>
-
-                                        <div class="col form-group mb-3">
-                                             <div class="form-floating">
-                                                 
-                                                  <input type="text"
-                                                       class="form-control"
-                                                       id="address2"
-                                                       name="address2"
-                                                       placeholder="Address Line 2"
-                                                       required>
-                                                        <label for="address2">Address Line 2</label>
-                                             </div>
-                                        </div>
-
-                                        <div class="row g-3">
-                                             <div class="col-md-6 mb-3">
-                                                  <div class="form-floating">
-                                                       
-                                                       <input type="text"
-                                                            class="form-control"
-                                                            id="County"
-                                                            name="County"
-                                                            placeholder="County" required>
-                                                            <label for="County">County</label>
-
-                                                  </div>
-                                             </div>
-
-                                             <div class="col-md-6">
-                                                  <div class="form-floating">
-                                                       
-                                                       <input type="text"
-                                                            class="form-control"
-                                                            id="Postcode"
-                                                            name="Postcode"
-                                                            placeholder="Postcode" required>
-                                                            <label for="Postcode">Postcode</label>
-
-                                                  </div>
-                                             </div>
-                                        </div>
-
-                                        <div class="form-row">
-                                             <label for="order_notes">Order Notes</label>
-                                             <textarea name="order_notes" id="order_notes" cols="10" rows="4" class="form-control"></textarea>
-                                        </div>
-
-
-
-
-
-
+                                   {% if form.non_field_errors %}
+                                   <div class="alert alert-danger"
+                                        role="alert">
+                                        {{ form.non_field_errors }}
                                    </div>
-                              </form>
-                         </div>
-                    </section>
+                                   {% endif %}
+
+                                   <div class="row g-3">
+                                        <div class="col-md-6">
+                                             <div class="form-floating">
+                                                  {{ form.first_name }}
+                                                  <label for="{{ form.first_name.id_for_label }}">First name</label>
+                                             </div>
+                                             <div class="text-danger small mt-1">
+                                                  {{ form.first_name.errors }}
+                                             </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                             <div class="form-floating">
+                                                  {{ form.last_name }}
+                                                  <label for="{{ form.last_name.id_for_label }}">Last name</label>
+                                             </div>
+                                             <div class="text-danger small mt-1">
+                                                  {{ form.last_name.errors }}
+                                             </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                             <div class="form-floating">
+                                                  {{ form.email }}
+                                                  <label for="{{ form.email.id_for_label }}">Email</label>
+                                             </div>
+                                             <div class="text-danger small mt-1">
+                                                  {{ form.email.errors }}
+                                             </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                             <div class="form-floating">
+                                                  {{ form.phone }}
+                                                  <label for="{{ form.phone.id_for_label }}">Phone number</label>
+                                             </div>
+                                             <div class="text-danger small mt-1">
+                                                  {{ form.phone.errors }}
+                                             </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                             <div class="form-floating">
+                                                  {{ form.address_line_1 }}
+                                                  <label for="{{ form.address_line_1.id_for_label }}">Address line 1</label>
+                                             </div>
+                                             <div class="text-danger small mt-1">
+                                                  {{ form.address_line_1.errors }}
+                                             </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                             <div class="form-floating">
+                                                  {{ form.address_line_2 }}
+                                                  <label for="{{ form.address_line_2.id_for_label }}">Address line 2</label>
+                                             </div>
+                                             <div class="text-danger small mt-1">
+                                                  {{ form.address_line_2.errors }}
+                                             </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                             <div class="form-floating">
+                                                  {{ form.county }}
+                                                  <label for="{{ form.county.id_for_label }}">County</label>
+                                             </div>
+                                             <div class="text-danger small mt-1">
+                                                  {{ form.county.errors }}
+                                             </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                             <div class="form-floating">
+                                                  {{ form.postcode }}
+                                                  <label for="{{ form.postcode.id_for_label }}">Postcode</label>
+                                             </div>
+                                             <div class="text-danger small mt-1">
+                                                  {{ form.postcode.errors }}
+                                             </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                             <label for="{{ form.order_notes.id_for_label }}"
+                                                  class="form-label">Order notes</label>
+                                             {{ form.order_notes }}
+                                             <div class="text-danger small mt-1">
+                                                  {{ form.order_notes.errors }}
+                                             </div>
+                                        </div>
+                                   </div>
+                              </div>
+                         </section>
+                    </div>
+
+                    <aside class="col-lg-6"
+                         aria-label="Order summary">
+                         <section class="card shadow-sm">
+                              <div class="card-body p-4">
+                                   <h2 class="h5 fw-bold mb-3">Order Summary</h2>
+
+                                   <section aria-label="Cart items">
+                                        <div class="table-responsive border rounded-3">
+                                             <table class="table table-borderless table-hover align-middle mb-0">
+                                                  <caption class="visually-hidden">Items in your cart</caption>
+                                                  <thead class="table-light">
+                                                       <tr class="small text-uppercase">
+                                                            <th scope="col"
+                                                                 class="ps-4">Product</th>
+                                                            <th scope="col"
+                                                                 style="width: 120px;">Quantity</th>
+                                                            <th scope="col"
+                                                                 class="text-end pe-4"
+                                                                 style="width: 140px;">Price</th>
+                                                       </tr>
+                                                  </thead>
+                                                  <tbody>
+                                                       {% for cart_item in cart_items %}
+                                                       <tr>
+                                                            <td class="ps-4 py-4">
+                                                                 <article class="d-flex align-items-center gap-3">
+                                                                      <img src="{{ cart_item.product.images.url }}"
+                                                                           alt="{{ cart_item.product.product_name }}"
+                                                                           class="rounded"
+                                                                           style="width: 64px; height: 64px; object-fit: cover;">
+                                                                      <div>
+                                                                           <h3 class="h6 mb-1">
+                                                                                <a href="{% url 'product_detail' cart_item.product.category.slug cart_item.product.slug %}"
+                                                                                     class="text-decoration-none text-dark">
+                                                                                     {{ cart_item.product.product_name }}
+                                                                                </a>
+                                                                           </h3>
+                                                                           {% if cart_item.variations.all %}
+                                                                           <p class="text-muted small mb-0">
+                                                                                {% for variation in cart_item.variations.all %}
+                                                                                {{ variation.variation_category|capfirst }}: {{ variation.variation_value|capfirst }}{% if not forloop.last %}, {% endif %}
+                                                                                {% endfor %}
+                                                                           </p>
+                                                                           {% endif %}
+                                                                      </div>
+                                                                 </article>
+                                                            </td>
+                                                            <td class="align-middle">
+                                                                 {{ cart_item.quantity }}
+                                                            </td>
+                                                            <td class="text-end pe-4">
+                                                                 <p class="mb-0 fw-semibold">£{{ cart_item.sub_total|floatformat:2|intcomma }}</p>
+                                                                 <p class="mb-0 small text-muted">£{{ cart_item.product.price|floatformat:2|intcomma }} each</p>
+                                                            </td>
+                                                       </tr>
+                                                       {% endfor %}
+                                                  </tbody>
+                                             </table>
+                                        </div>
+                                   </section>
+
+                                   <dl class="row mt-4 mb-0">
+                                        <dt class="col-6 fw-normal text-muted">Total price</dt>
+                                        <dd class="col-6 text-end mb-2">£{{ total|floatformat:2|intcomma }}</dd>
+
+                                        <dt class="col-6 fw-normal text-muted">Tax</dt>
+                                        <dd class="col-6 text-end mb-2">£{{ tax|floatformat:2|intcomma }}</dd>
+
+                                        <dt class="col-6 fw-semibold">Total</dt>
+                                        <dd class="col-6 text-end fw-semibold">£{{ grand_total|floatformat:2|intcomma }}</dd>
+                                   </dl>
+
+                                   <hr>
+
+                                   <button type="submit"
+                                        class="btn btn-success w-100">Place Order</button>
+                                   <a href="{% url 'store' %}"
+                                        class="btn btn-warning w-100 mt-2">Continue Shopping</a>
+                              </div>
+                         </section>
+                    </aside>
                </div>
-
-
-               <!-- right side -->
-               <aside class="col-lg-6"
-                    aria-label="Order summary">
-                    <section class="card shadow-sm">
-
-                         <div class="card-body p-4">
-                              <h2 class="h5 fw-bold mb-3">Order Summary</h2>
-
-                              <section aria-label="Cart items">
-                                   <div class="table-responsive border rounded-3">
-                                        <table class="table table-borderless table-hover align-middle mb-0">
-                                             <caption class="visually-hidden">Items in your cart</caption>
-                                             <thead class="table-light">
-                                                  <tr class="small text-uppercase">
-                                                       <th scope="col"
-                                                            class="ps-4">Product</th>
-                                                       <th scope="col"
-                                                            style="width: 120px;">Quantity</th>
-                                                       <th scope="col"
-                                                            class="text-end pe-4"
-                                                            style="width: 140px;">Price</th>
-                                                  </tr>
-                                             </thead>
-                                             <tbody>
-                                                  {% for cart_item in cart_items %}
-                                                  <tr>
-                                                       <td class="ps-4 py-4">
-                                                            <article class="d-flex align-items-center gap-3">
-                                                                 <img src="{{ cart_item.product.images.url }}"
-                                                                      alt="{{ cart_item.product.product_name }}"
-                                                                      class="rounded"
-                                                                      style="width: 64px; height: 64px; object-fit: cover;">
-                                                                 <div>
-                                                                      <h3 class="h6 mb-1">
-                                                                           <a href="{% url 'product_detail' cart_item.product.category.slug cart_item.product.slug %}"
-                                                                                class="text-decoration-none text-dark">
-                                                                                {{ cart_item.product.product_name }}
-                                                                           </a>
-                                                                      </h3>
-                                                                      {% if cart_item.variations.all %}
-                                                                      <p class="text-muted small mb-0">
-                                                                           {% for variation in cart_item.variations.all %}
-                                                                           {{ variation.variation_category|capfirst }}: {{ variation.variation_value|capfirst }}{% if not forloop.last %}, {% endif %}
-                                                                           {% endfor %}
-                                                                      </p>
-                                                                      {% endif %}
-                                                                 </div>
-                                                            </article>
-                                                       </td>
-                                                       <td class="align-middle">
-                                                            {{ cart_item.quantity }}
-                                                       </td>
-                                                       <td class="text-end pe-4">
-                                                            <p class="mb-0 fw-semibold">£{{ cart_item.sub_total|floatformat:2|intcomma }}</p>
-                                                            <p class="mb-0 small text-muted">£{{ cart_item.product.price|floatformat:2|intcomma }} each</p>
-                                                       </td>
-                                                  </tr>
-                                                  {% empty %}
-                                                  <tr>
-                                                       <td colspan="3"
-                                                            class="text-center p-4">
-                                                            <p class="mb-3">Your cart is empty.</p>
-                                                            <a href="{% url 'store' %}"
-                                                                 class="btn btn-warning w-50">Continue Shopping</a>
-                                                       </td>
-                                                  </tr>
-                                                  {% endfor %}
-                                             </tbody>
-                                        </table>
-                                   </div>
-                              </section>
-
-                              <dl class="row mt-4 mb-0">
-                                   <dt class="col-6 fw-normal text-muted">Total price</dt>
-                                   <dd class="col-6 text-end mb-2">£{{ total|floatformat:2|intcomma }}</dd>
-
-                                   <dt class="col-6 fw-normal text-muted">Tax</dt>
-                                   <dd class="col-6 text-end mb-2">£{{ tax|floatformat:2|intcomma }}</dd>
-
-                                   <dt class="col-6 fw-semibold">Total</dt>
-                                   <dd class="col-6 text-end fw-semibold">£{{ grand_total|floatformat:2|intcomma }}</dd>
-                              </dl>
-
-                              <hr>
-
-                              <a href="#"
-                                   class="btn btn-success w-100">Place Order</a>
-                              <a href="{% url 'store' %}"
-                                   class="btn btn-warning w-100 mt-2">Continue Shopping</a>
-                         </div>
-                    </section>
-               </aside>
-
-
-          </div>
+          </form>
      </div>
 </main>
 

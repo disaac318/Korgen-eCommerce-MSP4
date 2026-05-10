@@ -16,6 +16,8 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
+from carts.utils import assign_session_cart_to_user
+
 from .forms import RegistrationForm
 from .models import Account
 from .tokens import account_activation_token
@@ -96,7 +98,11 @@ def login(request):
         user = authenticate(request, username=email, password=password)
 
         if user is not None:
+            guest_cart_id = request.session.get('cart_id')
             auth_login(request, user)
+            if guest_cart_id:
+                request.session['cart_id'] = guest_cart_id
+                assign_session_cart_to_user(request)
             messages.success(request, 'You have logged in successfully.')
             return redirect('accounts:dashboard')
 
@@ -111,6 +117,7 @@ def login(request):
 @login_required(login_url='accounts:login')
 @require_POST
 def logout(request):
+    request.session.pop('cart_id', None)
     auth_logout(request)
     messages.success(request, 'You have logged out successfully.')
     return redirect('home')
