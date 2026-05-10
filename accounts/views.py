@@ -1,6 +1,9 @@
+from urllib.parse import urlencode
+
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.conf import settings
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
@@ -42,9 +45,15 @@ def register(request):
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[user.email],
             )
+            email.content_subtype = 'html'
             email.send()
             # messages.success(request, 'Registration successful. Please check your email to activate your account. If you do not see the email, check your spam or junk folder.', extra_tags='success')
-            return redirect('/accounts/login/?command=verification&email=' + user.email)
+            login_url = reverse('accounts:login')
+            query = urlencode({
+                'command': 'verification',
+                'email': user.email,
+            })
+            return redirect(f'{login_url}?{query}')
 
         messages.error(request, 'Please correct the errors below and try again.', extra_tags='danger')
     else:
@@ -64,7 +73,7 @@ def login(request):
         if user is not None:
             auth_login(request, user)
             messages.success(request, 'You have logged in successfully.')
-            return redirect('home')
+            return redirect('accounts:dashboard')
 
         if Account.objects.filter(email__iexact=email, is_active=False).exists():
             messages.error(request, 'Please activate your account from the email we sent you.', extra_tags='danger')
@@ -74,6 +83,7 @@ def login(request):
     return render(request, 'accounts/login.html')
 
 
+@login_required(login_url='accounts:login')
 @require_POST
 def logout(request):
     cart_id = request.session.session_key
@@ -104,3 +114,8 @@ def activate(request, uidb64, token):
     user.save(update_fields=['is_active'])
     messages.success(request, 'Your account has been activated successfully. You can now log in.')
     return redirect('accounts:login')
+
+
+@login_required(login_url='accounts:login')
+def dashboard(request):
+    return render(request, 'accounts/dashboard.html')
