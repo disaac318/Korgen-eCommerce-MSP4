@@ -1,10 +1,13 @@
+import logging
 from urllib.parse import urlencode
 
-from django.contrib import messages
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
-from django.core.mail import EmailMessage
+from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -18,6 +21,22 @@ from carts.models import Cart
 from .forms import RegistrationForm
 from .models import Account
 from .tokens import account_activation_token
+
+
+logger = logging.getLogger(__name__)
+
+
+def _send_multipart_email(subject, template_base, context, recipient):
+    text_message = render_to_string(f'{template_base}.txt', context)
+    html_message = render_to_string(f'{template_base}.html', context)
+    email = EmailMultiAlternatives(
+        subject,
+        text_message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[recipient],
+    )
+    email.attach_alternative(html_message, 'text/html')
+    email.send()
 
 
 @never_cache
@@ -34,20 +53,28 @@ def register(request):
                 kwargs={'uidb64': uid, 'token': token},
             )
             activation_url = request.build_absolute_uri(activation_path)
-            message = render_to_string('accounts/acc_verification_email.html', {
+            email_context = {
                 'user': user,
                 'activation_url': activation_url,
                 'site_name': 'Korgen',
-            })
-            email = EmailMessage(
-                'Activate your account.',
-                message,
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[user.email],
-            )
-            email.content_subtype = 'html'
-            email.send()
-            # messages.success(request, 'Registration successful. Please check your email to activate your account. If you do not see the email, check your spam or junk folder.', extra_tags='success')
+            }
+
+            try:
+                _send_multipart_email(
+                    'Activate your account.',
+                    'accounts/acc_verification_email',
+                    email_context,
+                    user.email,
+                )
+            except Exception:
+                logger.exception('Failed to send activation email to %s', user.email)
+                user.delete()
+                form.add_error(
+                    None,
+                    'We could not send your activation email. Please try again later.',
+                )
+                return render(request, 'accounts/register.html', {'form': form})
+
             login_url = reverse('accounts:login')
             query = urlencode({
                 'command': 'verification',
@@ -119,3 +146,64 @@ def activate(request, uidb64, token):
 @login_required(login_url='accounts:login')
 def dashboard(request):
     return render(request, 'accounts/dashboard.html')
+
+
+@never_cache
+def password_reset_request(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        user = Account.objects.filter(email__iexact=email, is_active=True).first()
+
+        if user:
+            reset_path = reverse('accounts:password_reset_confirm', kwargs={
+                'uidb64': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+            reset_url = request.build_absolute_uri(reset_path)
+            email_context = {
+                'user': user,
+                'reset_url': reset_url,
+                'site_name': 'Korgen',
+            }
+            try:
+                _send_multipart_email(
+                    'Password Reset Request',
+                    'accounts/password_reset_email',
+                    email_context,
+                    user.email,
+                )
+            except Exception:
+                logger.exception('Failed to send password reset email to %s', user.email)
+
+        messages.success(
+            request,
+            'If an active account exists for that email address, a password reset link has been sent.',
+            extra_tags='success',
+        )
+        return redirect('accounts:login')
+
+    return render(request, 'accounts/password_reset.html')
+
+
+@never_cache
+def password_reset_confirm(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = Account.objects.get(pk=uid, is_active=True)
+    except (TypeError, ValueError, OverflowError, Account.DoesNotExist):
+        user = None
+
+    if user is None or not default_token_generator.check_token(user, token):
+        messages.error(request, 'Password reset link is invalid or has expired.', extra_tags='danger')
+        return redirect('accounts:password_reset')
+
+    form = SetPasswordForm(user, request.POST or None)
+    for field in form.fields.values():
+        field.widget.attrs.update({'class': 'form-control'})
+
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Your password has been reset successfully. You can now log in.')
+        return redirect('accounts:login')
+
+    return render(request, 'accounts/password_reset_confirm.html', {'form': form})

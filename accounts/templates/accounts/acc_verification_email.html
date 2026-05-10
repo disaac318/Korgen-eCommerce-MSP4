@@ -1,12 +1,26 @@
-{% autoescape off %}
+<!doctype html>
+<html lang="en">
+<head>
+     <meta charset="utf-8">
+     <title>Activate your account</title>
+</head>
+<body>
+     <p>Hello {{ user.username }},</p>
 
-Hello {{ user.username }},
-Please click on the link below to verify your email address:
-{{ activation_url }}
+     <p>Please click the link below to verify your email address:</p>
 
-If you did not make this request, please ignore this email.
+     <p>
+          <a href="{{ activation_url }}">Activate your account</a>
+     </p>
 
-Best regards,
-{{ site_name }}
+     <p>If the link does not work, copy and paste this URL into your browser:</p>
+     <p>{{ activation_url }}</p>
 
-{% endautoescape %}
+     <p>If you did not make this request, you can ignore this email.</p>
+
+     <p>
+          Best regards,<br>
+          {{ site_name }}
+     </p>
+</body>
+</html>

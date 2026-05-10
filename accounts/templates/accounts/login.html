@@ -3,7 +3,8 @@
 {% block content %}
 
 <!-- Main content -->
-<main class="bg-opacity-25 bg-warning py-5" style="min-height: 40vh;">
+<main class="bg-opacity-25 bg-warning py-5"
+     style="min-height: 40vh;">
 
      {% if request.GET.command == 'verification' %}
 
@@ -77,7 +78,7 @@
                                              </label>
                                         </div>
 
-                                        <a href="#"
+                                        <a href="{% url 'accounts:password_reset' %}"
                                              class="small text-decoration-none">Forgot password?</a>
                                    </div>
 
