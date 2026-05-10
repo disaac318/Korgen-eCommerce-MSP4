@@ -212,3 +212,34 @@ def cart(request, total=0, quantity=0, cart_items=None):
         'cart_items': cart_items,
     }
     return render(request, 'carts/cart.html', context)
+
+
+@login_required(login_url='accounts:login')
+def checkout(request, total=0, quantity=0, cart_items=None):
+    total = 0
+    quantity = 0
+
+    assign_session_cart_to_user(request)
+    cart_items = CartItem.objects.filter(
+        user=request.user,
+        is_active=True,
+    ).prefetch_related('variations')
+
+    if not cart_items.exists():
+        return redirect('cart')
+
+    for cart_item in cart_items:
+        total += cart_item.sub_total()
+        quantity += cart_item.quantity
+
+    tax = total * 20 / 100
+    grand_total = total + tax
+
+    context = {
+        'cart_items': cart_items,
+        'total': total,
+        'tax': tax,
+        'grand_total': grand_total,
+        'quantity': quantity,
+    }
+    return render(request, 'store/checkout.html', context)
