@@ -240,7 +240,7 @@ def checkout(request):
             order.tax = tax
             order.grand_total = grand_total
             order.ip = request.META.get('REMOTE_ADDR')
-            order.is_ordered = True
+            order.is_ordered = False
             order.save()
 
             for cart_item in cart_items:
@@ -250,20 +250,14 @@ def checkout(request):
                     product=cart_item.product,
                     quantity=cart_item.quantity,
                     product_price=cart_item.product.price,
-                    ordered=True,
+                    ordered=False,
                 )
                 variations = list(cart_item.variations.all())
                 if variations:
                     order_product.variations.add(*variations)
 
-            cart_items.delete()
-
-        messages.success(
-            request,
-            'Your order has been placed successfully.',
-        )
         return redirect(
-            'orders:order_complete',
+            'orders:payment',
             order_number=order.order_number,
         )
 

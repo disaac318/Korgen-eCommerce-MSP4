@@ -11,4 +11,9 @@ urlpatterns = [
         views.order_complete,
         name='order_complete',
     ),
+    path(
+        'payment/<str:order_number>/',
+        views.payment,
+        name='payment',
+    ),
 ]
