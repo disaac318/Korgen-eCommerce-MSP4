@@ -1,0 +1,12 @@
+{% autoescape off %}
+
+Hello {{ user.username }},
+Please click on the link below to verify your email address:
+{{ activation_url }}
+
+If you did not make this request, please ignore this email.
+
+Best regards,
+{{ site_name }}
+
+{% endautoescape %}
