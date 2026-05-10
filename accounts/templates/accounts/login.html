@@ -36,12 +36,15 @@
                                    <p class="text-muted small mb-0">Access your account to continue.</p>
                               </header>
 
-                              <form action="{% url 'accounts:login' %}"
-                                   method="post"
-                                   aria-label="Sign in form">
-                                   {% csrf_token %}
+	                              <form action="{% url 'accounts:login' %}"
+	                                   method="post"
+	                                   aria-label="Sign in form">
+	                                   {% csrf_token %}
+	                                   <input type="hidden"
+	                                        name="next"
+	                                        value="{{ request.GET.next }}">
 
-                                   <div class="mb-3">
+	                                   <div class="mb-3">
                                         <label for="email"
                                              class="form-label">Email address</label>
                                         <input id="email"

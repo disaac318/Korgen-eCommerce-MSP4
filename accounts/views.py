@@ -12,7 +12,11 @@ from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.http import (
+    url_has_allowed_host_and_scheme,
+    urlsafe_base64_decode,
+    urlsafe_base64_encode,
+)
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
@@ -104,6 +108,13 @@ def login(request):
                 request.session['cart_id'] = guest_cart_id
                 assign_session_cart_to_user(request)
             messages.success(request, 'You have logged in successfully.')
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                return redirect(next_url)
             return redirect('accounts:dashboard')
 
         if Account.objects.filter(email__iexact=email, is_active=False).exists():
