@@ -1,15 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from carts.models import Cart, CartItem
+from carts.utils import assign_session_cart_to_user, get_cart_id
 from store.models import Product, Variation
-
-# Create your views here.
-def _cart_id(request):
-    cart = request.session.session_key
-    if not cart:
-        request.session.create()
-        cart = request.session.session_key
-    return cart
 
 
 def _get_selected_variations(request, product):
@@ -63,9 +56,14 @@ def add_cart(request, product_id):
             product_slug=product.slug,
         )
 
-    cart, _ = Cart.objects.get_or_create(cart_id=_cart_id(request))
+    cart, _ = Cart.objects.get_or_create(cart_id=get_cart_id(request))
+    assign_session_cart_to_user(request)
 
-    cart_items = CartItem.objects.filter(product=product, cart=cart).prefetch_related('variations')
+    cart_items = CartItem.objects.filter(
+        product=product,
+        user=request.user,
+        is_active=True,
+    ).prefetch_related('variations')
     cart_item = _get_matching_cart_item(cart_items, product_variations)
 
     if cart_item and request.POST.get('confirm') != 'yes':
@@ -81,6 +79,7 @@ def add_cart(request, product_id):
         cart_item.save()
     else:
         cart_item = CartItem.objects.create(
+            user=request.user,
             product=product,
             quantity=1,
             cart=cart,
@@ -93,8 +92,13 @@ def add_cart(request, product_id):
 
 @login_required(login_url='accounts:login')
 def increment_cart_item(request, cart_item_id):
-    cart = Cart.objects.get(cart_id=_cart_id(request))
-    cart_item = CartItem.objects.get(id=cart_item_id, cart=cart)
+    assign_session_cart_to_user(request)
+    cart_item = get_object_or_404(
+        CartItem,
+        id=cart_item_id,
+        user=request.user,
+        is_active=True,
+    )
     cart_item.quantity += 1
     cart_item.save()
 
@@ -103,8 +107,13 @@ def increment_cart_item(request, cart_item_id):
 
 @login_required(login_url='accounts:login')
 def confirm_remove_from_cart(request, cart_item_id):
-    cart = Cart.objects.get(cart_id=_cart_id(request))
-    cart_item = get_object_or_404(CartItem, id=cart_item_id, cart=cart)
+    assign_session_cart_to_user(request)
+    cart_item = get_object_or_404(
+        CartItem,
+        id=cart_item_id,
+        user=request.user,
+        is_active=True,
+    )
 
     context = {
         'cart_item': cart_item,
@@ -115,8 +124,13 @@ def confirm_remove_from_cart(request, cart_item_id):
 
 @login_required(login_url='accounts:login')
 def confirm_delete_cart_item(request, cart_item_id):
-    cart = Cart.objects.get(cart_id=_cart_id(request))
-    cart_item = get_object_or_404(CartItem, id=cart_item_id, cart=cart)
+    assign_session_cart_to_user(request)
+    cart_item = get_object_or_404(
+        CartItem,
+        id=cart_item_id,
+        user=request.user,
+        is_active=True,
+    )
 
     context = {
         'cart_item': cart_item,
@@ -130,8 +144,13 @@ def remove_from_cart(request, cart_item_id):
     if request.method != 'POST':
         return redirect('cart')
 
-    cart = Cart.objects.get(cart_id=_cart_id(request))
-    cart_item = get_object_or_404(CartItem, id=cart_item_id, cart=cart)
+    assign_session_cart_to_user(request)
+    cart_item = get_object_or_404(
+        CartItem,
+        id=cart_item_id,
+        user=request.user,
+        is_active=True,
+    )
 
     if cart_item.quantity > 1:
         cart_item.quantity -= 1
@@ -147,8 +166,13 @@ def delete_cart_item(request, cart_item_id):
     if request.method != 'POST':
         return redirect('cart')
 
-    cart = Cart.objects.get(cart_id=_cart_id(request))
-    cart_item = get_object_or_404(CartItem, id=cart_item_id, cart=cart)
+    assign_session_cart_to_user(request)
+    cart_item = get_object_or_404(
+        CartItem,
+        id=cart_item_id,
+        user=request.user,
+        is_active=True,
+    )
     cart_item.delete()
 
     return redirect('cart')
@@ -168,17 +192,17 @@ def cart(request, total=0, quantity=0, cart_items=None):
         }
         return render(request, 'carts/cart.html', context)
 
-    try:
-        cart = Cart.objects.get(cart_id=_cart_id(request))
-        cart_items = CartItem.objects.filter(cart=cart, is_active=True)
-        for cart_item in cart_items:
-            total += cart_item.sub_total()
-            quantity += cart_item.quantity
+    assign_session_cart_to_user(request)
+    cart_items = CartItem.objects.filter(
+        user=request.user,
+        is_active=True,
+    ).prefetch_related('variations')
+    for cart_item in cart_items:
+        total += cart_item.sub_total()
+        quantity += cart_item.quantity
 
-        tax = total * 20 / 100
-        grand_total = total + tax
-    except Cart.DoesNotExist:
-        cart_items = []
+    tax = total * 20 / 100
+    grand_total = total + tax
 
     context = {
         'total': total,

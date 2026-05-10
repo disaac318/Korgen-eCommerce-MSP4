@@ -16,8 +16,6 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
-from carts.models import Cart
-
 from .forms import RegistrationForm
 from .models import Account
 from .tokens import account_activation_token
@@ -113,10 +111,6 @@ def login(request):
 @login_required(login_url='accounts:login')
 @require_POST
 def logout(request):
-    cart_id = request.session.session_key
-    if cart_id:
-        Cart.objects.filter(cart_id=cart_id).delete()
-
     auth_logout(request)
     messages.success(request, 'You have logged out successfully.')
     return redirect('home')

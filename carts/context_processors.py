@@ -1,5 +1,5 @@
-from .models import Cart, CartItem
-from .views import _cart_id
+from .models import CartItem
+from .utils import assign_session_cart_to_user
 
 
 def cart_counter(request):
@@ -8,12 +8,9 @@ def cart_counter(request):
     if not request.user.is_authenticated:
         return {'cart_count': cart_count}
 
-    try:
-        cart = Cart.objects.get(cart_id=_cart_id(request))
-        cart_items = CartItem.objects.filter(cart=cart, is_active=True)
-        for cart_item in cart_items:
-            cart_count += cart_item.quantity
-    except Cart.DoesNotExist:
-        pass
+    assign_session_cart_to_user(request)
+    cart_items = CartItem.objects.filter(user=request.user, is_active=True)
+    for cart_item in cart_items:
+        cart_count += cart_item.quantity
 
     return {'cart_count': cart_count}
