@@ -1,22 +1,29 @@
 from django import forms
 
+from .models import Order
 
-class CheckoutForm(forms.Form):
-    first_name = forms.CharField(max_length=50)
-    last_name = forms.CharField(max_length=50)
-    email = forms.EmailField()
-    phone = forms.CharField(max_length=20)
-    address_line_1 = forms.CharField(max_length=100)
-    address_line_2 = forms.CharField(max_length=100, required=False)
-    county = forms.CharField(max_length=50)
-    postcode = forms.CharField(max_length=20)
-    order_notes = forms.CharField(
-        required=False,
-        widget=forms.Textarea(attrs={'rows': 4}),
-    )
+
+class OrderForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = (
+            'first_name',
+            'last_name',
+            'email',
+            'phone',
+            'address_line_1',
+            'address_line_2',
+            'county',
+            'postcode',
+            'order_notes',
+        )
+        widgets = {
+            'order_notes': forms.Textarea(attrs={'rows': 4}),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         placeholders = {
             'first_name': 'First name',
             'last_name': 'Last name',

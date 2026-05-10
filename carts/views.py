@@ -5,11 +5,12 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 
-from carts.forms import CheckoutForm
 from carts.models import Cart, CartItem
 from carts.utils import assign_session_cart_to_user, get_cart_id
-from orders.models import Order, OrderProduct
+from orders.forms import OrderForm
+from orders.models import OrderProduct
 from store.models import Product, Variation
+
 
 def _get_selected_variations(request, product):
     selected_variations = []
@@ -184,7 +185,9 @@ def cart(request, total=0, quantity=0, cart_items=None):
     tax = 0
     grand_total = 0
 
-    cart_items = _cart_items_for_request(request).prefetch_related('variations')
+    cart_items = _cart_items_for_request(request).prefetch_related(
+        'variations'
+    )
     for cart_item in cart_items:
         total += cart_item.sub_total()
         quantity += cart_item.quantity
@@ -227,27 +230,18 @@ def checkout(request):
         'last_name': request.user.last_name,
         'email': request.user.email,
     }
-    form = CheckoutForm(request.POST or None, initial=initial)
+    form = OrderForm(request.POST or None, initial=initial)
 
     if request.method == 'POST' and form.is_valid():
         with transaction.atomic():
-            order = Order.objects.create(
-                user=request.user,
-                first_name=form.cleaned_data['first_name'],
-                last_name=form.cleaned_data['last_name'],
-                email=form.cleaned_data['email'],
-                phone=form.cleaned_data['phone'],
-                address_line_1=form.cleaned_data['address_line_1'],
-                address_line_2=form.cleaned_data['address_line_2'],
-                county=form.cleaned_data['county'],
-                postcode=form.cleaned_data['postcode'],
-                order_notes=form.cleaned_data['order_notes'],
-                order_total=total,
-                tax=tax,
-                grand_total=grand_total,
-                ip=request.META.get('REMOTE_ADDR'),
-                is_ordered=True,
-            )
+            order = form.save(commit=False)
+            order.user = request.user
+            order.order_total = total
+            order.tax = tax
+            order.grand_total = grand_total
+            order.ip = request.META.get('REMOTE_ADDR')
+            order.is_ordered = True
+            order.save()
 
             for cart_item in cart_items:
                 order_product = OrderProduct.objects.create(
@@ -268,7 +262,10 @@ def checkout(request):
             request,
             'Your order has been placed successfully.',
         )
-        return redirect('orders:order_complete', order_number=order.order_number)
+        return redirect(
+            'orders:order_complete',
+            order_number=order.order_number,
+        )
 
     context = {
         'form': form,
