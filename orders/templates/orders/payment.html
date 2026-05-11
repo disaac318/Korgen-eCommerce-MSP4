@@ -10,6 +10,9 @@
      style="min-height: 40vh;">
      <div class="container">
 
+          <h2 class="h3 fw-bold mb-3">Review your order and
+               make payment</h2>
+
           <div class="row g-4">
 
                <!-- Order items -->
@@ -18,39 +21,136 @@
 
                     <!-- Payment details -->
 
-                    <div class="card border-0 shadow-sm">
+                    <div class="card border-0 shadow-sm  ">
 
-                         <div class="card">
-                              <div class="card-header fw-bold fs-5">
+                         <div class="card border-0 shadow-sm bg-transparent">
+                              <div class="card-header bg-transparent fw-bold fs-5">
                                    Billing Details
                               </div>
                               <div class="card-body">
-                                   <p class="card-text">With supporting text below as a natural lead-in to additional
-                                        content.</p>
+                                   <p class="card-text mb-0 fs-4 mb-2 ps-4">{{ order.full_name }}</p>
+
+                                   <p class="card-text mb-0 ps-4">{{ order.address_line_1 }}</p>
+                                   {% if order.address_line_2 %}
+                                   <p class="card-text mb-0 ps-4">{{ order.address_line_2 }}</p>
+                                   {% endif %}
+                                   <p class="card-text mb-2 ps-4">
+                                        {{ order.county }}, {{ order.postcode }}<br>
+                                   </p>
+                                   <p class="card-text small mb-0 ps-4">{{ order.email }}</p>
+                                   <p class="card-text small mb-4 ps-4">{{ order.phone }}</p>
+                                   {% if order.order_notes %}
+                                   <p class="card-text mb-0 ps-4">
+                                        <span class="fw-bold">Order note:</span>
+                                        {{ order.order_notes }}
+                                   </p>
+                                   {% endif %}
+
                               </div>
                          </div>
-                         
+
                          <div class="card">
                               <div class="card-header fw-bold fs-5">
                                    Payment Methods
                               </div>
                               <div class="card-body">
-                                   <p class="card-text">With supporting text below as a natural lead-in to additional
-                                        content.</p>
+                                   <p class="card-text ps-4">Paypal</p>
                               </div>
                          </div>
-                         
+
                          <div class="card">
                               <div class="card-header fw-bold fs-5">
                                    Review order and payment
                               </div>
                               <div class="card-body">
-                                   <p class="card-text">With supporting text below as a natural lead-in to additional
-                                        content.</p>
+                                   <div class="table-responsive border rounded-3">
+                                        <table class="table table-borderless table-hover align-middle mb-0">
+                                             <caption class="visually-hidden">Items in your order</caption>
+
+                                             <thead class="table-light">
+                                                  <tr class="small text-uppercase">
+                                                       <th scope="col">
+                                                            <h6 class="payment-product-heading">Product</h6>
+                                                       </th>
+                                                       <th scope="col"
+                                                            class="text-center align-middle"
+                                                            style="width: 140px;">
+                                                            <h6>Quantity</h6>
+                                                       </th>
+                                                       <th scope="col"
+                                                            class="ps-4 text-center"
+                                                            style="width: 140px;">
+                                                            <h6>Price</h6>
+                                                       </th>
+                                                  </tr>
+                                             </thead>
+
+                                             <tbody>
+                                                  {% for order_item in order.items.all %}
+                                                  <!---------------------- Items ---------------------->
+                                                  <tr>
+                                                       <td class="ps-4 py-4">
+                                                            <article class="d-flex align-items-center gap-3">
+                                                                 {% if order_item.product and order_item.product.images %}
+                                                                 <img src="{{ order_item.product.images.url }}"
+                                                                      alt="{{ order_item.product.product_name }}"
+                                                                      class="rounded"
+                                                                      style="width: 64px; height: 64px; object-fit: cover;">
+                                                                 {% endif %}
+                                                                 <div>
+                                                                      <h2 class="h6 mb-1">
+                                                                           {% if order_item.product %}
+                                                                           <a href="{% url 'product_detail' order_item.product.category.slug order_item.product.slug %}"
+                                                                                class="text-decoration-none text-dark ps-0 ps-md-5 text-start">
+                                                                                {{ order_item.product.product_name }}
+                                                                           </a>
+                                                                           {% else %}
+                                                                           Product unavailable
+                                                                           {% endif %}
+                                                                      </h2>
+                                                                      {% if order_item.product %}
+                                                                      <!-- <p class="text-muted small mb-0">
+                                                                 {{ order_item.product.description }}
+                                                            </p> -->
+                                                                      {% endif %}
+                                                                      {% if order_item.variations.all %}
+                                                                      <p
+                                                                           class="text-muted small fw-bold mb-0 ps-0 ps-md-5 text-start">
+                                                                           {% for variation in order_item.variations.all %}
+                                                                           {{ variation.variation_category|capfirst }}:
+                                                                           {{ variation.variation_value|capfirst }}{% if not forloop.last %}, {% endif %}
+                                                                           {% endfor %}
+                                                                      </p>
+                                                                      {% endif %}
+                                                                 </div>
+                                                            </article>
+                                                       </td>
+
+                                                       <td class="align-middle cart-qty text-center">
+                                                            {{ order_item.quantity }}
+                                                       </td>
+
+                                                       <td class="ps-4 text-center align-middle">
+                                                            <p class="mb-0 fw-semibold lead">
+                                                                 £{{ order_item.sub_total|floatformat:2|intcomma }}
+                                                            </p>
+                                                            <p class="mb-0 small text-muted">
+                                                                 £{{ order_item.product_price|floatformat:2|intcomma }}
+                                                                 each
+                                                            </p>
+                                                       </td>
+                                                  </tr>
+                                                  {% endfor %}
+                                                  <!---------------------- Items ---------------------->
+
+                                             </tbody>
+
+                                        </table>
+                                   </div>
                               </div>
                          </div>
-                         
-                        
+
+
 
 
                     </div>
@@ -94,8 +194,16 @@
 
                               <button type="button"
                                    class="btn btn-success w-100 mb-2">Pay with Stripe</button>
-                              <button type="button"
-                                   class="btn btn-warning w-100">Pay with PayPal</button>
+                              {% if paypal_client_id %}
+                              <div id="paypal-button-container"></div>
+                              <!-- PayPal error message -->
+                              <p id="paypal-result-message"
+                                   class="small text-danger mb-0 mt-2">Loading PayPal...</p>
+                              {% else %}
+                              <p class="small text-danger mb-0">
+                                   PayPal is not configured.
+                              </p>
+                              {% endif %}
 
                          </div>
                     </section>
@@ -107,6 +215,133 @@
 
 <!-- ========== Main content ends ========== -->
 
-
-
 {% endblock content %}
+
+{% block paypal_js %}
+{% if paypal_client_id %}
+<script>
+     window.showPaypalSdkLoadError = function () {
+          const paypalResultMessage = document.getElementById('paypal-result-message');
+          if (paypalResultMessage) {
+               paypalResultMessage.textContent = 'PayPal could not load. Check your client ID, internet connection, and browser console.';
+          }
+     };
+</script>
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency={{ paypal_currency|default:'GBP' }}"
+     onerror="window.showPaypalSdkLoadError()"></script>
+{% endif %}
+{% endblock paypal_js %}
+
+{% block page_js %}
+{% if paypal_client_id %}
+<script>
+     const paypalResultMessage = document.getElementById('paypal-result-message');
+
+     function showPaypalError(message) {
+          paypalResultMessage.textContent = message || 'Sorry, your payment could not be processed.';
+     }
+
+     function showPaypalErrorIfEmpty(message) {
+          if (!paypalResultMessage.textContent) {
+               showPaypalError(message);
+          }
+     }
+
+     function getPaypalErrorMessage(data) {
+          if (!data.details) {
+               return data.error;
+          }
+
+          if (typeof data.details === 'string') {
+               return data.error + ': ' + data.details;
+          }
+
+          if (data.details.message) {
+               return data.error + ': ' + data.details.message;
+          }
+
+          if (Array.isArray(data.details.details) && data.details.details.length) {
+               return data.error + ': ' + data.details.details[0].description;
+          }
+
+          return data.error;
+     }
+
+     if (typeof paypal === 'undefined') {
+          showPaypalError('PayPal could not load. Check your client ID, internet connection, and browser console.');
+     } else {
+     paypal.Buttons({
+
+          style: {
+                color:  'gold',
+                shape:  'pill',
+                label:  'pay',
+                height: 40
+            },
+          createOrder: function () {
+               return fetch("{% url 'orders:create_paypal_order' order.order_number %}", {
+                    method: 'POST',
+                    headers: {
+                         'X-CSRFToken': '{{ csrf_token }}'
+                    }
+               })
+                    .then(function (res) {
+                         return res.json().then(function (data) {
+                              if (!res.ok) {
+                                   throw new Error(getPaypalErrorMessage(data));
+                              }
+                              return data;
+                         });
+                    })
+                    .then(function (orderData) {
+                         return orderData.id;
+                    })
+                    .catch(function (error) {
+                         console.error('PayPal create order failed:', error);
+                         showPaypalError(error.message);
+                         throw error;
+                    });
+          },
+
+          onApprove: function (data) {
+               return fetch("{% url 'orders:capture_paypal_order' order.order_number %}", {
+                    method: 'POST',
+                    headers: {
+                         'Content-Type': 'application/json',
+                         'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                         paypal_order_id: data.orderID
+                    })
+               })
+                    .then(function (res) {
+                         return res.json().then(function (data) {
+                              if (!res.ok) {
+                                   throw new Error(getPaypalErrorMessage(data));
+                              }
+                              return data;
+                         });
+                    })
+                    .then(function (orderData) {
+                         window.location.href = orderData.redirect_url;
+                    })
+                    .catch(function (error) {
+                         console.error('PayPal capture failed:', error);
+                         showPaypalError(error.message);
+                         throw error;
+                    });
+          },
+
+          onError: function (error) {
+               console.error('PayPal SDK error:', error);
+               showPaypalErrorIfEmpty('PayPal could not complete the payment. Use a sandbox personal buyer account, not the merchant account or a live PayPal account.');
+          }
+     }).render('#paypal-button-container').then(function () {
+          paypalResultMessage.textContent = '';
+     }).catch(function (error) {
+          showPaypalError(error.message);
+     });
+     }
+</script>
+{% endif %}
+{% endblock page_js %}
