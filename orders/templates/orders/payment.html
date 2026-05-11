@@ -16,93 +16,43 @@
                <section class="col-12 col-lg-9"
                     aria-label="Order items">
 
+                    <!-- Payment details -->
 
                     <div class="card border-0 shadow-sm">
 
-                         <div class="table-responsive border rounded-3">
-                              <table class="table table-borderless table-hover align-middle mb-0">
-                                   <caption class="visually-hidden">Items in your order</caption>
-
-                                   <thead class="table-light">
-                                        <tr class="small text-uppercase">
-                                             <th scope="col"
-                                                  class="ps-4">
-                                                  <h6>Product</h6>
-                                             </th>
-                                             <th scope="col"
-                                                  style="width: 140px;">
-                                                  <h6>Quantity</h6>
-                                             </th>
-                                             <th scope="col"
-                                                  class="ps-4"
-                                                  style="width: 140px;">
-                                                  <h6>Price</h6>
-                                             </th>
-                                        </tr>
-                                   </thead>
-
-                                   <tbody>
-                                        {% for order_item in order.items.all %}
-                                        <!---------------------- Items ---------------------->
-                                        <tr>
-                                             <td class="ps-4 py-4">
-                                                  <article class="d-flex align-items-center gap-3">
-                                                       {% if order_item.product and order_item.product.images %}
-                                                       <img
-                                                            src="{{ order_item.product.images.url }}"
-                                                            alt="{{ order_item.product.product_name }}"
-                                                            class="rounded"
-                                                            style="width: 64px; height: 64px; object-fit: cover;">
-                                                       {% endif %}
-                                                       <div>
-                                                            <h2 class="h6 mb-1">
-                                                                 {% if order_item.product %}
-                                                                 <a
-                                                                      href="{% url 'product_detail' order_item.product.category.slug order_item.product.slug %}"
-                                                                      class="text-decoration-none text-dark">
-                                                                      {{ order_item.product.product_name }}
-                                                                 </a>
-                                                                 {% else %}
-                                                                 Product unavailable
-                                                                 {% endif %}
-                                                            </h2>
-                                                            {% if order_item.product %}
-                                                            <p class="text-muted small mb-0">
-                                                                 {{ order_item.product.description }}
-                                                            </p>
-                                                            {% endif %}
-                                                            {% if order_item.variations.all %}
-                                                            <p class="text-muted small fw-bold mb-0">
-                                                                 {% for variation in order_item.variations.all %}
-                                                                 {{ variation.variation_category|capfirst }}:
-                                                                 {{ variation.variation_value|capfirst }}{% if not forloop.last %}, {% endif %}
-                                                                 {% endfor %}
-                                                            </p>
-                                                            {% endif %}
-                                                       </div>
-                                                  </article>
-                                             </td>
-
-                                             <td class="align-middle cart-qty">
-                                                  {{ order_item.quantity }}
-                                             </td>
-
-                                             <td class="ps-4">
-                                                  <p class="mb-0 fw-semibold lead">
-                                                       £{{ order_item.sub_total|floatformat:2|intcomma }}
-                                                  </p>
-                                                  <p class="mb-0 small text-muted">
-                                                       £{{ order_item.product_price|floatformat:2|intcomma }} each
-                                                  </p>
-                                             </td>
-                                        </tr>
-                                        {% endfor %}
-                                        <!---------------------- Items ---------------------->
-
-                                   </tbody>
-
-                              </table>
+                         <div class="card">
+                              <div class="card-header fw-bold fs-5">
+                                   Billing Details
+                              </div>
+                              <div class="card-body">
+                                   <p class="card-text">With supporting text below as a natural lead-in to additional
+                                        content.</p>
+                              </div>
                          </div>
+                         
+                         <div class="card">
+                              <div class="card-header fw-bold fs-5">
+                                   Payment Methods
+                              </div>
+                              <div class="card-body">
+                                   <p class="card-text">With supporting text below as a natural lead-in to additional
+                                        content.</p>
+                              </div>
+                         </div>
+                         
+                         <div class="card">
+                              <div class="card-header fw-bold fs-5">
+                                   Review order and payment
+                              </div>
+                              <div class="card-body">
+                                   <p class="card-text">With supporting text below as a natural lead-in to additional
+                                        content.</p>
+                              </div>
+                         </div>
+                         
+                        
+
+
                     </div>
 
 

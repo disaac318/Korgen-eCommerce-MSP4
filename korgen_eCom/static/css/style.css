@@ -129,6 +129,16 @@ header.section-header.fixed-top ~ main {
     -moz-appearance: textfield;
 }
 
+h6.payment-product-heading {
+    margin-left: 100px;
+}
+
+@media (min-width: 768px) {
+    h6.payment-product-heading {
+        margin-left: 150px;
+    }
+}
+
 input.form-control::placeholder,
 textarea.form-control::placeholder {
     color: var(--bs-secondary-color) !important;
