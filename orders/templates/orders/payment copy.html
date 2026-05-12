@@ -128,6 +128,11 @@
                                         £{{ order.tax|floatformat:2|intcomma }}
                                    </dd>
 
+                                   <dt class="col-6 fw-normal text-muted">Delivery</dt>
+                                   <dd class="col-6 text-end mb-2">
+                                        £{{ order.delivery_total|floatformat:2|intcomma }}
+                                   </dd>
+
                                    <dt class="col-6 fw-semibold">Total</dt>
                                    <dd class="col-6 text-end fw-semibold">
                                         £{{ order.grand_total|floatformat:2|intcomma }}

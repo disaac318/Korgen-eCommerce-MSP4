@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -7,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.models import BillingDetails
 from carts.models import Cart, CartItem
+from carts.pricing import calculate_cart_totals
 from carts.utils import assign_session_cart_to_user, get_cart_id
 from orders.forms import OrderForm
 from orders.models import OrderProduct
@@ -182,25 +181,14 @@ def delete_cart_item(request, cart_item_id):
     return redirect('cart')
 
 
-def cart(request, total=0, quantity=0, cart_items=None):
-    tax = 0
-    grand_total = 0
-
+def cart(request):
     cart_items = _cart_items_for_request(request).prefetch_related(
         'variations'
     )
-    for cart_item in cart_items:
-        total += cart_item.sub_total()
-        quantity += cart_item.quantity
-
-    tax = total * 20 / 100
-    grand_total = total + tax
+    totals = calculate_cart_totals(cart_items)
 
     context = {
-        'total': total,
-        'tax': tax,
-        'grand_total': grand_total,
-        'quantity': quantity,
+        **totals,
         'cart_items': cart_items,
     }
     return render(request, 'carts/cart.html', context)
@@ -208,9 +196,6 @@ def cart(request, total=0, quantity=0, cart_items=None):
 
 @login_required(login_url='accounts:login')
 def checkout(request):
-    total = 0
-    quantity = 0
-
     assign_session_cart_to_user(request)
     cart_items = CartItem.objects.filter(
         user=request.user,
@@ -220,12 +205,7 @@ def checkout(request):
     if not cart_items.exists():
         return redirect('cart')
 
-    for cart_item in cart_items:
-        total += cart_item.sub_total()
-        quantity += cart_item.quantity
-
-    tax = total * Decimal('0.20')
-    grand_total = total + tax
+    totals = calculate_cart_totals(cart_items)
     try:
         billing_details = request.user.billing_details
     except BillingDetails.DoesNotExist:
@@ -247,9 +227,10 @@ def checkout(request):
 
             order = form.save(commit=False)
             order.user = request.user
-            order.order_total = total
-            order.tax = tax
-            order.grand_total = grand_total
+            order.order_total = totals['total']
+            order.tax = totals['tax']
+            order.delivery_total = totals['delivery_total']
+            order.grand_total = totals['grand_total']
             order.ip = request.META.get('REMOTE_ADDR')
             order.is_ordered = False
             order.save()
@@ -275,10 +256,7 @@ def checkout(request):
     context = {
         'form': form,
         'cart_items': cart_items,
-        'total': total,
-        'tax': tax,
-        'grand_total': grand_total,
-        'quantity': quantity,
+        **totals,
         'has_saved_billing_details': billing_details is not None,
     }
     return render(request, 'store/checkout.html', context)

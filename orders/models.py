@@ -80,6 +80,11 @@ class Order(models.Model):
     order_notes = models.TextField(blank=True)
     order_total = models.DecimalField(max_digits=10, decimal_places=2)
     tax = models.DecimalField(max_digits=10, decimal_places=2)
+    delivery_total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+    )
     grand_total = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(
         max_length=20,

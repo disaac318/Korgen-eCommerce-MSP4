@@ -142,6 +142,8 @@ LOGIN_REDIRECT_URL = '/'
 REMEMBER_ME_SESSION_AGE = int(
     os.environ.get('REMEMBER_ME_SESSION_AGE', 60 * 60 * 24 * 14),
 )
+DELIVERY_FLAT_RATE = os.environ.get('DELIVERY_FLAT_RATE', '3.99')
+DELIVERY_FREE_THRESHOLD = os.environ.get('DELIVERY_FREE_THRESHOLD', '50.00')
 
 
 WSGI_APPLICATION = 'korgen_eCom.wsgi.application'

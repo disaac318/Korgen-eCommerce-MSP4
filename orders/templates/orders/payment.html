@@ -187,7 +187,7 @@
                                    </div>
                                    <div>
                                         <dt>Postage &amp; Packing:</dt>
-                                        <dd>£0.00</dd>
+                                        <dd>£{{ order.delivery_total|floatformat:2|intcomma }}</dd>
                                    </div>
                                    <div class="korgen-order-total-row">
                                         <dt>Order Total:</dt>
@@ -219,7 +219,7 @@
                                         </div>
                                         <div>
                                              <dt>Postage &amp; Packing:</dt>
-                                             <dd>£0.00</dd>
+                                             <dd>£{{ order.delivery_total|floatformat:2|intcomma }}</dd>
                                         </div>
                                         <div>
                                              <dt>Total before VAT:</dt>

@@ -3,6 +3,7 @@ Hi {{ order.first_name }},
 Thank you for your order. We have received your payment and your order is now being processed.
 
 Order number: {{ order.order_number }}
+Delivery: £{{ order.delivery_total|floatformat:2 }}
 Total: £{{ order.grand_total|floatformat:2 }}
 
 Items:

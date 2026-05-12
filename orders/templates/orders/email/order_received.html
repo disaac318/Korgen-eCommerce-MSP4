@@ -7,6 +7,7 @@
 
           <p>
                <strong>Order number:</strong> {{ order.order_number }}<br>
+               <strong>Delivery:</strong> £{{ order.delivery_total|floatformat:2 }}<br>
                <strong>Total:</strong> £{{ order.grand_total|floatformat:2 }}
           </p>
 

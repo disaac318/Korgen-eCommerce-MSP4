@@ -33,6 +33,7 @@ class OrderAdmin(admin.ModelAdmin):
         'payment',
         'full_name',
         'email',
+        'delivery_total',
         'grand_total',
         'status',
         'is_ordered',
