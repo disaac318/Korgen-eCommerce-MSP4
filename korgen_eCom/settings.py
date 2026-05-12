@@ -217,12 +217,6 @@ MESSAGE_TAGS = {
 }
 
 
-# SMTP email configuration 
-EMAIL_BACKEND = os.environ.get(
-    'EMAIL_BACKEND',
-    'django.core.mail.backends.console.EmailBackend'
-)
-
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
@@ -230,17 +224,32 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.environ.get(
     'DEFAULT_FROM_EMAIL',
-    EMAIL_HOST_USER
+    EMAIL_HOST_USER or 'no-reply@localhost'
+)
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND',
+    (
+        'django.core.mail.backends.smtp.EmailBackend'
+        if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD
+        else 'django.core.mail.backends.console.EmailBackend'
+    ),
 )
 
 
 # PayPal checkout configuration
 PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID', '')
 PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET', '')
-PAYPAL_CURRENCY = os.environ.get('PAYPAL_CURRENCY', 'GBP').upper()
+PAYPAL_CURRENCY = 'GBP'
 PAYPAL_MODE = os.environ.get('PAYPAL_MODE', 'sandbox').lower()
 PAYPAL_API_BASE = (
     'https://api-m.paypal.com'
     if PAYPAL_MODE == 'live'
     else 'https://api-m.sandbox.paypal.com'
 )
+
+
+# Stripe checkout configuration
+STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', '')
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
+STRIPE_CURRENCY = 'gbp'
+STRIPE_API_BASE = 'https://api.stripe.com'

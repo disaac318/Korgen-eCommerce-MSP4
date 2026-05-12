@@ -24,12 +24,17 @@ class Payment(models.Model):
     )
     payment_id = models.CharField(max_length=100, unique=True)
     payment_method = models.CharField(max_length=100)
+    paypal_order_id = models.CharField(max_length=100, blank=True)
+    payer_email = models.EmailField(blank=True)
+    payer_name = models.CharField(max_length=150, blank=True)
+    currency = models.CharField(max_length=3, blank=True)
     amount_paid = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
         default=STATUS_PENDING,
     )
+    transaction_data = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

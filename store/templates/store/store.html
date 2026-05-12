@@ -151,13 +151,13 @@
                                                             <select id="minPrice"
                                                                  name="min"
                                                                  class="form-select">
-                                                                 <option value="0">$0</option>
-                                                                 <option value="50">$50</option>
-                                                                 <option value="100">$100</option>
-                                                                 <option value="150">$150</option>
-                                                                 <option value="200">$200</option>
-                                                                 <option value="500">$500</option>
-                                                                 <option value="1000">$1000</option>
+                                                                 <option value="0">£0</option>
+                                                                 <option value="50">£50</option>
+                                                                 <option value="100">£100</option>
+                                                                 <option value="150">£150</option>
+                                                                 <option value="200">£200</option>
+                                                                 <option value="500">£500</option>
+                                                                 <option value="1000">£1000</option>
                                                             </select>
                                                        </div>
 
@@ -167,13 +167,13 @@
                                                             <select id="maxPrice"
                                                                  name="max"
                                                                  class="form-select">
-                                                                 <option value="50">$50</option>
-                                                                 <option value="100">$100</option>
-                                                                 <option value="150">$150</option>
-                                                                 <option value="200">$200</option>
-                                                                 <option value="500">$500</option>
-                                                                 <option value="1000">$1000</option>
-                                                                 <option value="2000">$2000+</option>
+                                                                 <option value="50">£50</option>
+                                                                 <option value="100">£100</option>
+                                                                 <option value="150">£150</option>
+                                                                 <option value="200">£200</option>
+                                                                 <option value="500">£500</option>
+                                                                 <option value="1000">£1000</option>
+                                                                 <option value="2000">£2000+</option>
                                                             </select>
                                                        </div>
                                                   </div>
@@ -216,7 +216,7 @@
 
                                                   <div class="mt-auto">
                                                        <p class="mb-2">
-                                                            <span class="fw-bold">${{ product.price }}</span>
+                                                            <span class="fw-bold">£{{ product.price }}</span>
                                                        </p>
                                                        <a href="{% url 'product_detail' product.category.slug product.slug %}"
                                                             class="btn btn-warning w-100">View Details</a>

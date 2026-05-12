@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+     <body>
+          <p>Hi {{ order.first_name }},</p>
+
+          <p>Thank you for your order. We have received your payment and your order is now being processed.</p>
+
+          <p>
+               <strong>Order number:</strong> {{ order.order_number }}<br>
+               <strong>Total:</strong> £{{ order.grand_total|floatformat:2 }}
+          </p>
+
+          <h2 style="font-size: 16px;">Items</h2>
+          <ul>
+               {% for item in items %}
+               <li>
+                    {{ item }} x {{ item.quantity }} - £{{ item.sub_total|floatformat:2 }}
+                    {% if item.variations.all %}
+                    <br>
+                    <span style="color: #555;">
+                         {% for variation in item.variations.all %}
+                         {{ variation.variation_category|capfirst }}: {{ variation.variation_value|capfirst }}{% if not forloop.last %}, {% endif %}
+                         {% endfor %}
+                    </span>
+                    {% endif %}
+               </li>
+               {% endfor %}
+          </ul>
+
+          <p>
+               <strong>Delivery address:</strong><br>
+               {{ order.full_address }}
+          </p>
+
+          <p>Korgen Ecommerce</p>
+     </body>
+</html>

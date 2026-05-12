@@ -1,15 +1,19 @@
 import base64
 import json
+import logging
 from decimal import Decimal
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
@@ -18,8 +22,40 @@ from carts.models import CartItem
 from .models import Order, Payment
 
 
+logger = logging.getLogger(__name__)
+
+
 def _paypal_credentials_are_configured():
     return bool(settings.PAYPAL_CLIENT_ID and settings.PAYPAL_CLIENT_SECRET)
+
+
+def _stripe_credentials_are_configured():
+    return bool(settings.STRIPE_PUBLIC_KEY and settings.STRIPE_SECRET_KEY)
+
+
+def _send_order_received_email(order):
+    context = {
+        'order': order,
+        'items': order.items.select_related('product').prefetch_related(
+            'variations',
+        ),
+    }
+    text_message = render_to_string(
+        'orders/email/order_received.txt',
+        context,
+    )
+    html_message = render_to_string(
+        'orders/email/order_received.html',
+        context,
+    )
+    email = EmailMultiAlternatives(
+        f'Order received #{order.order_number}',
+        text_message,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[order.email],
+    )
+    email.attach_alternative(html_message, 'text/html')
+    email.send()
 
 
 def _paypal_json_response(error_message, status=502, details=None):
@@ -75,6 +111,43 @@ def _paypal_request(path, payload, access_token):
         return json.loads(response.read().decode())
 
 
+def _stripe_request(path, payload=None, method='POST'):
+    encoded_credentials = base64.b64encode(
+        f'{settings.STRIPE_SECRET_KEY}:'.encode(),
+    ).decode()
+    data = urlencode(payload or {}).encode() if payload is not None else None
+    request = Request(
+        f'{settings.STRIPE_API_BASE}{path}',
+        data=data,
+        headers={
+            'Authorization': f'Basic {encoded_credentials}',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        method=method,
+    )
+
+    with urlopen(request, timeout=20) as response:
+        return json.loads(response.read().decode())
+
+
+def _stripe_amount_in_minor_units(amount):
+    return int((Decimal(str(amount)) * Decimal('100')).quantize(Decimal('1')))
+
+
+def _mark_order_paid(order, payment):
+    order.payment = payment
+    order.status = Order.STATUS_ACCEPTED
+    order.is_ordered = True
+    order.save(update_fields=[
+        'payment',
+        'status',
+        'is_ordered',
+        'updated_at',
+    ])
+    order.items.update(ordered=True)
+    CartItem.objects.filter(user=order.user, is_active=True).delete()
+
+
 def _get_pending_order(request, order_number):
     return get_object_or_404(
         Order.objects.prefetch_related('items__product', 'items__variations'),
@@ -101,8 +174,144 @@ def payment(request, order_number):
         'order': order,
         'paypal_client_id': settings.PAYPAL_CLIENT_ID,
         'paypal_currency': settings.PAYPAL_CURRENCY,
+        'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
     }
     return render(request, 'orders/payment.html', context)
+
+
+@login_required(login_url='accounts:login')
+@require_POST
+def create_stripe_checkout_session(request, order_number):
+    if not _stripe_credentials_are_configured():
+        return JsonResponse({
+            'error': 'Stripe credentials are not configured.',
+        }, status=503)
+
+    order = _get_pending_order(request, order_number)
+    success_url = (
+        request.build_absolute_uri(
+            reverse(
+                'orders:stripe_success',
+                kwargs={'order_number': order.order_number},
+            ),
+        )
+        + '?session_id={CHECKOUT_SESSION_ID}'
+    )
+    cancel_url = request.build_absolute_uri(
+        reverse(
+            'orders:stripe_cancel',
+            kwargs={'order_number': order.order_number},
+        ),
+    )
+    payload = {
+        'mode': 'payment',
+        'client_reference_id': order.order_number,
+        'customer_email': order.email,
+        'success_url': success_url,
+        'cancel_url': cancel_url,
+        'line_items[0][quantity]': '1',
+        'line_items[0][price_data][currency]': settings.STRIPE_CURRENCY,
+        'line_items[0][price_data][unit_amount]': str(
+            _stripe_amount_in_minor_units(order.grand_total),
+        ),
+        'line_items[0][price_data][product_data][name]': (
+            f'Korgen order #{order.order_number}'
+        ),
+        'metadata[order_number]': order.order_number,
+    }
+    logger.info('Creating Stripe checkout session payload: %s', payload)
+
+    try:
+        session = _stripe_request('/v1/checkout/sessions', payload)
+    except (HTTPError, URLError, KeyError, json.JSONDecodeError) as error:
+        logger.exception('Unable to create Stripe checkout session')
+        return JsonResponse({
+            'error': 'Unable to create Stripe checkout session.',
+            'details': _paypal_error_details(error),
+        }, status=502)
+
+    return JsonResponse({
+        'id': session['id'],
+        'url': session['url'],
+    })
+
+
+@login_required(login_url='accounts:login')
+def stripe_success(request, order_number):
+    session_id = request.GET.get('session_id')
+    if not session_id:
+        messages.error(request, 'Stripe session id was missing.')
+        return redirect('orders:payment', order_number=order_number)
+
+    order = _get_pending_order(request, order_number)
+
+    try:
+        session = _stripe_request(
+            f'/v1/checkout/sessions/{session_id}',
+            payload=None,
+            method='GET',
+        )
+    except (HTTPError, URLError, KeyError, json.JSONDecodeError) as error:
+        logger.exception('Unable to retrieve Stripe checkout session')
+        messages.error(request, 'Stripe payment could not be verified.')
+        return redirect('orders:payment', order_number=order.order_number)
+
+    if (
+        session.get('payment_status') != 'paid'
+        or session.get('client_reference_id') != order.order_number
+    ):
+        messages.error(request, 'Stripe payment was not completed.')
+        return redirect('orders:payment', order_number=order.order_number)
+
+    should_send_order_email = False
+    with transaction.atomic():
+        order = Order.objects.select_for_update().get(pk=order.pk)
+        was_already_ordered = order.is_ordered
+        payment_id = session.get('payment_intent') or session['id']
+        payment, _ = Payment.objects.update_or_create(
+            payment_id=payment_id,
+            defaults={
+                'user': request.user,
+                'payment_method': 'Stripe',
+                'amount_paid': Decimal(str(order.grand_total)),
+                'payer_email': (
+                    session.get('customer_details', {}).get('email')
+                    or session.get('customer_email', '')
+                ),
+                'payer_name': session.get('customer_details', {}).get(
+                    'name',
+                    '',
+                ),
+                'currency': session.get(
+                    'currency',
+                    settings.STRIPE_CURRENCY,
+                ).upper(),
+                'transaction_data': session,
+                'status': Payment.STATUS_COMPLETED,
+            },
+        )
+        _mark_order_paid(order, payment)
+        should_send_order_email = not was_already_ordered
+
+    if should_send_order_email:
+        try:
+            _send_order_received_email(order)
+        except Exception:
+            logger.exception(
+                'Failed to send order received email for order %s',
+                order.order_number,
+            )
+
+    return redirect(
+        'orders:order_complete',
+        order_number=order.order_number,
+    )
+
+
+@login_required(login_url='accounts:login')
+def stripe_cancel(request, order_number):
+    messages.warning(request, 'Stripe checkout was cancelled.')
+    return redirect('orders:payment', order_number=order_number)
 
 
 @login_required(login_url='accounts:login')
@@ -127,6 +336,7 @@ def create_paypal_order(request, order_number):
             },
         ],
     }
+    logger.info('Creating PayPal order payload: %s', payload)
 
     try:
         access_token = _get_paypal_access_token()
@@ -136,6 +346,7 @@ def create_paypal_order(request, order_number):
             access_token,
         )
     except (HTTPError, URLError, KeyError, json.JSONDecodeError) as error:
+        logger.exception('Unable to create PayPal order')
         return _paypal_json_response(
             'Unable to create PayPal order.',
             details=_paypal_error_details(error),
@@ -172,6 +383,7 @@ def capture_paypal_order(request, order_number):
             access_token,
         )
     except (HTTPError, URLError, KeyError, json.JSONDecodeError) as error:
+        logger.exception('Unable to capture PayPal order')
         return _paypal_json_response(
             'Unable to capture PayPal order.',
             details=_paypal_error_details(error),
@@ -185,18 +397,38 @@ def capture_paypal_order(request, order_number):
     capture = captures[0] if captures else {}
     capture_id = capture.get('id')
     capture_status = capture.get('status', '').lower()
+    capture_amount = capture.get('amount', {})
+    payer = paypal_order.get('payer', {})
+    payer_name = payer.get('name', {})
+    payer_full_name = ' '.join(
+        part for part in [
+            payer_name.get('given_name', ''),
+            payer_name.get('surname', ''),
+        ]
+        if part
+    )
 
     if not capture_id:
         return _paypal_json_response('PayPal capture response was invalid.')
 
+    should_send_order_email = False
     with transaction.atomic():
         order = Order.objects.select_for_update().get(pk=order.pk)
+        was_already_ordered = order.is_ordered
         payment, _ = Payment.objects.update_or_create(
             payment_id=capture_id,
             defaults={
                 'user': request.user,
                 'payment_method': 'PayPal',
                 'amount_paid': Decimal(str(order.grand_total)),
+                'paypal_order_id': paypal_order_id,
+                'payer_email': payer.get('email_address', ''),
+                'payer_name': payer_full_name,
+                'currency': capture_amount.get(
+                    'currency_code',
+                    settings.PAYPAL_CURRENCY,
+                ),
+                'transaction_data': paypal_order,
                 'status': (
                     Payment.STATUS_COMPLETED
                     if capture_status == Payment.STATUS_COMPLETED
@@ -217,11 +449,21 @@ def capture_paypal_order(request, order_number):
             ])
             order.items.update(ordered=True)
             CartItem.objects.filter(user=request.user, is_active=True).delete()
+            should_send_order_email = not was_already_ordered
         else:
             return JsonResponse({
                 'error': 'PayPal payment was not completed.',
                 'status': payment.status,
             }, status=400)
+
+    if should_send_order_email:
+        try:
+            _send_order_received_email(order)
+        except Exception:
+            logger.exception(
+                'Failed to send order received email for order %s',
+                order.order_number,
+            )
 
     return JsonResponse({
         'status': payment.status,

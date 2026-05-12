@@ -23,8 +23,8 @@
 
                     <div class="card border-0 shadow-sm  ">
 
-                         <div class="card border-0 shadow-sm bg-transparent">
-                              <div class="card-header bg-transparent fw-bold fs-5">
+                         <div class="card  shadow-sm">
+                              <div class="card-header  fw-bold fs-5">
                                    Billing Details
                               </div>
                               <div class="card-body">
@@ -54,7 +54,7 @@
                                    Payment Methods
                               </div>
                               <div class="card-body">
-                                   <p class="card-text ps-4">Paypal</p>
+                                   <p class="card-text ps-4 mb-0">Stripe and PayPal</p>
                               </div>
                          </div>
 
@@ -91,11 +91,13 @@
                                                   <tr>
                                                        <td class="ps-4 py-4">
                                                             <article class="d-flex align-items-center gap-3">
-                                                                 {% if order_item.product and order_item.product.images %}
+                                                                 {% if order_item.product %}
+                                                                 {% if order_item.product.images %}
                                                                  <img src="{{ order_item.product.images.url }}"
                                                                       alt="{{ order_item.product.product_name }}"
                                                                       class="rounded"
                                                                       style="width: 64px; height: 64px; object-fit: cover;">
+                                                                 {% endif %}
                                                                  {% endif %}
                                                                  <div>
                                                                       <h2 class="h6 mb-1">
@@ -159,43 +161,110 @@
                </section>
 
                <!-- Order Summary -->
-               <aside class="col-12 col-lg-3"
+               <aside class="col-12 col-lg-3 card shadow-sm  "
                     aria-label="Order summary">
-                    <section class="card shadow-sm">
+                    <section class="korgen-buy-box  "
+                         aria-labelledby="korgen-buy-box-heading ">
+                         <div class="korgen-buy-box-body">
+                              <h2 id="korgen-buy-box-heading"
+                                   class="visually-hidden">Order Summary</h2>
 
-                         <div class="card-body p-4">
-                              <h2 class="h5 fw-bold">Order Summary</h2>
-                              <p class="small text-muted mb-3">Order #{{ order.order_number }}</p>
+                              <p class="korgen-order-agreement mt-3">
+                                   By placing your order you agree to Korgen's
+                                   <a href="#">Conditions of Use &amp; Sale</a>.
+                                   Please see our
+                                   <a href="#">Privacy Notice</a>, our
+                                   <a href="#">Cookies Notice</a> and our
+                                   <a href="#">Interest-Based Ads Notice</a>.
+                              </p>
 
-                              <dl class="row mb-0">
-                                   <dt class="col-6 fw-normal text-muted">Total price</dt>
-                                   <dd class="col-6 text-end mb-2">
-                                        £{{ order.order_total|floatformat:2|intcomma }}
-                                   </dd>
+                              <hr class="korgen-order-divider">
 
-                                   <dt class="col-6 fw-normal text-muted">Tax</dt>
-                                   <dd class="col-6 text-end mb-2">
-                                        £{{ order.tax|floatformat:2|intcomma }}
-                                   </dd>
-
-                                   <dt class="col-6 fw-semibold">Total</dt>
-                                   <dd class="col-6 text-end fw-semibold">
-                                        £{{ order.grand_total|floatformat:2|intcomma }}
-                                   </dd>
+                              <dl class="korgen-compact-total">
+                                   <div>
+                                        <dt>Items:</dt>
+                                        <dd>£{{ order.order_total|floatformat:2|intcomma }}</dd>
+                                   </div>
+                                   <div>
+                                        <dt>Postage &amp; Packing:</dt>
+                                        <dd>£0.00</dd>
+                                   </div>
+                                   <div class="korgen-order-total-row">
+                                        <dt>Order Total:</dt>
+                                        <dd>£{{ order.grand_total|floatformat:2|intcomma }}</dd>
+                                   </div>
                               </dl>
 
-                              <hr>
+                              <p class="korgen-vat-note">
+                                   Order totals include VAT.
+                                   <button type="button"
+                                        id="order-details-toggle"
+                                        class="korgen-details-toggle"
+                                        aria-expanded="false"
+                                        aria-controls="order-details-panel">See details</button>
+                              </p>
 
-                              <p class="text-center mb-3">
+                              <div id="order-details-panel"
+                                   class="korgen-order-details"
+                                   hidden>
+                                   <button type="button"
+                                        id="order-details-close"
+                                        class="korgen-order-details-close"
+                                        aria-label="Close order details">&times;</button>
+                                   <h3>Korgen Market Place Order Summary</h3>
+                                   <dl>
+                                        <div>
+                                             <dt>Items:</dt>
+                                             <dd>£{{ order.order_total|floatformat:2|intcomma }}</dd>
+                                        </div>
+                                        <div>
+                                             <dt>Postage &amp; Packing:</dt>
+                                             <dd>£0.00</dd>
+                                        </div>
+                                        <div>
+                                             <dt>Total before VAT:</dt>
+                                             <dd>£{{ order.order_total|floatformat:2|intcomma }}</dd>
+                                        </div>
+                                        <div>
+                                             <dt>
+                                                  <a href="#">Estimated VAT:</a>
+                                             </dt>
+                                             <dd>£{{ order.tax|floatformat:2|intcomma }}</dd>
+                                        </div>
+                                        <div class="korgen-order-detail-total">
+                                             <dt>Order Total:</dt>
+                                             <dd>£{{ order.grand_total|floatformat:2|intcomma }}</dd>
+                                        </div>
+                                   </dl>
+                              </div>
+
+                              <p id="stripe-result-message"
+                                   class="small text-danger mb-2"></p>
+
+                              <p class="text-center my-3 mt-2">
                                    <img src="{% static 'images/misc/payments.png' %}"
                                         alt="Accepted payment methods"
                                         height="26">
                               </p>
 
+                              {% if stripe_public_key %}
                               <button type="button"
-                                   class="btn btn-success w-100 mb-2">Pay with Stripe</button>
+                                   id="stripe-checkout-button"
+                                   class="korgen-stripe-button mb-2 mt-2">Pay with Stripe</button>
+                                   <p class="small text-muted mb-2 text-center">or</p>
+                              {% else %}
+                              <button type="button"
+                                   class="korgen-stripe-button"
+                                   disabled>Pay with Stripe</button>
+                              <p class="small text-danger mb-2">
+                                   Stripe is not configured.
+                              </p>
+                              {% endif %}
+
                               {% if paypal_client_id %}
-                              <div id="paypal-button-container"></div>
+                              <div class="korgen-paypal-wrap">
+                                   <div id="paypal-button-container"></div>
+                              </div>
                               <!-- PayPal error message -->
                               <p id="paypal-result-message"
                                    class="small text-danger mb-0 mt-2">Loading PayPal...</p>
@@ -204,7 +273,6 @@
                                    PayPal is not configured.
                               </p>
                               {% endif %}
-
                          </div>
                     </section>
                </aside>
@@ -214,6 +282,177 @@
 </main>
 
 <!-- ========== Main content ends ========== -->
+
+<style>
+     .korgen-buy-box {
+          position: relative;
+          background: #fff;
+          /* box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08); */
+     }
+
+     .korgen-buy-box-body {
+          padding: 20px;
+     }
+
+     .korgen-stripe-button {
+          width: 100%;
+          min-height: 38px;
+          border: 0;
+          border-radius: 999px;
+          background: #198754;
+          color: #fff;
+          font-size: 14px;
+          font-weight: 600;
+          line-height: 1;
+          box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+     }
+
+     .korgen-stripe-button:hover:not(:disabled),
+     .korgen-stripe-button:focus-visible:not(:disabled) {
+          background: #157347;
+     }
+
+     .korgen-stripe-button:disabled {
+          cursor: not-allowed;
+          opacity: 0.65;
+     }
+
+     .korgen-order-agreement {
+          margin: 14px 0 16px;
+          color: #111;
+          font-size: 12px;
+          line-height: 1.35;
+     }
+
+     .korgen-order-agreement a,
+     .korgen-order-details a,
+     .korgen-details-toggle {
+          color: #0066c0;
+          text-decoration: underline;
+     }
+
+     .korgen-order-divider {
+          margin: 0 0 16px;
+          border-color: #d5d9d9;
+          opacity: 1;
+     }
+
+     .korgen-compact-total {
+          margin: 0;
+          font-size: 13px;
+     }
+
+     .korgen-compact-total div,
+     .korgen-order-details dl div {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          gap: 16px;
+     }
+
+     .korgen-compact-total dt,
+     .korgen-order-details dt {
+          font-weight: 400;
+     }
+
+     .korgen-compact-total dd,
+     .korgen-order-details dd {
+          margin: 0;
+          text-align: right;
+          white-space: nowrap;
+     }
+
+     .korgen-order-total-row {
+          margin-top: 4px;
+          font-size: 19px;
+          font-weight: 700;
+     }
+
+     .korgen-order-total-row dt,
+     .korgen-order-total-row dd,
+     .korgen-order-detail-total dt,
+     .korgen-order-detail-total dd {
+          font-weight: 700;
+     }
+
+     .korgen-vat-note {
+          margin: 2px 0 0;
+          color: #111;
+          font-size: 14px;
+          line-height: 1.3;
+     }
+
+     .korgen-details-toggle {
+          padding: 1px 6px;
+          border: 1px solid #879596;
+          border-radius: 999px;
+          background: #fff;
+          font-size: 12px;
+          line-height: 1.15;
+     }
+
+     .korgen-order-details {
+          position: absolute;
+          z-index: 20;
+          right: calc(100% + 12px);
+          bottom: 0;
+          width: 405px;
+          max-width: calc(100vw - 32px);
+          padding: 16px 14px 14px 16px;
+          border: 1px solid #b7b7b7;
+          border-radius: 6px;
+          background: #fff;
+          box-shadow: 0 2px 6px rgba(15, 23, 42, 0.16);
+          color: #111;
+     }
+
+     .korgen-order-details h3 {
+          max-width: 330px;
+          margin: 0 32px 2px 0;
+          font-size: 20px;
+          line-height: 1.1;
+          font-weight: 700;
+          letter-spacing: 0;
+     }
+
+     .korgen-order-details dl {
+          margin: 0;
+          font-size: 15px;
+          line-height: 1.2;
+     }
+
+     .korgen-order-detail-total {
+          margin-top: 4px;
+          font-size: 20px;
+     }
+
+     .korgen-order-details-close {
+          position: absolute;
+          top: 8px;
+          right: 10px;
+          width: 24px;
+          height: 24px;
+          padding: 0;
+          border: 0;
+          background: transparent;
+          color: #111;
+          font-size: 30px;
+          line-height: 20px;
+     }
+
+     .korgen-paypal-wrap {
+          min-height: 40px;
+     }
+
+     @media (max-width: 991.98px) {
+          .korgen-order-details {
+               right: 0;
+               bottom: auto;
+               top: calc(100% + 8px);
+               width: 100%;
+          }
+     }
+</style>
 
 {% endblock content %}
 
@@ -227,12 +466,121 @@
           }
      };
 </script>
-<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency={{ paypal_currency|default:'GBP' }}"
+<script
+     src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency={{ paypal_currency|default:'GBP' }}&intent=capture"
      onerror="window.showPaypalSdkLoadError()"></script>
 {% endif %}
 {% endblock paypal_js %}
 
 {% block page_js %}
+<script>
+     function getCookie(name) {
+          const cookies = document.cookie ? document.cookie.split(';') : [];
+
+          for (let i = 0; i < cookies.length; i += 1) {
+               const cookie = cookies[i].trim();
+
+               if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    return decodeURIComponent(cookie.substring(name.length + 1));
+               }
+          }
+
+          return '';
+     }
+
+     const csrfToken = getCookie('csrftoken') || '{{ csrf_token }}';
+
+     const orderDetailsToggle = document.getElementById('order-details-toggle');
+     const orderDetailsPanel = document.getElementById('order-details-panel');
+     const orderDetailsClose = document.getElementById('order-details-close');
+
+     function setOrderDetailsOpen(isOpen) {
+          if (!orderDetailsToggle || !orderDetailsPanel) {
+               return;
+          }
+
+          orderDetailsPanel.hidden = !isOpen;
+          orderDetailsToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+     }
+
+     if (orderDetailsToggle && orderDetailsPanel) {
+          orderDetailsToggle.addEventListener('click', function (event) {
+               event.stopPropagation();
+               setOrderDetailsOpen(orderDetailsPanel.hidden);
+          });
+
+          if (orderDetailsClose) {
+               orderDetailsClose.addEventListener('click', function () {
+                    setOrderDetailsOpen(false);
+                    orderDetailsToggle.focus();
+               });
+          }
+
+          document.addEventListener('click', function (event) {
+               if (
+                    !orderDetailsPanel.hidden
+                    && !orderDetailsPanel.contains(event.target)
+                    && event.target !== orderDetailsToggle
+               ) {
+                    setOrderDetailsOpen(false);
+               }
+          });
+
+          document.addEventListener('keydown', function (event) {
+               if (event.key === 'Escape') {
+                    setOrderDetailsOpen(false);
+               }
+          });
+     }
+</script>
+
+{% if stripe_public_key %}
+<script>
+     const stripeCheckoutButton = document.getElementById('stripe-checkout-button');
+     const stripeResultMessage = document.getElementById('stripe-result-message');
+
+     function showStripeError(message) {
+          stripeResultMessage.textContent = message || 'Stripe checkout could not be started.';
+     }
+
+     stripeCheckoutButton.addEventListener('click', function () {
+          stripeCheckoutButton.disabled = true;
+          stripeResultMessage.textContent = 'Starting Stripe checkout...';
+
+          fetch("{% url 'orders:create_stripe_checkout_session' order.order_number %}", {
+               method: 'POST',
+               credentials: 'same-origin',
+               headers: {
+                    'X-CSRFToken': csrfToken
+               }
+          })
+               .then(function (res) {
+                    return res.json().then(function (data) {
+                         console.log('Stripe checkout HTTP status:', res.status);
+                         console.log('Stripe checkout data:', data);
+
+                         if (!res.ok) {
+                              throw new Error(data.error || 'Stripe checkout could not be started.');
+                         }
+
+                         return data;
+                    });
+               })
+               .then(function (data) {
+                    if (!data.url) {
+                         throw new Error('Stripe checkout URL was not returned by the server.');
+                    }
+                    window.location.href = data.url;
+               })
+               .catch(function (error) {
+                    console.error('Stripe checkout failed:', error);
+                    showStripeError(error.message);
+                    stripeCheckoutButton.disabled = false;
+               });
+     });
+</script>
+{% endif %}
+
 {% if paypal_client_id %}
 <script>
      const paypalResultMessage = document.getElementById('paypal-result-message');
@@ -248,67 +596,96 @@
      }
 
      function getPaypalErrorMessage(data) {
+          if (!data) {
+               return 'PayPal returned an empty response.';
+          }
+
           if (!data.details) {
-               return data.error;
+               return data.error || 'PayPal returned an unknown error.';
           }
 
           if (typeof data.details === 'string') {
-               return data.error + ': ' + data.details;
+               return (data.error || 'PayPal error') + ': ' + data.details;
           }
 
           if (data.details.message) {
-               return data.error + ': ' + data.details.message;
+               return (data.error || 'PayPal error') + ': ' + data.details.message;
           }
 
           if (Array.isArray(data.details.details) && data.details.details.length) {
-               return data.error + ': ' + data.details.details[0].description;
+               const detail = data.details.details[0];
+               return (data.error || 'PayPal error') + ': ' + (detail.description || detail.issue);
           }
 
-          return data.error;
+          if (data.details.name) {
+               return (data.error || 'PayPal error') + ': ' + data.details.name;
+          }
+
+          return data.error || 'PayPal returned an unknown error.';
      }
 
      if (typeof paypal === 'undefined') {
           showPaypalError('PayPal could not load. Check your client ID, internet connection, and browser console.');
      } else {
      paypal.Buttons({
-
           style: {
-                color:  'gold',
-                shape:  'pill',
-                label:  'pay',
-                height: 40
-            },
+               color: 'gold',
+               shape: 'pill',
+               label: 'pay',
+               height: 40
+          },
+
           createOrder: function () {
-               return fetch("{% url 'orders:create_paypal_order' order.order_number %}", {
+               const createOrderUrl = "{% url 'orders:create_paypal_order' order.order_number %}";
+
+               console.log('Creating PayPal order:', {
+                    orderNumber: '{{ order.order_number }}',
+                    currency: '{{ paypal_currency|default:"GBP" }}',
+                    total: '{{ order.grand_total|floatformat:2 }}',
+                    url: createOrderUrl
+               });
+
+               return fetch(createOrderUrl, {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
-                         'X-CSRFToken': '{{ csrf_token }}'
+                         'X-CSRFToken': csrfToken
                     }
                })
                     .then(function (res) {
                          return res.json().then(function (data) {
+                              console.log('PayPal create order HTTP status:', res.status);
+                              console.log('PayPal create order data:', data);
+
                               if (!res.ok) {
                                    throw new Error(getPaypalErrorMessage(data));
                               }
+
                               return data;
                          });
                     })
                     .then(function (orderData) {
+                         if (!orderData || !orderData.id) {
+                              throw new Error('PayPal order ID was not returned by the server.');
+                         }
                          return orderData.id;
                     })
                     .catch(function (error) {
                          console.error('PayPal create order failed:', error);
-                         showPaypalError(error.message);
+                         showPaypalError(error.message || 'Unable to start PayPal checkout.');
                          throw error;
                     });
           },
 
           onApprove: function (data) {
+               console.log('PayPal approved:', data);
+
                return fetch("{% url 'orders:capture_paypal_order' order.order_number %}", {
                     method: 'POST',
+                    credentials: 'same-origin',
                     headers: {
                          'Content-Type': 'application/json',
-                         'X-CSRFToken': '{{ csrf_token }}'
+                         'X-CSRFToken': csrfToken
                     },
                     body: JSON.stringify({
                          paypal_order_id: data.orderID
@@ -316,9 +693,13 @@
                })
                     .then(function (res) {
                          return res.json().then(function (data) {
+                              console.log('PayPal capture HTTP status:', res.status);
+                              console.log('PayPal capture data:', data);
+
                               if (!res.ok) {
                                    throw new Error(getPaypalErrorMessage(data));
                               }
+
                               return data;
                          });
                     })
@@ -327,20 +708,28 @@
                     })
                     .catch(function (error) {
                          console.error('PayPal capture failed:', error);
-                         showPaypalError(error.message);
+                         showPaypalError(error.message || 'PayPal approval succeeded, but capture failed.');
                          throw error;
                     });
           },
 
+          onCancel: function (data) {
+               console.warn('PayPal checkout cancelled:', data);
+               showPaypalError('PayPal checkout was cancelled. Please try again.');
+          },
+
           onError: function (error) {
                console.error('PayPal SDK error:', error);
-               showPaypalErrorIfEmpty('PayPal could not complete the payment. Use a sandbox personal buyer account, not the merchant account or a live PayPal account.');
+               showPaypalErrorIfEmpty('PayPal could not complete the payment.');
           }
-     }).render('#paypal-button-container').then(function () {
-          paypalResultMessage.textContent = '';
-     }).catch(function (error) {
-          showPaypalError(error.message);
-     });
+     }).render('#paypal-button-container')
+          .then(function () {
+               paypalResultMessage.textContent = '';
+          })
+          .catch(function (error) {
+               console.error('PayPal render failed:', error);
+               showPaypalError(error.message || 'PayPal button could not be rendered.');
+          });
      }
 </script>
 {% endif %}

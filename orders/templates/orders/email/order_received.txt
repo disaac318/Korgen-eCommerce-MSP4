@@ -1,0 +1,18 @@
+Hi {{ order.first_name }},
+
+Thank you for your order. We have received your payment and your order is now being processed.
+
+Order number: {{ order.order_number }}
+Total: £{{ order.grand_total|floatformat:2 }}
+
+Items:
+{% for item in items %}
+- {{ item }} x {{ item.quantity }} - £{{ item.sub_total|floatformat:2 }}
+{% if item.variations.all %}  {% for variation in item.variations.all %}{{ variation.variation_category|capfirst }}: {{ variation.variation_value|capfirst }}{% if not forloop.last %}, {% endif %}{% endfor %}
+{% endif %}
+{% endfor %}
+
+Delivery address:
+{{ order.full_address }}
+
+Korgen Ecommerce
