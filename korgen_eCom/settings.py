@@ -139,6 +139,9 @@ ACCOUNT_USERNAME_MIN_LENGTH = 4
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
+REMEMBER_ME_SESSION_AGE = int(
+    os.environ.get('REMEMBER_ME_SESSION_AGE', 60 * 60 * 24 * 14),
+)
 
 
 WSGI_APPLICATION = 'korgen_eCom.wsgi.application'

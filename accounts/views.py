@@ -104,6 +104,10 @@ def login(request):
         if user is not None:
             guest_cart_id = request.session.get('cart_id')
             auth_login(request, user)
+            if request.POST.get('remember'):
+                request.session.set_expiry(settings.REMEMBER_ME_SESSION_AGE)
+            else:
+                request.session.set_expiry(0)
             if guest_cart_id:
                 request.session['cart_id'] = guest_cart_id
                 assign_session_cart_to_user(request)
