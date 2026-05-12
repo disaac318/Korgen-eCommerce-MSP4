@@ -86,8 +86,23 @@
           <script src="{% static 'js/script.js' %}?v=alert-autoclose"></script>
 
           <script>
+               function getCookie(name) {
+                    const cookies = document.cookie ? document.cookie.split(";") : [];
+
+                    for (let i = 0; i < cookies.length; i += 1) {
+                         const cookie = cookies[i].trim();
+
+                         if (cookie.substring(0, name.length + 1) === `${name}=`) {
+                              return decodeURIComponent(cookie.substring(name.length + 1));
+                         }
+                    }
+
+                    return "";
+               }
+
                document.addEventListener("DOMContentLoaded", () => {
                     const forms = document.querySelectorAll(".needs-validation");
+                    const postForms = document.querySelectorAll('form[method="post" i]');
 
                     forms.forEach(form => {
                          form.addEventListener("submit", event => {
@@ -98,6 +113,17 @@
                               }
 
                               form.classList.add("was-validated");
+                         });
+                    });
+
+                    postForms.forEach(form => {
+                         form.addEventListener("submit", () => {
+                              const csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+                              const csrfCookie = getCookie("csrftoken");
+
+                              if (csrfInput && csrfCookie) {
+                                   csrfInput.value = csrfCookie;
+                              }
                          });
                     });
                });

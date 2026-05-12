@@ -27,6 +27,11 @@ urlpatterns = [
         name='capture_paypal_order',
     ),
     path(
+        'payment/<str:order_number>/paypal/cancel/',
+        views.paypal_cancel,
+        name='paypal_cancel',
+    ),
+    path(
         'payment/<str:order_number>/stripe/create/',
         views.create_stripe_checkout_session,
         name='create_stripe_checkout_session',

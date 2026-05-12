@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 
+from accounts.models import BillingDetails
 from carts.models import Cart, CartItem
 from carts.utils import assign_session_cart_to_user, get_cart_id
 from orders.forms import OrderForm
@@ -225,15 +226,25 @@ def checkout(request):
 
     tax = total * Decimal('0.20')
     grand_total = total + tax
-    initial = {
-        'first_name': request.user.first_name,
-        'last_name': request.user.last_name,
-        'email': request.user.email,
-    }
+    try:
+        billing_details = request.user.billing_details
+    except BillingDetails.DoesNotExist:
+        billing_details = None
+    if billing_details:
+        initial = billing_details.as_order_initial()
+    else:
+        initial = {}
     form = OrderForm(request.POST or None, initial=initial)
 
     if request.method == 'POST' and form.is_valid():
         with transaction.atomic():
+            BillingDetails.objects.update_or_create(
+                user=request.user,
+                defaults=BillingDetails.from_order_cleaned_data(
+                    form.cleaned_data,
+                ),
+            )
+
             order = form.save(commit=False)
             order.user = request.user
             order.order_total = total
@@ -268,5 +279,6 @@ def checkout(request):
         'tax': tax,
         'grand_total': grand_total,
         'quantity': quantity,
+        'has_saved_billing_details': billing_details is not None,
     }
     return render(request, 'store/checkout.html', context)

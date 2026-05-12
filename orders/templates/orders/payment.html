@@ -164,7 +164,7 @@
                <aside class="col-12 col-lg-3 card shadow-sm  "
                     aria-label="Order summary">
                     <section class="korgen-buy-box  "
-                         aria-labelledby="korgen-buy-box-heading ">
+                         aria-labelledby="korgen-buy-box-heading">
                          <div class="korgen-buy-box-body">
                               <h2 id="korgen-buy-box-heading"
                                    class="visually-hidden">Order Summary</h2>
@@ -239,9 +239,9 @@
                               </div>
 
                               <p id="stripe-result-message"
-                                   class="small text-danger mb-2"></p>
+                                   class="small text-danger mb-2 mt-2"></p>
 
-                              <p class="text-center my-3 mt-2">
+                              <p class="text-center my-3 mt-4">
                                    <img src="{% static 'images/misc/payments.png' %}"
                                         alt="Accepted payment methods"
                                         height="26">
@@ -251,7 +251,9 @@
                               <button type="button"
                                    id="stripe-checkout-button"
                                    class="korgen-stripe-button mb-2 mt-2">Pay with Stripe</button>
-                                   <p class="small text-muted mb-2 text-center">or</p>
+                              {% if paypal_client_id %}
+                              <p class="small text-muted mb-2 text-center">or</p>
+                              {% endif %}
                               {% else %}
                               <button type="button"
                                    class="korgen-stripe-button"
@@ -282,6 +284,34 @@
 </main>
 
 <!-- ========== Main content ends ========== -->
+
+<div class="modal fade"
+     id="paypalPaymentCancelledModal"
+     tabindex="-1"
+     aria-labelledby="paypalPaymentCancelledModalLabel"
+     aria-hidden="true">
+     <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+               <div class="modal-header">
+                    <h2 class="modal-title fs-5"
+                         id="paypalPaymentCancelledModalLabel">Payment not completed</h2>
+                    <button type="button"
+                         class="btn-close"
+                         data-bs-dismiss="modal"
+                         aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                    <p>Sorry, your PayPal payment transaction was not successful.</p>
+                    <p class="mb-0">No payment has been completed. Please try PayPal again or use another payment method.</p>
+               </div>
+               <div class="modal-footer">
+                    <button type="button"
+                         class="btn btn-secondary"
+                         data-bs-dismiss="modal">Close</button>
+               </div>
+          </div>
+     </div>
+</div>
 
 <style>
      .korgen-buy-box {
@@ -489,10 +519,12 @@
      }
 
      const csrfToken = getCookie('csrftoken') || '{{ csrf_token }}';
+     const paypalCancelUrl = "{% url 'orders:paypal_cancel' order.order_number %}";
 
      const orderDetailsToggle = document.getElementById('order-details-toggle');
      const orderDetailsPanel = document.getElementById('order-details-panel');
      const orderDetailsClose = document.getElementById('order-details-close');
+     const paypalPaymentCancelledModal = document.getElementById('paypalPaymentCancelledModal');
 
      function setOrderDetailsOpen(isOpen) {
           if (!orderDetailsToggle || !orderDetailsPanel) {
@@ -532,6 +564,19 @@
                }
           });
      }
+
+     {% if paypal_payment_cancelled %}
+     if (paypalPaymentCancelledModal && window.bootstrap && bootstrap.Modal) {
+          const paymentCancelledModal = new bootstrap.Modal(
+               paypalPaymentCancelledModal,
+               {
+                    backdrop: true,
+                    keyboard: true
+               }
+          );
+          paymentCancelledModal.show();
+     }
+     {% endif %}
 </script>
 
 {% if stripe_public_key %}
@@ -589,6 +634,10 @@
           paypalResultMessage.textContent = message || 'Sorry, your payment could not be processed.';
      }
 
+     function redirectToPaypalCancel() {
+          window.location.href = paypalCancelUrl;
+     }
+
      function showPaypalErrorIfEmpty(message) {
           if (!paypalResultMessage.textContent) {
                showPaypalError(message);
@@ -627,109 +676,112 @@
      if (typeof paypal === 'undefined') {
           showPaypalError('PayPal could not load. Check your client ID, internet connection, and browser console.');
      } else {
-     paypal.Buttons({
-          style: {
-               color: 'gold',
-               shape: 'pill',
-               label: 'pay',
-               height: 40
-          },
+          paypal.Buttons({
+               style: {
+                    color: 'gold',
+                    shape: 'pill',
+                    label: 'pay',
+                    height: 40
+               },
 
-          createOrder: function () {
-               const createOrderUrl = "{% url 'orders:create_paypal_order' order.order_number %}";
+               createOrder: function () {
+                    const createOrderUrl = "{% url 'orders:create_paypal_order' order.order_number %}";
 
-               console.log('Creating PayPal order:', {
-                    orderNumber: '{{ order.order_number }}',
-                    currency: '{{ paypal_currency|default:"GBP" }}',
-                    total: '{{ order.grand_total|floatformat:2 }}',
-                    url: createOrderUrl
-               });
+                    console.log('Creating PayPal order:', {
+                         orderNumber: '{{ order.order_number }}',
+                         currency: '{{ paypal_currency|default:"GBP" }}',
+                         total: '{{ order.grand_total|floatformat:2 }}',
+                         url: createOrderUrl
+                    });
 
-               return fetch(createOrderUrl, {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: {
-                         'X-CSRFToken': csrfToken
-                    }
-               })
-                    .then(function (res) {
-                         return res.json().then(function (data) {
-                              console.log('PayPal create order HTTP status:', res.status);
-                              console.log('PayPal create order data:', data);
-
-                              if (!res.ok) {
-                                   throw new Error(getPaypalErrorMessage(data));
-                              }
-
-                              return data;
-                         });
-                    })
-                    .then(function (orderData) {
-                         if (!orderData || !orderData.id) {
-                              throw new Error('PayPal order ID was not returned by the server.');
+                    return fetch(createOrderUrl, {
+                         method: 'POST',
+                         credentials: 'same-origin',
+                         headers: {
+                              'X-CSRFToken': csrfToken
                          }
-                         return orderData.id;
                     })
-                    .catch(function (error) {
-                         console.error('PayPal create order failed:', error);
-                         showPaypalError(error.message || 'Unable to start PayPal checkout.');
-                         throw error;
-                    });
-          },
+                         .then(function (res) {
+                              return res.json().then(function (data) {
+                                   console.log('PayPal create order HTTP status:', res.status);
+                                   console.log('PayPal create order data:', data);
 
-          onApprove: function (data) {
-               console.log('PayPal approved:', data);
+                                   if (!res.ok) {
+                                        throw new Error(getPaypalErrorMessage(data));
+                                   }
 
-               return fetch("{% url 'orders:capture_paypal_order' order.order_number %}", {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: {
-                         'Content-Type': 'application/json',
-                         'X-CSRFToken': csrfToken
-                    },
-                    body: JSON.stringify({
-                         paypal_order_id: data.orderID
-                    })
-               })
-                    .then(function (res) {
-                         return res.json().then(function (data) {
-                              console.log('PayPal capture HTTP status:', res.status);
-                              console.log('PayPal capture data:', data);
-
-                              if (!res.ok) {
-                                   throw new Error(getPaypalErrorMessage(data));
+                                   return data;
+                              });
+                         })
+                         .then(function (orderData) {
+                              if (!orderData || !orderData.id) {
+                                   throw new Error('PayPal order ID was not returned by the server.');
                               }
-
-                              return data;
+                              return orderData.id;
+                         })
+                         .catch(function (error) {
+                              console.error('PayPal create order failed:', error);
+                              showPaypalError(error.message || 'Unable to start PayPal checkout.');
+                              redirectToPaypalCancel();
+                              throw error;
                          });
-                    })
-                    .then(function (orderData) {
-                         window.location.href = orderData.redirect_url;
-                    })
-                    .catch(function (error) {
-                         console.error('PayPal capture failed:', error);
-                         showPaypalError(error.message || 'PayPal approval succeeded, but capture failed.');
-                         throw error;
-                    });
-          },
+               },
 
-          onCancel: function (data) {
-               console.warn('PayPal checkout cancelled:', data);
-               showPaypalError('PayPal checkout was cancelled. Please try again.');
-          },
+               onApprove: function (data) {
+                    console.log('PayPal approved:', data);
 
-          onError: function (error) {
-               console.error('PayPal SDK error:', error);
-               showPaypalErrorIfEmpty('PayPal could not complete the payment.');
-          }
-     }).render('#paypal-button-container')
-          .then(function () {
-               paypalResultMessage.textContent = '';
-          })
-          .catch(function (error) {
-               console.error('PayPal render failed:', error);
-               showPaypalError(error.message || 'PayPal button could not be rendered.');
-          });
+                    return fetch("{% url 'orders:capture_paypal_order' order.order_number %}", {
+                         method: 'POST',
+                         credentials: 'same-origin',
+                         headers: {
+                              'Content-Type': 'application/json',
+                              'X-CSRFToken': csrfToken
+                         },
+                         body: JSON.stringify({
+                              paypal_order_id: data.orderID
+                         })
+                    })
+                         .then(function (res) {
+                              return res.json().then(function (data) {
+                                   console.log('PayPal capture HTTP status:', res.status);
+                                   console.log('PayPal capture data:', data);
+
+                                   if (!res.ok) {
+                                        throw new Error(getPaypalErrorMessage(data));
+                                   }
+
+                                   return data;
+                              });
+                         })
+                         .then(function (orderData) {
+                              window.location.href = orderData.redirect_url;
+                         })
+                         .catch(function (error) {
+                              console.error('PayPal capture failed:', error);
+                              showPaypalError(error.message || 'PayPal approval succeeded, but capture failed.');
+                              redirectToPaypalCancel();
+                              throw error;
+                         });
+               },
+
+               onCancel: function (data) {
+                    console.warn('PayPal checkout cancelled:', data);
+                    redirectToPaypalCancel();
+               },
+
+               onError: function (error) {
+                    console.error('PayPal SDK error:', error);
+                    showPaypalErrorIfEmpty('PayPal could not complete the payment.');
+                    redirectToPaypalCancel();
+               }
+          }).render('#paypal-button-container')
+               .then(function () {
+                    paypalResultMessage.textContent = '';
+               })
+               .catch(function (error) {
+                    console.error('PayPal render failed:', error);
+                    showPaypalError(error.message || 'PayPal button could not be rendered.');
+               });
      }
 </script>
 {% endif %}

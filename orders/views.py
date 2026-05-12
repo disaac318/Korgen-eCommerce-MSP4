@@ -33,6 +33,16 @@ def _stripe_credentials_are_configured():
     return bool(settings.STRIPE_PUBLIC_KEY and settings.STRIPE_SECRET_KEY)
 
 
+def _stripe_live_payments_are_blocked():
+    return (
+        not settings.STRIPE_ALLOW_LIVE_PAYMENTS
+        and (
+            settings.STRIPE_PUBLIC_KEY.startswith('pk_live_')
+            or settings.STRIPE_SECRET_KEY.startswith('sk_live_')
+        )
+    )
+
+
 def _send_order_received_email(order):
     context = {
         'order': order,
@@ -134,6 +144,26 @@ def _stripe_amount_in_minor_units(amount):
     return int((Decimal(str(amount)) * Decimal('100')).quantize(Decimal('1')))
 
 
+def _build_stripe_checkout_session_payload(order, success_url, cancel_url):
+    return {
+        'mode': 'payment',
+        'client_reference_id': order.order_number,
+        'customer_email': order.email,
+        'success_url': success_url,
+        'cancel_url': cancel_url,
+        'payment_method_types[0]': settings.STRIPE_PAYMENT_METHOD_TYPES[0],
+        'line_items[0][quantity]': '1',
+        'line_items[0][price_data][currency]': settings.STRIPE_CURRENCY,
+        'line_items[0][price_data][unit_amount]': str(
+            _stripe_amount_in_minor_units(order.grand_total),
+        ),
+        'line_items[0][price_data][product_data][name]': (
+            f'Korgen order #{order.order_number}'
+        ),
+        'metadata[order_number]': order.order_number,
+    }
+
+
 def _mark_order_paid(order, payment):
     order.payment = payment
     order.status = Order.STATUS_ACCEPTED
@@ -170,11 +200,15 @@ def order_complete(request, order_number):
 @login_required(login_url='accounts:login')
 def payment(request, order_number):
     order = _get_pending_order(request, order_number)
+    paypal_payment_cancelled = (
+        request.GET.get('payment_status') == 'paypal_cancelled'
+    )
     context = {
         'order': order,
         'paypal_client_id': settings.PAYPAL_CLIENT_ID,
         'paypal_currency': settings.PAYPAL_CURRENCY,
         'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
+        'paypal_payment_cancelled': paypal_payment_cancelled,
     }
     return render(request, 'orders/payment.html', context)
 
@@ -185,6 +219,14 @@ def create_stripe_checkout_session(request, order_number):
     if not _stripe_credentials_are_configured():
         return JsonResponse({
             'error': 'Stripe credentials are not configured.',
+        }, status=503)
+
+    if _stripe_live_payments_are_blocked():
+        return JsonResponse({
+            'error': (
+                'Stripe live payments are disabled for this test phase. '
+                'Use Stripe test keys or enable live payments explicitly.'
+            ),
         }, status=503)
 
     order = _get_pending_order(request, order_number)
@@ -203,22 +245,11 @@ def create_stripe_checkout_session(request, order_number):
             kwargs={'order_number': order.order_number},
         ),
     )
-    payload = {
-        'mode': 'payment',
-        'client_reference_id': order.order_number,
-        'customer_email': order.email,
-        'success_url': success_url,
-        'cancel_url': cancel_url,
-        'line_items[0][quantity]': '1',
-        'line_items[0][price_data][currency]': settings.STRIPE_CURRENCY,
-        'line_items[0][price_data][unit_amount]': str(
-            _stripe_amount_in_minor_units(order.grand_total),
-        ),
-        'line_items[0][price_data][product_data][name]': (
-            f'Korgen order #{order.order_number}'
-        ),
-        'metadata[order_number]': order.order_number,
-    }
+    payload = _build_stripe_checkout_session_payload(
+        order,
+        success_url,
+        cancel_url,
+    )
     logger.info('Creating Stripe checkout session payload: %s', payload)
 
     try:
@@ -312,6 +343,20 @@ def stripe_success(request, order_number):
 def stripe_cancel(request, order_number):
     messages.warning(request, 'Stripe checkout was cancelled.')
     return redirect('orders:payment', order_number=order_number)
+
+
+@login_required(login_url='accounts:login')
+def paypal_cancel(request, order_number):
+    _get_pending_order(request, order_number)
+    messages.warning(
+        request,
+        'The PayPal payment method was not completed.',
+    )
+    payment_url = reverse(
+        'orders:payment',
+        kwargs={'order_number': order_number},
+    )
+    return redirect(f'{payment_url}?payment_status=paypal_cancelled')
 
 
 @login_required(login_url='accounts:login')

@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
@@ -63,3 +64,54 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def has_module_perms(self, app_label):
         return True
+
+
+class BillingDetails(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='billing_details',
+    )
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    email = models.EmailField(max_length=100)
+    phone = models.CharField(max_length=20)
+    address_line_1 = models.CharField(max_length=100)
+    address_line_2 = models.CharField(max_length=100, blank=True)
+    county = models.CharField(max_length=50)
+    postcode = models.CharField(max_length=20)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Billing details'
+        verbose_name_plural = 'Billing details'
+
+    @classmethod
+    def fields_to_save(cls):
+        return (
+            'first_name',
+            'last_name',
+            'email',
+            'phone',
+            'address_line_1',
+            'address_line_2',
+            'county',
+            'postcode',
+        )
+
+    def as_order_initial(self):
+        return {
+            field_name: getattr(self, field_name)
+            for field_name in self.fields_to_save()
+        }
+
+    @classmethod
+    def from_order_cleaned_data(cls, cleaned_data):
+        return {
+            field_name: cleaned_data.get(field_name, '')
+            for field_name in cls.fields_to_save()
+        }
+
+    def __str__(self):
+        return f'Billing details for {self.user}'

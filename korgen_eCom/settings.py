@@ -252,4 +252,8 @@ PAYPAL_API_BASE = (
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', '')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_CURRENCY = 'gbp'
+STRIPE_PAYMENT_METHOD_TYPES = ['card']
+STRIPE_ALLOW_LIVE_PAYMENTS = (
+    os.environ.get('STRIPE_ALLOW_LIVE_PAYMENTS', 'False') == 'True'
+)
 STRIPE_API_BASE = 'https://api.stripe.com'

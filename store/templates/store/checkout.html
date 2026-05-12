@@ -24,6 +24,16 @@
                                    </div>
                                    {% endif %}
 
+                                   {% if has_saved_billing_details %}
+                                   <p class="small text-muted mb-3">
+                                        Your saved billing details have been loaded. You can edit them before placing this order.
+                                   </p>
+                                   {% else %}
+                                   <p class="small text-muted mb-3">
+                                        Enter your billing details. We will save them to your account for faster checkout next time.
+                                   </p>
+                                   {% endif %}
+
                                    <div class="row g-3">
                                         <div class="col-md-6">
                                              <div class="form-floating">
