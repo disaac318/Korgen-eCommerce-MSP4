@@ -16,4 +16,7 @@ Items:
 Delivery address:
 {{ order.full_address }}
 
+Invoice:
+{{ invoice_url }}
+
 Korgen Ecommerce

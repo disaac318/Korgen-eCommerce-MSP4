@@ -199,6 +199,16 @@
                                         <dt class="col-6 fw-normal text-muted">Delivery</dt>
                                         <dd class="col-6 text-end mb-2">£{{ delivery_total|floatformat:2|intcomma }}</dd>
 
+                                        {% if qualifies_for_free_delivery %}
+                                        <dt class="col-12 fw-normal text-success small mb-2">
+                                             Free delivery applied on orders over £{{ free_delivery_threshold|floatformat:2|intcomma }}.
+                                        </dt>
+                                        {% else %}
+                                        <dt class="col-12 fw-normal text-muted small mb-2">
+                                             Free delivery on orders over £{{ free_delivery_threshold|floatformat:2|intcomma }}.
+                                        </dt>
+                                        {% endif %}
+
                                         <dt class="col-6 fw-semibold">Total</dt>
                                         <dd class="col-6 text-end fw-semibold">£{{ grand_total|floatformat:2|intcomma }}</dd>
                                    </dl>

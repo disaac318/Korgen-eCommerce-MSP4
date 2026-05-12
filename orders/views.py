@@ -11,13 +11,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from carts.models import CartItem
+from carts.pricing import calculate_delivery_total
 
 from .models import Order, Payment
 
@@ -43,9 +44,19 @@ def _stripe_live_payments_are_blocked():
     )
 
 
-def _send_order_received_email(order):
+def _send_order_received_email(order, request=None):
+    invoice_path = reverse(
+        'orders:invoice',
+        kwargs={'order_number': order.order_number},
+    )
+    invoice_url = (
+        request.build_absolute_uri(invoice_path)
+        if request
+        else invoice_path
+    )
     context = {
         'order': order,
+        'invoice_url': invoice_url,
         'items': order.items.select_related('product').prefetch_related(
             'variations',
         ),
@@ -187,14 +198,57 @@ def _get_pending_order(request, order_number):
     )
 
 
-@login_required(login_url='accounts:login')
-def order_complete(request, order_number):
-    order = get_object_or_404(
+def _get_paid_order(request, order_number):
+    return get_object_or_404(
         Order.objects.prefetch_related('items__product', 'items__variations'),
         order_number=order_number,
         user=request.user,
+        is_ordered=True,
     )
+
+
+@login_required(login_url='accounts:login')
+def order_complete(request, order_number):
+    order = _get_paid_order(request, order_number)
     return render(request, 'orders/order_complete.html', {'order': order})
+
+
+@login_required(login_url='accounts:login')
+def invoice(request, order_number):
+    order = _get_paid_order(request, order_number)
+    return render(request, 'orders/invoice.html', {'order': order})
+
+
+@login_required(login_url='accounts:login')
+def invoice_pdf(request, order_number):
+    order = _get_paid_order(request, order_number)
+    html = render_to_string(
+        'orders/invoice_pdf.html',
+        {'order': order},
+        request=request,
+    )
+
+    try:
+        from weasyprint import HTML
+    except (ImportError, OSError):
+        return HttpResponse(
+            (
+                'Invoice PDF generation is not available. '
+                'Install WeasyPrint and its system dependencies.'
+            ),
+            status=503,
+            content_type='text/plain',
+        )
+
+    pdf = HTML(
+        string=html,
+        base_url=request.build_absolute_uri('/'),
+    ).write_pdf()
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = (
+        f'attachment; filename="invoice-{order.order_number}.pdf"'
+    )
+    return response
 
 
 @login_required(login_url='accounts:login')
@@ -203,12 +257,19 @@ def payment(request, order_number):
     paypal_payment_cancelled = (
         request.GET.get('payment_status') == 'paypal_cancelled'
     )
+    free_delivery_threshold = Decimal(str(settings.DELIVERY_FREE_THRESHOLD))
     context = {
         'order': order,
         'paypal_client_id': settings.PAYPAL_CLIENT_ID,
         'paypal_currency': settings.PAYPAL_CURRENCY,
         'stripe_public_key': settings.STRIPE_PUBLIC_KEY,
         'paypal_payment_cancelled': paypal_payment_cancelled,
+        'free_delivery_threshold': free_delivery_threshold,
+        'qualifies_for_free_delivery': (
+            order.delivery_total == calculate_delivery_total(order.order_total)
+            and order.delivery_total == Decimal('0.00')
+            and order.order_total >= free_delivery_threshold
+        ),
     }
     return render(request, 'orders/payment.html', context)
 
@@ -326,7 +387,7 @@ def stripe_success(request, order_number):
 
     if should_send_order_email:
         try:
-            _send_order_received_email(order)
+            _send_order_received_email(order, request)
         except Exception:
             logger.exception(
                 'Failed to send order received email for order %s',
@@ -503,7 +564,7 @@ def capture_paypal_order(request, order_number):
 
     if should_send_order_email:
         try:
-            _send_order_received_email(order)
+            _send_order_received_email(order, request)
         except Exception:
             logger.exception(
                 'Failed to send order received email for order %s',

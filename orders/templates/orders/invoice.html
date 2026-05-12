@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+
+<main class="py-5 bg-light">
+     <div class="container">
+          <article class="card shadow-sm mx-auto invoice-document"
+               style="max-width: 960px;">
+               <div class="card-body p-4 p-md-5">
+                    <header class="d-flex flex-wrap justify-content-between gap-3 mb-4">
+                         <div>
+                              <p class="text-uppercase text-muted small mb-1">Invoice</p>
+                              <h1 class="h3 fw-bold mb-0">Korgen Ecommerce</h1>
+                         </div>
+                         <div class="text-md-end">
+                              <p class="mb-1">
+                                   <strong>Invoice number:</strong>
+                                   INV-{{ order.order_number }}
+                              </p>
+                              <p class="mb-1">
+                                   <strong>Order number:</strong>
+                                   {{ order.order_number }}
+                              </p>
+                              <p class="mb-0">
+                                   <strong>Order date:</strong>
+                                   {{ order.created_at|date:"j F Y" }}
+                              </p>
+                         </div>
+                    </header>
+
+                    <hr>
+
+                    <section class="row g-4 mb-4">
+                         <div class="col-md-6">
+                              <h2 class="h6 fw-bold text-uppercase text-muted">Bill to</h2>
+                              <p class="mb-1">{{ order.full_name }}</p>
+                              <p class="mb-1">{{ order.email }}</p>
+                              <p class="mb-0">{{ order.full_address }}</p>
+                         </div>
+                         <div class="col-md-6 text-md-end">
+                              <h2 class="h6 fw-bold text-uppercase text-muted">Payment</h2>
+                              <p class="mb-1">
+                                   <strong>Status:</strong>
+                                   {{ order.get_status_display }}
+                              </p>
+                              {% if order.payment %}
+                              <p class="mb-1">
+                                   <strong>Method:</strong>
+                                   {{ order.payment.payment_method }}
+                              </p>
+                              <p class="mb-0">
+                                   <strong>Transaction:</strong>
+                                   {{ order.payment.payment_id }}
+                              </p>
+                              {% endif %}
+                         </div>
+                    </section>
+
+                    <div class="table-responsive border rounded-3 mb-4">
+                         <table class="table table-borderless align-middle mb-0">
+                              <caption class="visually-hidden">Invoice line items</caption>
+                              <thead class="table-light">
+                                   <tr>
+                                        <th scope="col">Item</th>
+                                        <th scope="col">Details</th>
+                                        <th scope="col"
+                                             class="text-center">Qty</th>
+                                        <th scope="col"
+                                             class="text-end">Unit price</th>
+                                        <th scope="col"
+                                             class="text-end">Subtotal</th>
+                                   </tr>
+                              </thead>
+                              <tbody>
+                                   {% for item in order.items.all %}
+                                   <tr>
+                                        <td>{{ item }}</td>
+                                        <td>
+                                             {% if item.variations.all %}
+                                             {% for variation in item.variations.all %}
+                                             {{ variation.variation_category|capfirst }}:
+                                             {{ variation.variation_value|capfirst }}{% if not forloop.last %}, {% endif %}
+                                             {% endfor %}
+                                             {% else %}
+                                             <span class="text-muted">-</span>
+                                             {% endif %}
+                                        </td>
+                                        <td class="text-center">{{ item.quantity }}</td>
+                                        <td class="text-end">£{{ item.product_price|floatformat:2|intcomma }}</td>
+                                        <td class="text-end">£{{ item.sub_total|floatformat:2|intcomma }}</td>
+                                   </tr>
+                                   {% endfor %}
+                              </tbody>
+                         </table>
+                    </div>
+
+                    <section class="row justify-content-end">
+                         <div class="col-md-5 col-lg-4">
+                              <dl class="row mb-0">
+                                   <dt class="col-6 fw-normal text-muted">Subtotal</dt>
+                                   <dd class="col-6 text-end">£{{ order.order_total|floatformat:2|intcomma }}</dd>
+
+                                   <dt class="col-6 fw-normal text-muted">VAT</dt>
+                                   <dd class="col-6 text-end">£{{ order.tax|floatformat:2|intcomma }}</dd>
+
+                                   <dt class="col-6 fw-normal text-muted">Delivery</dt>
+                                   <dd class="col-6 text-end">£{{ order.delivery_total|floatformat:2|intcomma }}</dd>
+
+                                   <dt class="col-6 fw-bold border-top pt-2">Total</dt>
+                                   <dd class="col-6 text-end fw-bold border-top pt-2">£{{ order.grand_total|floatformat:2|intcomma }}</dd>
+                              </dl>
+                         </div>
+                    </section>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4 invoice-actions">
+                         <a href="{% url 'orders:invoice_pdf' order.order_number %}"
+                              class="btn btn-success">Download PDF</a>
+                         <button type="button"
+                              class="btn btn-secondary"
+                              onclick="window.print()">Print invoice</button>
+                         <a href="{% url 'orders:order_complete' order.order_number %}"
+                              class="btn btn-outline-secondary">Back to order</a>
+                    </div>
+               </div>
+          </article>
+     </div>
+</main>
+
+<style>
+     @media print {
+          header.section-header,
+          footer,
+          .invoice-actions {
+               display: none !important;
+          }
+
+          main {
+               background: #fff !important;
+               padding: 0 !important;
+          }
+
+          .invoice-document {
+               border: 0 !important;
+               box-shadow: none !important;
+          }
+     }
+</style>
+
+{% endblock content %}

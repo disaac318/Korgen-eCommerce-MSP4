@@ -1,0 +1,196 @@
+{% load humanize %}
+<!doctype html>
+<html lang="en">
+     <head>
+          <meta charset="utf-8">
+          <title>Invoice INV-{{ order.order_number }}</title>
+          <style>
+               @page {
+                    size: A4;
+                    margin: 18mm;
+               }
+
+               body {
+                    color: #111;
+                    font-family: Arial, sans-serif;
+                    font-size: 12px;
+                    line-height: 1.45;
+               }
+
+               h1,
+               h2,
+               p {
+                    margin: 0;
+               }
+
+               .header {
+                    display: table;
+                    width: 100%;
+                    margin-bottom: 24px;
+               }
+
+               .header-col {
+                    display: table-cell;
+                    width: 50%;
+                    vertical-align: top;
+               }
+
+               .text-right {
+                    text-align: right;
+               }
+
+               .eyebrow {
+                    color: #666;
+                    font-size: 10px;
+                    letter-spacing: 0.08em;
+                    text-transform: uppercase;
+               }
+
+               .brand {
+                    font-size: 24px;
+                    font-weight: 700;
+               }
+
+               .section-grid {
+                    display: table;
+                    width: 100%;
+                    margin: 22px 0;
+               }
+
+               .section-col {
+                    display: table-cell;
+                    width: 50%;
+                    vertical-align: top;
+               }
+
+               .section-title {
+                    color: #666;
+                    font-size: 11px;
+                    font-weight: 700;
+                    margin-bottom: 6px;
+                    text-transform: uppercase;
+               }
+
+               table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 16px;
+               }
+
+               th {
+                    background: #f2f2f2;
+                    font-size: 11px;
+                    text-align: left;
+                    text-transform: uppercase;
+               }
+
+               th,
+               td {
+                    border-bottom: 1px solid #ddd;
+                    padding: 8px;
+                    vertical-align: top;
+               }
+
+               .summary {
+                    margin-left: auto;
+                    margin-top: 22px;
+                    width: 260px;
+               }
+
+               .summary td {
+                    border: 0;
+                    padding: 4px 0;
+               }
+
+               .summary-total td {
+                    border-top: 1px solid #111;
+                    font-size: 14px;
+                    font-weight: 700;
+                    padding-top: 8px;
+               }
+          </style>
+     </head>
+     <body>
+          <header class="header">
+               <div class="header-col">
+                    <p class="eyebrow">Invoice</p>
+                    <h1 class="brand">Korgen Ecommerce</h1>
+               </div>
+               <div class="header-col text-right">
+                    <p><strong>Invoice number:</strong> INV-{{ order.order_number }}</p>
+                    <p><strong>Order number:</strong> {{ order.order_number }}</p>
+                    <p><strong>Order date:</strong> {{ order.created_at|date:"j F Y" }}</p>
+               </div>
+          </header>
+
+          <section class="section-grid">
+               <div class="section-col">
+                    <h2 class="section-title">Bill to</h2>
+                    <p>{{ order.full_name }}</p>
+                    <p>{{ order.email }}</p>
+                    <p>{{ order.full_address }}</p>
+               </div>
+               <div class="section-col text-right">
+                    <h2 class="section-title">Payment</h2>
+                    <p><strong>Status:</strong> {{ order.get_status_display }}</p>
+                    {% if order.payment %}
+                    <p><strong>Method:</strong> {{ order.payment.payment_method }}</p>
+                    <p><strong>Transaction:</strong> {{ order.payment.payment_id }}</p>
+                    {% endif %}
+               </div>
+          </section>
+
+          <table>
+               <thead>
+                    <tr>
+                         <th>Item</th>
+                         <th>Details</th>
+                         <th class="text-right">Qty</th>
+                         <th class="text-right">Unit price</th>
+                         <th class="text-right">Subtotal</th>
+                    </tr>
+               </thead>
+               <tbody>
+                    {% for item in order.items.all %}
+                    <tr>
+                         <td>{{ item }}</td>
+                         <td>
+                              {% if item.variations.all %}
+                              {% for variation in item.variations.all %}
+                              {{ variation.variation_category|capfirst }}:
+                              {{ variation.variation_value|capfirst }}{% if not forloop.last %}, {% endif %}
+                              {% endfor %}
+                              {% else %}
+                              -
+                              {% endif %}
+                         </td>
+                         <td class="text-right">{{ item.quantity }}</td>
+                         <td class="text-right">£{{ item.product_price|floatformat:2|intcomma }}</td>
+                         <td class="text-right">£{{ item.sub_total|floatformat:2|intcomma }}</td>
+                    </tr>
+                    {% endfor %}
+               </tbody>
+          </table>
+
+          <table class="summary">
+               <tbody>
+                    <tr>
+                         <td>Subtotal</td>
+                         <td class="text-right">£{{ order.order_total|floatformat:2|intcomma }}</td>
+                    </tr>
+                    <tr>
+                         <td>VAT</td>
+                         <td class="text-right">£{{ order.tax|floatformat:2|intcomma }}</td>
+                    </tr>
+                    <tr>
+                         <td>Delivery</td>
+                         <td class="text-right">£{{ order.delivery_total|floatformat:2|intcomma }}</td>
+                    </tr>
+                    <tr class="summary-total">
+                         <td>Total</td>
+                         <td class="text-right">£{{ order.grand_total|floatformat:2|intcomma }}</td>
+                    </tr>
+               </tbody>
+          </table>
+     </body>
+</html>

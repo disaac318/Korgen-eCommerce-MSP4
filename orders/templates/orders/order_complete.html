@@ -54,6 +54,8 @@
 
                     <a href="{% url 'store' %}"
                          class="btn btn-warning">Continue shopping</a>
+                    <a href="{% url 'orders:invoice' order.order_number %}"
+                         class="btn btn-outline-secondary ms-2">View invoice</a>
                </div>
           </section>
      </div>

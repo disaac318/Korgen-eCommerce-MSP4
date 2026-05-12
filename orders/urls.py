@@ -12,6 +12,16 @@ urlpatterns = [
         name='order_complete',
     ),
     path(
+        'invoice/<str:order_number>/',
+        views.invoice,
+        name='invoice',
+    ),
+    path(
+        'invoice/<str:order_number>/pdf/',
+        views.invoice_pdf,
+        name='invoice_pdf',
+    ),
+    path(
         'payment/<str:order_number>/',
         views.payment,
         name='payment',

@@ -189,6 +189,13 @@
                                         <dt>Postage &amp; Packing:</dt>
                                         <dd>£{{ order.delivery_total|floatformat:2|intcomma }}</dd>
                                    </div>
+                                   <div class="korgen-delivery-note">
+                                        {% if qualifies_for_free_delivery %}
+                                        <dt>Free delivery applied on orders over £{{ free_delivery_threshold|floatformat:2|intcomma }}.</dt>
+                                        {% else %}
+                                        <dt>Free delivery on orders over £{{ free_delivery_threshold|floatformat:2|intcomma }}.</dt>
+                                        {% endif %}
+                                   </div>
                                    <div class="korgen-order-total-row">
                                         <dt>Order Total:</dt>
                                         <dd>£{{ order.grand_total|floatformat:2|intcomma }}</dd>
@@ -220,6 +227,13 @@
                                         <div>
                                              <dt>Postage &amp; Packing:</dt>
                                              <dd>£{{ order.delivery_total|floatformat:2|intcomma }}</dd>
+                                        </div>
+                                        <div class="korgen-delivery-note">
+                                             {% if qualifies_for_free_delivery %}
+                                             <dt>Free delivery applied on orders over £{{ free_delivery_threshold|floatformat:2|intcomma }}.</dt>
+                                             {% else %}
+                                             <dt>Free delivery on orders over £{{ free_delivery_threshold|floatformat:2|intcomma }}.</dt>
+                                             {% endif %}
                                         </div>
                                         <div>
                                              <dt>Total before VAT:</dt>
@@ -390,6 +404,16 @@
           margin: 0;
           text-align: right;
           white-space: nowrap;
+     }
+
+     .korgen-delivery-note {
+          color: #198754;
+          font-size: 12px;
+          line-height: 1.25;
+     }
+
+     .korgen-delivery-note dt {
+          width: 100%;
      }
 
      .korgen-order-total-row {
