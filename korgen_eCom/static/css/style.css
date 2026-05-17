@@ -176,6 +176,14 @@ textarea.form-control::placeholder {
 
 /* rating starts */
 
+.rating-stars.text-warning i {
+    color: var(--bs-warning) !important;
+}
+
+.product-rating-stars i {
+    font-size: 20px;
+}
+
 .rate {
     float: left;
     height: 46px;

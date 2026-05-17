@@ -53,6 +53,11 @@
                          <article class="p-4">
                               <header class="mb-3">
                                    <h1 class="h-25 mb-2 fw-bold">{{ single_product.product_name }}</h1>
+
+                                   {% include 'store/includes/rating_stars.html' with rating=single_product.averageReview rating_classes='product-rating-stars text-warning h5 mb-2' %}
+
+                                   <span>{{ single_product.countReview}}  Reviews</span>
+
                                    <p class="mb-0">
                                         <span class="h2 mb-0">£ {{ single_product.price }}</span>
                                    </p>
@@ -87,7 +92,8 @@
                                                   disabled
                                                   selected>Choose your color</option>
                                              {% for color in color_variations %}
-                                             <option value="{{ color.variation_value|lower }}">{{ color.variation_value|capfirst }}</option>
+                                             <option value="{{ color.variation_value|lower }}">{{
+                                                  color.variation_value|capfirst }}</option>
                                              {% endfor %}
 
                                         </select>
@@ -109,7 +115,8 @@
                                                   disabled
                                                   selected>Choose your size</option>
                                              {% for size in size_variations %}
-                                             <option value="{{ size.variation_value|lower }}">{{ size.variation_value|capfirst }}</option>
+                                             <option value="{{ size.variation_value|lower }}">{{
+                                                  size.variation_value|capfirst }}</option>
                                              {% endfor %}
                                         </select>
                                         {% endif %}
@@ -248,7 +255,12 @@
                </form>
 
                <header class="mb-3">
-                    <h2 class="h3 mb-0">Customer Reviews</h2>
+                    <h2 class="h3 mt-3 mb-0">Customer Reviews</h2>
+
+                    {% include 'store/includes/rating_stars.html' with rating=single_product.averageReview rating_classes='product-rating-stars text-warning' %}
+
+                    <span>{{ single_product.countReview}}  Reviews</span>
+
                </header>
 
                {% for review in reviews %}
@@ -262,19 +274,8 @@
                                    style="width:48px;height:48px;object-fit:cover;">
                               <div class="flex-grow-1">
                                    <h5 class=" mb-1">{{ review.user.full_name }}</h5>
-                                   <div class="text-warning">
-                                        <i class="{% if review.rating >= 1 %}fa-solid fa-star{% elif review.rating >= 0.5 %}fa-solid fa-star-half-stroke{% else %}fa-regular fa-star{% endif %}"
-                                             aria-hidden="true"></i>
-                                        <i class="{% if review.rating >= 2 %}fa-solid fa-star{% elif review.rating >= 1.5 %}fa-solid fa-star-half-stroke{% else %}fa-regular fa-star{% endif %}"
-                                             aria-hidden="true"></i>
-                                        <i class="{% if review.rating >= 3 %}fa-solid fa-star{% elif review.rating >= 2.5 %}fa-solid fa-star-half-stroke{% else %}fa-regular fa-star{% endif %}"
-                                             aria-hidden="true"></i>
-                                        <i class="{% if review.rating >= 4 %}fa-solid fa-star{% elif review.rating >= 3.5 %}fa-solid fa-star-half-stroke{% else %}fa-regular fa-star{% endif %}"
-                                             aria-hidden="true"></i>
-                                        <i class="{% if review.rating >= 5 %}fa-solid fa-star{% elif review.rating >= 4.5 %}fa-solid fa-star-half-stroke{% else %}fa-regular fa-star{% endif %}"
-                                             aria-hidden="true"></i>
-                                   </div>
-                                   
+                                   {% include 'store/includes/rating_stars.html' with rating=review.rating rating_classes='text-warning' %}
+
                                    <p class="small text-muted mb-0">
                                         <time datetime="2020-04-24">{{ review.created_at|date:" d M, Y, H:i"}}</time>
                                    </p>

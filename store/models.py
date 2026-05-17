@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg, Count
 from category.models import Category
 
 # Create your models here.
@@ -20,6 +21,18 @@ class Product(models.Model):
 
     def __str__(self):
         return self.product_name
+
+    def averageReview(self):
+        reviews = ReviewRating.objects.filter(product=self, status=True).aggregate(average=Avg('rating'))
+        average = reviews['average']
+        if average is None:
+            return 0
+        return round(average, 1)
+    
+
+    def countReview(self):
+        reviews = ReviewRating.objects.filter(product=self, status=True).aggregate(count=Count('id'))
+        return reviews['count'] or 0
 
 
 class VariationManager(models.Manager):
