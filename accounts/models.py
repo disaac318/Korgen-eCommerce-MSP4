@@ -118,3 +118,28 @@ class BillingDetails(models.Model):
 
     def __str__(self):
         return f'Billing details for {self.user}'
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(Account, on_delete=models.CASCADE)
+    address_line_1 = models.CharField(max_length=100, blank=True)
+    address_line_2 = models.CharField(max_length=100, blank=True)
+    city = models.CharField(max_length=50, blank=True)
+    county = models.CharField(max_length=50, blank=True)
+    postcode = models.CharField(max_length=20, blank=True)
+    country = models.CharField(max_length=50, blank=True)
+    profile_picture = models.ImageField(upload_to='userprofile', blank=True)
+
+    def __str__(self):
+        return self.user.first_name
+
+    def full_address(self):
+        address_parts = [
+            self.address_line_1,
+            self.address_line_2,
+            self.city,
+            self.county,
+            self.postcode,
+            self.country,
+        ]
+        return ', '.join(part for part in address_parts if part)
