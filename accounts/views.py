@@ -3,9 +3,9 @@ from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import redirect, render
@@ -163,11 +163,12 @@ def activate(request, uidb64, token):
 
 @login_required(login_url='accounts:login')
 def dashboard(request):
-    orders = Order.objects.order_by('-created_at').filter(user_id=request.user.id, is_ordered=True)
-    orders_count = orders.count()
+    orders = Order.objects.filter(user=request.user, is_ordered=True)
+    user_profile, _ = UserProfile.objects.get_or_create(user=request.user)
     context = {
-        'orders_count': orders_count,
+        'orders_count': orders.count(),
         'orders': orders,
+        'userprofile': user_profile,
     }
     return render(request, 'accounts/dashboard.html', context)
 
@@ -264,4 +265,29 @@ def edit_profile(request):
         'userprofile': user_profile,
     }
     return render(request, 'accounts/edit_profile.html', context)
+
+
+@login_required(login_url='accounts:login')
+def change_password(request):
+    form = PasswordChangeForm(request.user, request.POST or None)
+
+    for field in form.fields.values():
+        field.help_text = ''
+        field.widget.attrs.update({'class': 'form-control'})
+
+    form.fields['old_password'].widget.attrs['placeholder'] = 'Current Password'
+    form.fields['new_password1'].widget.attrs['placeholder'] = 'New Password'
+    form.fields['new_password2'].widget.attrs['placeholder'] = 'Confirm New Password'
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            messages.success(request, 'Your password has been changed successfully.')
+            return redirect('accounts:change_password')
+
+        messages.error(request, 'Please correct the errors below and try again.', extra_tags='danger')
+
+    return render(request, 'accounts/change_password.html', {'form': form})
+
     
