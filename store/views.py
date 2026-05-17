@@ -57,11 +57,18 @@ def product_detail(request, category_slug, product_slug):
         slug=product_slug,
         is_available=True,
     )
+
+    reviews = ReviewRating.objects.filter(
+        product_id=single_product.id,
+        status=True,
+    )
+
     color_variations = single_product.variation_set.colors()
     size_variations = single_product.variation_set.sizes()
     can_review = _user_has_purchased_product(request.user, single_product.id)
     review_purchase_message = request.session.pop('review_purchase_message', '')
     review_login_message = request.session.pop('review_login_message', '')
+    
 
     context = {
         'single_product': single_product,
@@ -70,6 +77,7 @@ def product_detail(request, category_slug, product_slug):
         'can_review': can_review,
         'review_purchase_message': review_purchase_message,
         'review_login_message': review_login_message,
+        'reviews': reviews,
     }
 
     return render(request, 'store/product_detail.html', context)

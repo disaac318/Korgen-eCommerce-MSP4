@@ -181,29 +181,45 @@ textarea.form-control::placeholder {
     height: 46px;
     padding: 0 10px;
 }
+
 .rate:not(:checked) > input {
-    position:absolute;
-    top:-9999px;
+    position: absolute;
+    top: -9999px;
 }
+
 .rate:not(:checked) > label {
-    float:right;
-    width:1em;
-    overflow:hidden;
-    white-space:nowrap;
-    cursor:pointer;
-    font-size:30px;
-    color:#51505045;
+    color: #51505045;
+    cursor: pointer;
+    float: right;
+    font-size: 30px;
+    line-height: 1;
+    overflow: hidden;
+    position: relative;
+    white-space: nowrap;
+    width: 1em;
 }
+
 .rate:not(:checked) > label:before {
-    content: '★ ';
+    content: "\f005";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
 }
+
+.rate:not(:checked) > label.half {
+    margin-right: -0.5em;
+    width: 0.5em;
+    z-index: 2;
+}
+
 .rate > input:checked ~ label {
-    color: #ffc700;    
+    color: #ffc700;
 }
+
 .rate:not(:checked) > label:hover,
 .rate:not(:checked) > label:hover ~ label {
-    color: #deb217;  
+    color: #deb217;
 }
+
 .rate > input:checked + label:hover,
 .rate > input:checked + label:hover ~ label,
 .rate > input:checked ~ label:hover,
