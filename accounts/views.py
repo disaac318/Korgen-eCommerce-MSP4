@@ -25,6 +25,7 @@ from carts.utils import assign_session_cart_to_user
 from .forms import RegistrationForm
 from .models import Account
 from .tokens import account_activation_token
+from orders.models import Order
 
 
 logger = logging.getLogger(__name__)
@@ -161,7 +162,13 @@ def activate(request, uidb64, token):
 
 @login_required(login_url='accounts:login')
 def dashboard(request):
-    return render(request, 'accounts/dashboard.html')
+    orders = Order.objects.order_by('-created_at').filter(user_id=request.user.id, is_ordered=True)
+    orders_count = orders.count()
+    context = {
+        'orders_count': orders_count,
+        'orders': orders,
+    }
+    return render(request, 'accounts/dashboard.html', context)
 
 
 @never_cache
@@ -223,3 +230,11 @@ def password_reset_confirm(request, uidb64, token):
         return redirect('accounts:login')
 
     return render(request, 'accounts/password_reset_confirm.html', {'form': form})
+
+
+def my_orders(request):
+    orders = Order.objects.filter(user=request.user, is_ordered=True).order_by('-created_at')
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'accounts/my_orders.html', context)

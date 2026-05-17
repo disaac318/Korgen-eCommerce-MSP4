@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<main>
+
+     <div class="bg-opacity-25 bg-warning py-4 pb-5">
+
+          <!-- {% include "includes/alert.html" %} -->
+          <div class="container">
+               <h1 class="h3 mb-3">My account</h1>
+
+               <div class="row g-4">
+
+                    {% include "includes/dashboard_sidebar.html" %}
+
+                    <!-- Main dashboard content -->
+                    <section class="col-12 col-md-9"
+                         aria-label="Order details">
+                         <article class="card">
+                              <header class="card-header d-flex flex-wrap gap-2 justify-content-between">
+                                   <p class="mb-0">
+                                        <strong>Your Order History</strong>
+                                   </p>
+
+                              </header>
+
+                              <div class="card-body">
+                                   <div class="row g-3">
+
+                                        <div class="col-md-12">
+                                             <div class="table-responsive">
+                                                  <table class="table table-hover table-bordered align-middle">
+                                                       <thead class="table-dark">
+                                                            <tr>
+                                                                 
+                                                                 <th scope="col">Order #</th>
+                                                                 <th scope="col">Billing Name</th>
+                                                                 <th scope="col">Phone</th>
+                                                                 <th scope="col">Order Total</th>
+                                                                 <th scope="col">Order Date</th>
+                                                            </tr>
+                                                       </thead>
+
+                                                       <tbody>
+                                                        {% for order in orders %}
+                                                            <tr>
+                                                                 <th scope="row">{{ order.order_number }}</th>
+                                                                 <td>{{ order.full_name }}</td>
+                                                                 <td>{{ order.phone }}</td>
+                                                                 <td>£ {{ order.order_total }}</td>
+                                                                 <td>{{ order.created_at }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                       </tbody>
+                                                  </table>
+                                             </div>
+                                             ...
+                                             </table>
+
+                                        </div>
+                                                            </tr>
+
+                                                            
+                                                       </tbody>
+                                                  </table>
+                                             </div>
+                                             ...
+                                             </table>
+
+                                        </div>
+
+                                   </div>
+                              </div>
+
+
+                         </article>
+                    </section>
+
+               </div>
+          </div>
+     </div>
+</main>
+
+<!-- ========== Main content ends ========== -->
+
+{% endblock %}

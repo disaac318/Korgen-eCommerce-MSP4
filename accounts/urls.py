@@ -16,4 +16,6 @@ urlpatterns = [
         views.password_reset_confirm,
         name='password_reset_confirm',
     ),
+
+    path('my_orders/', views.my_orders, name='my_orders'),
 ]
