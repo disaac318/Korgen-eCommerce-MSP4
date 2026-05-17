@@ -174,54 +174,42 @@ textarea.form-control::placeholder {
     }
 }
 
-/* rating */
-
-.rate > input {
-    display: none;
-}
+/* rating starts */
 
 .rate {
-    display: inline-block;
-    border: 0;
-    font-size: 1.25rem;
-    line-height: 1;
+    float: left;
+    height: 46px;
+    padding: 0 10px;
 }
-
-.rate > label {
-    float: right;
-    color: #d1d5db;
-    cursor: pointer;
-    display: block;
-    height: 1em;
-    line-height: 1em;
-    overflow: hidden;
-    position: relative;
-    white-space: nowrap;
-    width: 1em;
+.rate:not(:checked) > input {
+    position:absolute;
+    top:-9999px;
 }
-
-.rate > label:before {
-    display: block;
-    content: "\2605";
-    margin: 0;
-    width: 1em;
+.rate:not(:checked) > label {
+    float:right;
+    width:1em;
+    overflow:hidden;
+    white-space:nowrap;
+    cursor:pointer;
+    font-size:30px;
+    color:#51505045;
 }
-
-/* half star */
-.rate > label.half {
-    margin-right: -0.5em;
-    width: 0.5em;
-    z-index: 2;
+.rate:not(:checked) > label:before {
+    content: '★ ';
 }
-
-
-/* click and hover */
-.rate > input:checked ~ label,
-.rate > label:hover,
-.rate > label:hover ~ label,
+.rate > input:checked ~ label {
+    color: #ffc700;    
+}
+.rate:not(:checked) > label:hover,
+.rate:not(:checked) > label:hover ~ label {
+    color: #deb217;  
+}
 .rate > input:checked + label:hover,
 .rate > input:checked + label:hover ~ label,
 .rate > input:checked ~ label:hover,
-.rate > input:checked ~ label:hover ~ label {
-    color: #ffb503;
+.rate > input:checked ~ label:hover ~ label,
+.rate > label:hover ~ input:checked ~ label {
+    color: #c59b08;
 }
+
+/* rating ends */
