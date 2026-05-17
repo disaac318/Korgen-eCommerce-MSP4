@@ -174,7 +174,54 @@ textarea.form-control::placeholder {
     }
 }
 
+/* rating */
 
-/* .text-emphasis {
-     color: var(--bs-emphasis-color);
-} */
+.rate > input {
+    display: none;
+}
+
+.rate {
+    display: inline-block;
+    border: 0;
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.rate > label {
+    float: right;
+    color: #d1d5db;
+    cursor: pointer;
+    display: block;
+    height: 1em;
+    line-height: 1em;
+    overflow: hidden;
+    position: relative;
+    white-space: nowrap;
+    width: 1em;
+}
+
+.rate > label:before {
+    display: block;
+    content: "\2605";
+    margin: 0;
+    width: 1em;
+}
+
+/* half star */
+.rate > label.half {
+    margin-right: -0.5em;
+    width: 0.5em;
+    z-index: 2;
+}
+
+
+/* click and hover */
+.rate > input:checked ~ label,
+.rate > label:hover,
+.rate > label:hover ~ label,
+.rate > input:checked + label:hover,
+.rate > input:checked + label:hover ~ label,
+.rate > input:checked ~ label:hover,
+.rate > input:checked ~ label:hover ~ label {
+    color: #ffb503;
+}

@@ -1,10 +1,25 @@
-from django.shortcuts import get_object_or_404, render
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
 from category.models import Category
-from .models import Product
+from .models import Product, ReviewRating
 from django.core.paginator import Paginator
+from .forms import ReviewForm
+from orders.models import OrderProduct
 
 
 # Create your views here.
+def _user_has_purchased_product(user, product_id):
+    if not user.is_authenticated:
+        return False
+
+    return OrderProduct.objects.filter(
+        user=user,
+        product_id=product_id,
+        ordered=True,
+        order__is_ordered=True,
+    ).exists()
+
+
 def store(request, category_slug=None):
     products = Product.objects.filter(is_available=True).order_by('id')
     selected_category = None
@@ -44,11 +59,17 @@ def product_detail(request, category_slug, product_slug):
     )
     color_variations = single_product.variation_set.colors()
     size_variations = single_product.variation_set.sizes()
+    can_review = _user_has_purchased_product(request.user, single_product.id)
+    review_purchase_message = request.session.pop('review_purchase_message', '')
+    review_login_message = request.session.pop('review_login_message', '')
 
     context = {
         'single_product': single_product,
         'color_variations': color_variations,
         'size_variations': size_variations,
+        'can_review': can_review,
+        'review_purchase_message': review_purchase_message,
+        'review_login_message': review_login_message,
     }
 
     return render(request, 'store/product_detail.html', context)
@@ -76,3 +97,48 @@ def search(request):
     }
 
     return render(request, 'store/store.html', context)
+
+
+def submit_review(request, product_id):
+    url = request.META.get('HTTP_REFERER') or 'store'
+
+    if request.method != 'POST':
+        return redirect(url)
+
+    if not request.user.is_authenticated:
+        request.session['review_login_message'] = 'Please sign in to leave a review.'
+        return redirect(url)
+
+    review = ReviewRating.objects.filter(
+        user=request.user,
+        product_id=product_id,
+    ).first()
+
+    if review is None and not _user_has_purchased_product(request.user, product_id):
+        request.session['review_purchase_message'] = 'You must purchase this product before reviewing it.'
+        return redirect(url)
+
+    if review is not None:
+        form = ReviewForm(request.POST, instance=review)
+        if form.is_valid():
+            form.save()
+            request.session.pop('review_purchase_message', None)
+            request.session.pop('review_login_message', None)
+            messages.success(request, 'Thank you! Your review has been updated.')
+        else:
+            messages.error(request, 'Please check your review and try again.')
+    else:
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            data = form.save(commit=False)
+            data.ip = request.META.get('REMOTE_ADDR')
+            data.product_id = product_id
+            data.user = request.user
+            data.save()
+            request.session.pop('review_purchase_message', None)
+            request.session.pop('review_login_message', None)
+            messages.success(request, 'Thank you! Your review has been submitted.')
+        else:
+            messages.error(request, 'Please check your review and try again.')
+
+    return redirect(url)
