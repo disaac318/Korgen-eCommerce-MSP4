@@ -120,6 +120,47 @@ document.addEventListener('DOMContentLoaded', () => {
     setCartCount(initial);
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('input[type="password"]').forEach((input) => {
+        if (input.dataset.passwordToggleReady === 'true') return;
+
+        const wrapper = document.createElement('div');
+        const button = document.createElement('button');
+        const icon = document.createElement('i');
+        const label = document.createElement('span');
+
+        wrapper.className = 'input-group password-toggle-group';
+        button.type = 'button';
+        button.className = 'btn btn-outline-secondary password-toggle-button';
+        button.setAttribute('aria-controls', input.id || '');
+        button.setAttribute('aria-label', 'Show password');
+        button.setAttribute('aria-pressed', 'false');
+        button.title = 'Show password';
+
+        icon.className = 'fa fa-eye';
+        icon.setAttribute('aria-hidden', 'true');
+
+        label.className = 'visually-hidden';
+        label.textContent = 'Show password';
+
+        button.append(icon, label);
+
+        input.dataset.passwordToggleReady = 'true';
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.append(input, button);
+
+        button.addEventListener('click', () => {
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            icon.className = isHidden ? 'fa fa-eye-slash' : 'fa fa-eye';
+            label.textContent = isHidden ? 'Hide password' : 'Show password';
+            button.setAttribute('aria-label', label.textContent);
+            button.setAttribute('aria-pressed', String(isHidden));
+            button.title = label.textContent;
+        });
+    });
+});
+
 // Expose globally so other scripts (or console) can update the count
 window.setCartCount = setCartCount;
 

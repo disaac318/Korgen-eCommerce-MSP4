@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n static %}
 <!DOCTYPE html>
 <html>
     <head>
@@ -82,5 +82,6 @@
         {% endblock body %}
         {% block extra_body %}
         {% endblock extra_body %}
+        <script src="{% static 'js/script.js' %}?v=password-toggle-icon"></script>
     </body>
 </html>
