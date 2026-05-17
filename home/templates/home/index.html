@@ -4,7 +4,7 @@
 {% block content %}
 
 <!-- ========== Main content starts ========== -->
-<main">
+<main>
 
      <!-- Hero / banner -->
      <section class="section-intro padding-y-sm bg-opacity-25 bg-warning"
@@ -42,15 +42,16 @@
                                         class="img-wrap">
                                         <img src="{{ product.images.url }}"
                                              class="card-img-top d-block mx-auto"
-                                             alt="Product 1">
-                                   </a>
-                                   <div class="card-body info-wrap">
-                                        <h5 class="mb-1">
-                                             <a href="{% url 'product_detail' product.category.slug product.slug %}"
-                                                  class="title text-decoration-none text-center">{{ product.product_name}}</a>
-                                        </h5>
+	                                             alt="{{ product.product_name }}">
+	                                   </a>
+	                                   <div class="card-body info-wrap">
+	                                        <h5 class="mb-1">
+	                                             <a href="{% url 'product_detail' product.category.slug product.slug %}"
+	                                                  class="title text-decoration-none text-center">{{ product.product_name}}</a>
+	                                        </h5>
+	                                        <div class="text-center">{% include 'store/includes/rating_stars.html' with rating=product.averageReview rating_classes='text-warning text-center mb-2' %}</div>
 
-                                        <div class="mt-auto ">
+	                                        <div class="mt-auto ">
                                              <p class="mb-2 fw-bold text-center">£ {{ product.price }}</p>
                                              <a href="{% url 'add_cart' product.id %}"
                                                   class="price btn btn-warning w-100">Add to cart</a>

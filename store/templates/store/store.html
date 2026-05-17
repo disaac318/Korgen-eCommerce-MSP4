@@ -209,12 +209,15 @@
                                              </a>
 
                                              <div class="card-body d-flex flex-column text-center">
-                                                  <h2 class="h6 mb-2">
-                                                       <a href="{% url 'product_detail' product.category.slug product.slug %}"
-                                                            class="text-decoration-none">{{ product.product_name }}</a>
-                                                  </h2>
+	                                                  <h2 class="h6 mb-2">
+	                                                       <a href="{% url 'product_detail' product.category.slug product.slug %}"
+	                                                            class="text-decoration-none">{{ product.product_name }}</a>
+	                                                  </h2>
+	                                                  <div class="text-center">
+	                                                       {% include 'store/includes/rating_stars.html' with rating=product.averageReview rating_classes='text-warning mb-2' %}
+	                                                  </div>
 
-                                                  <div class="mt-auto">
+	                                                  <div class="mt-auto">
                                                        <p class="mb-2">
                                                             <span class="fw-bold">£{{ product.price }}</span>
                                                        </p>
