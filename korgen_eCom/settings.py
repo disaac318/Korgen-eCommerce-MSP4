@@ -10,42 +10,40 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-import os
-
 from pathlib import Path
+
+from decouple import Csv, config
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-def load_dotenv(path):
-    if not path.exists():
-        return
+def config_bool(name, default=False):
+    value = config(name, default=str(default))
 
-    for line in path.read_text().splitlines():
-        line = line.strip()
-        if not line or line.startswith('#') or '=' not in line:
-            continue
+    if isinstance(value, bool):
+        return value
 
-        key, value = line.split('=', 1)
-        key = key.strip()
-        value = value.strip().strip('"').strip("'")
-        os.environ.setdefault(key, value)
+    normalized_value = str(value).strip().lower()
+    if normalized_value in {'1', 'true', 'yes', 'on'}:
+        return True
+    if normalized_value in {'0', 'false', 'no', 'off'}:
+        return False
 
-
-load_dotenv(BASE_DIR / '.env')
+    return default
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-=s%)=xa71zvxbof^pyi_n$$d69dw1qjtkl1@x*3&4^ov8ms9o@'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config_bool('DEBUG', default=True)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
 
 
 # Application definition
@@ -62,7 +60,7 @@ INSTALLED_APPS = [
 
     # Third-party apps
     'allauth',
-    'allauth.account',                     # provides Email addresses
+    'allauth.account',
     'allauth.socialaccount',
 
     # Local apps
@@ -72,7 +70,6 @@ INSTALLED_APPS = [
     'store',
     'carts',
     'orders.apps.OrdersConfig',
-
 ]
 
 MIDDLEWARE = [
@@ -83,8 +80,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware",          #required by django-allauth
-    
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'korgen_eCom.urls'
@@ -93,57 +89,51 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            #  os.path.join(BASE_DIR, 'templates'),
-            #  os.path.join(BASE_DIR, 'templates', 'allauth'),
-             BASE_DIR / 'templates' / 'allauth',
-             BASE_DIR / 'templates',
+            BASE_DIR / 'templates' / 'allauth',
+            BASE_DIR / 'templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.request',   #required by allauth
+                'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'category.context_processors.menu_links',
                 'carts.context_processors.cart_counter',
-
             ],
         },
     },
 ]
 
 AUTHENTICATION_BACKENDS = [
-    
-    # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
-
-    # `allauth` specific authentication methods, such as login by email
     'allauth.account.auth_backends.AuthenticationBackend',
-
 ]
 
 SITE_ID = 1
 
 
-ACCOUNT_LOGIN_METHODS = {"username", "email"}
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}
 ACCOUNT_SIGNUP_FIELDS = [
-    "email*",
-    "email2*",
-    "username*",
-    "password1*",
-    "password2*",
+    'email*',
+    'email2*',
+    'username*',
+    'password1*',
+    'password2*',
 ]
 
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_USERNAME_MIN_LENGTH = 4
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
-REMEMBER_ME_SESSION_AGE = int(
-    os.environ.get('REMEMBER_ME_SESSION_AGE', 60 * 60 * 24 * 14),
+REMEMBER_ME_SESSION_AGE = config(
+    'REMEMBER_ME_SESSION_AGE',
+    default=60 * 60 * 24 * 14,
+    cast=int,
 )
-DELIVERY_FLAT_RATE = os.environ.get('DELIVERY_FLAT_RATE', '3.99')
-DELIVERY_FREE_THRESHOLD = os.environ.get('DELIVERY_FREE_THRESHOLD', '50.00')
+DELIVERY_FLAT_RATE = config('DELIVERY_FLAT_RATE', default='3.99')
+DELIVERY_FREE_THRESHOLD = config('DELIVERY_FREE_THRESHOLD', default='50.00')
 
 
 WSGI_APPLICATION = 'korgen_eCom.wsgi.application'
@@ -199,44 +189,36 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = "/static/"
-# Where your project's source static files live (development)
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / "korgen_eCom" / "static",
-
-    # e.g. <project_root>/static/
-    # or BASE_DIR / "korgen_eCon" / "static"  # if that's your real structure
+    BASE_DIR / 'korgen_eCom' / 'static',
 ]
 
-# Where your project's collected static files go (production)
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media files configuration
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
-from django.contrib.messages import constants as messages
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 MESSAGE_TAGS = {
-    messages.ERROR: "danger",
-    messages.WARNING: "warning",
-    messages.SUCCESS: "success",
-    messages.INFO: "info"
+    messages.ERROR: 'danger',
+    messages.WARNING: 'warning',
+    messages.SUCCESS: 'success',
+    messages.INFO: 'info',
 }
 
 
-EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
-EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.environ.get(
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config_bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default=None)
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default=None)
+DEFAULT_FROM_EMAIL = config(
     'DEFAULT_FROM_EMAIL',
-    EMAIL_HOST_USER or 'no-reply@localhost'
+    default=EMAIL_HOST_USER or 'no-reply@localhost',
 )
-EMAIL_BACKEND = os.environ.get(
+EMAIL_BACKEND = config(
     'EMAIL_BACKEND',
-    (
+    default=(
         'django.core.mail.backends.smtp.EmailBackend'
         if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD
         else 'django.core.mail.backends.console.EmailBackend'
@@ -245,10 +227,10 @@ EMAIL_BACKEND = os.environ.get(
 
 
 # PayPal checkout configuration
-PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID', '')
-PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET', '')
-PAYPAL_CURRENCY = 'GBP'
-PAYPAL_MODE = os.environ.get('PAYPAL_MODE', 'sandbox').lower()
+PAYPAL_CLIENT_ID = config('PAYPAL_CLIENT_ID', default='')
+PAYPAL_CLIENT_SECRET = config('PAYPAL_CLIENT_SECRET', default='')
+PAYPAL_CURRENCY = config('PAYPAL_CURRENCY', default='GBP')
+PAYPAL_MODE = config('PAYPAL_MODE', default='sandbox').lower()
 PAYPAL_API_BASE = (
     'https://api-m.paypal.com'
     if PAYPAL_MODE == 'live'
@@ -257,11 +239,12 @@ PAYPAL_API_BASE = (
 
 
 # Stripe checkout configuration
-STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', '')
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
-STRIPE_CURRENCY = 'gbp'
+STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY', default='')
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_CURRENCY = config('STRIPE_CURRENCY', default='gbp')
 STRIPE_PAYMENT_METHOD_TYPES = ['card']
-STRIPE_ALLOW_LIVE_PAYMENTS = (
-    os.environ.get('STRIPE_ALLOW_LIVE_PAYMENTS', 'False') == 'True'
+STRIPE_ALLOW_LIVE_PAYMENTS = config_bool(
+    'STRIPE_ALLOW_LIVE_PAYMENTS',
+    default=False,
 )
 STRIPE_API_BASE = 'https://api.stripe.com'
