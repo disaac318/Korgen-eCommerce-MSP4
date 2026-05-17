@@ -22,10 +22,11 @@ from django.views.decorators.http import require_POST
 
 from carts.utils import assign_session_cart_to_user
 
-from .forms import RegistrationForm
+from .forms import RegistrationForm, UserProfileForm, UserForm
 from .models import Account, UserProfile
 from .tokens import account_activation_token
 from orders.models import Order
+
 
 
 logger = logging.getLogger(__name__)
@@ -241,21 +242,26 @@ def my_orders(request):
 
 @login_required(login_url='accounts:login')
 def edit_profile(request):
-    profile, created = UserProfile.objects.get_or_create(user=request.user)
-
+    user_profile, created = UserProfile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
-        user = request.user
-        user.first_name = request.POST.get('first_name', user.first_name)
-        user.last_name = request.POST.get('last_name', user.last_name)
-        user.phone_number = request.POST.get('phone_number', user.phone_number)
-        user.save(update_fields=['first_name', 'last_name', 'phone_number'])
+        user_form = UserForm(request.POST, instance=request.user)
+        profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
 
-        profile_picture = request.FILES.get('profile_picture')
-        if profile_picture:
-            profile.profile_picture = profile_picture
-            profile.save(update_fields=['profile_picture'])
-
-        messages.success(request, 'Your profile has been updated successfully.')
-        return redirect('accounts:edit_profile')
-
-    return render(request, 'accounts/edit_profile.html', {'profile': profile})
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Your profile has been updated successfully.')
+            return redirect('accounts:edit_profile')
+        else:
+            messages.error(request, 'Please correct the errors below and try again.', extra_tags='danger')
+    else:
+        user_form = UserForm(instance=request.user)
+        profile_form = UserProfileForm(instance=user_profile)
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'profile': user_profile,
+        'userprofile': user_profile,
+    }
+    return render(request, 'accounts/edit_profile.html', context)
+    
