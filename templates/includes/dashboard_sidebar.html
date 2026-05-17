@@ -7,8 +7,8 @@
                href="{% url 'accounts:dashboard' %}">{{ user.full_name }}'s Dashboard</a>
           <a class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'my_orders' %}active{% endif %}"
                href="{% url 'accounts:my_orders' %}">My Orders</a>
-          <a class="list-group-item list-group-item-action"
-               href="#">Edit Profile</a>
+          <a class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'edit_profile' %}active{% endif %}"
+               href="{% url 'accounts:edit_profile' %}">Edit Profile</a>
           <a class="list-group-item list-group-item-action"
                href="#">Change Password</a>
           <a class="list-group-item list-group-item-action"

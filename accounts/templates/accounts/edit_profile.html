@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+
+<main>
+
+     <div class="bg-opacity-25 bg-warning py-4 pb-5">
+
+          <!-- {% include "includes/alert.html" %} -->
+          <div class="container">
+               <h1 class="h3 mb-3">My account</h1>
+
+               <div class="row">
+
+                    {% include "includes/dashboard_sidebar.html" %}
+
+                    <!-- Main dashboard content -->
+                    <section class="col-md-9"
+                         aria-label="Order details">
+                         <article class="card">
+                              <header class="card-header">
+                                   <strong class="d-inline-block mr-3">Edit your profile</strong>
+                              </header>
+
+                              <div class="card-body">
+                                   <form action="{% url 'accounts:edit_profile' %}"
+                                        method="POST"
+                                        enctype="multipart/form-data">
+                                        {% csrf_token %}
+
+                                        <div class="row">
+                                             <div class="form-group col-md-6 mb-3">
+                                                  <label for="first_name">First Name</label>
+                                                  <input type="text"
+                                                       class="form-control"
+                                                       name="first_name"
+                                                       id="first_name"
+                                                       value="{{ user.first_name }}">
+                                             </div>
+
+                                             <div class="form-group col-md-6 mb-3">
+                                                  <label for="last_name">Last Name</label>
+                                                  <input type="text"
+                                                       class="form-control"
+                                                       name="last_name"
+                                                       id="last_name"
+                                                       value="{{ user.last_name }}">
+                                             </div>
+
+                                             <div class="form-group col-md-6 mb-3">
+                                                  <label for="phone_number">Phone Number</label>
+                                                  <input type="text"
+                                                       class="form-control"
+                                                       name="phone_number"
+                                                       id="phone_number"
+                                                       value="{{ user.phone_number }}">
+                                             </div>
+
+                                             <div class="form-group col-md-6 mb-3">
+                                                  <label for="profile_picture">Profile Picture</label>
+                                                  <input type="file"
+                                                       class="form-control"
+                                                       name="profile_picture"
+                                                       id="profile_picture"
+                                                       accept="image/*">
+                                             </div>
+
+                                             <div class="form-group col-md-6 mb-3">
+                                                  <label for="address_line_1">Address Line 1</label>
+                                                  <input type="text"
+                                                       class="form-control"
+                                                       name="address_line_1"
+                                                       id="address_line_1"
+                                                       value="{{ profile.address_line_1 }}">
+                                             </div>
+
+                                             <div class="form-group col-md-6 mb-3">
+                                                  <label for="address_line_2">Address Line 2</label>
+                                                  <input type="text"
+                                                       class="form-control"
+                                                       name="address_line_2"
+                                                       id="address_line_2"
+                                                       value="{{ profile.address_line_2 }}">
+                                             </div>
+
+                                             <div class="form-group col-md-4 mb-3">
+                                                  <label for="county">County</label>
+                                                  <input type="text"
+                                                       class="form-control"
+                                                       name="county"
+                                                       id="county"
+                                                       value="{{ profile.county }}">
+                                             </div>
+
+                                             <div class="form-group col-md-4 mb-3">
+                                                  <label for="postcode">Postcode</label>
+                                                  <input type="text"
+                                                       class="form-control"
+                                                       name="postcode"
+                                                       id="postcode"
+                                                       value="{{ profile.postcode }}">
+                                             </div>
+
+                                             <div class="form-group col-md-4 mb-3">
+                                                  <label for="country">Country</label>
+                                                  <input type="text"
+                                                       class="form-control"
+                                                       name="country"
+                                                       id="country"
+                                                       value="{{ profile.country }}">
+                                             </div>
+
+	                                             <div class="col-12">
+	                                                  <button type="submit"
+	                                                       class="btn btn-warning mt-3 w-100">Save changes</button>
+	                                             </div>
+	                                        </div>
+	                                   </form>
+	                              </div>
+	                         </article>
+	                    </section>
+	               </div>
+	          </div>
+	     </div>
+</main>
+
+<!-- ========== Main content ends ========== -->
+
+{% endblock %}
