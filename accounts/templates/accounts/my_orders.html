@@ -36,10 +36,11 @@
                                                                  
                                                                  <th scope="col">Order #</th>
                                                                  <th scope="col">Billing Name</th>
-                                                                 <th scope="col">Phone</th>
-                                                                 <th scope="col">Order Total</th>
-                                                                 <th scope="col">Order Date</th>
-                                                            </tr>
+	                                                                 <th scope="col">Phone</th>
+	                                                                 <th scope="col">Order Total</th>
+	                                                                 <th scope="col">Order Date</th>
+	                                                                 <th scope="col">Action</th>
+	                                                            </tr>
                                                        </thead>
 
                                                        <tbody>
@@ -47,10 +48,14 @@
                                                             <tr>
                                                                  <th scope="row">{{ order.order_number }}</th>
                                                                  <td>{{ order.full_name }}</td>
-                                                                 <td>{{ order.phone }}</td>
-                                                                 <td>£ {{ order.order_total }}</td>
-                                                                 <td>{{ order.created_at }}</td>
-                                                            </tr>
+	                                                                 <td>{{ order.phone }}</td>
+	                                                                 <td>£ {{ order.order_total }}</td>
+	                                                                 <td>{{ order.created_at }}</td>
+	                                                                 <td>
+	                                                                      <a href="{% url 'accounts:order_detail' order.id %}"
+	                                                                           class="btn btn-sm btn-outline-secondary">View</a>
+	                                                                 </td>
+	                                                            </tr>
                                                         {% endfor %}
                                                        </tbody>
                                                   </table>

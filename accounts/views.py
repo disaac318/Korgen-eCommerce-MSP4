@@ -234,6 +234,7 @@ def password_reset_confirm(request, uidb64, token):
     return render(request, 'accounts/password_reset_confirm.html', {'form': form})
 
 
+@login_required(login_url='accounts:login')
 def my_orders(request):
     orders = Order.objects.filter(user=request.user, is_ordered=True).order_by('-created_at')
     context = {
@@ -291,3 +292,22 @@ def change_password(request):
     return render(request, 'accounts/change_password.html', {'form': form})
 
     
+@login_required(login_url='accounts:login')
+def order_detail(request, order_id):
+    order = (
+        Order.objects
+        .prefetch_related('items__product')
+        .filter(pk=order_id, user=request.user, is_ordered=True)
+        .first()
+    )
+
+    if order is None:
+        messages.error(request, 'Order not found.', extra_tags='danger')
+        return redirect('accounts:my_orders')
+
+    context = {
+        'order_detail': order.items.all(),
+        'order': order,
+    }
+
+    return render(request, 'accounts/order_detail.html', context)
