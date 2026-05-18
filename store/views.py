@@ -1,13 +1,32 @@
+from decimal import Decimal, InvalidOperation
+
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect, render
-from category.models import Category
-from .models import Product, ReviewRating
 from django.core.paginator import Paginator
-from .forms import ReviewForm
+from django.shortcuts import get_object_or_404, redirect, render
+
+from category.models import Category
 from orders.models import OrderProduct
+
+from .forms import ReviewForm
+from .models import Product, ReviewRating, Variation
 
 
 # Create your views here.
+def _parse_price_filter(value):
+    if not value:
+        return None
+
+    try:
+        price = Decimal(value)
+    except (InvalidOperation, TypeError):
+        return None
+
+    if price < 0:
+        return None
+
+    return price
+
+
 def _user_has_purchased_product(user, product_id):
     if not user.is_authenticated:
         return False
@@ -21,18 +40,58 @@ def _user_has_purchased_product(user, product_id):
 
 
 def store(request, category_slug=None):
-    products = Product.objects.filter(is_available=True).order_by('id')
+    products = Product.objects.filter(is_available=True)
     selected_category = None
 
     if category_slug is not None:
         selected_category = get_object_or_404(Category, slug=category_slug)
         products = products.filter(category=selected_category)
 
+    size_options = Variation.objects.filter(
+        product__in=products,
+        variation_category='size',
+        is_active=True,
+    ).order_by('variation_value').values_list(
+        'variation_value',
+        flat=True,
+    ).distinct()
+
+    selected_size = request.GET.get('size', '').strip()
+    selected_min_price = request.GET.get('min_price', '').strip()
+    selected_max_price = request.GET.get('max_price', '').strip()
+    min_price = _parse_price_filter(selected_min_price)
+    max_price = _parse_price_filter(selected_max_price)
+
+    if selected_size:
+        products = products.filter(
+            variation__variation_category='size',
+            variation__variation_value__iexact=selected_size,
+            variation__is_active=True,
+        ).distinct()
+
+    if min_price is not None:
+        products = products.filter(price__gte=min_price)
+
+    if max_price is not None:
+        products = products.filter(price__lte=max_price)
+
+    products = products.order_by('id')
     product_count = products.count()
+    query_params = request.GET.copy()
+    query_params.pop('page', None)
+    for key in list(query_params):
+        if not query_params.get(key):
+            query_params.pop(key, None)
+
     context = {
         'products': products,
         'product_count_label': f"{product_count} item{'s' if product_count != 1 else ''} found.",
         'selected_category': selected_category,
+        'size_options': size_options,
+        'selected_size': selected_size,
+        'selected_min_price': selected_min_price,
+        'selected_max_price': selected_max_price,
+        'filter_query': query_params.urlencode(),
     }
 
     paginator = Paginator(products, 8)
