@@ -42,7 +42,8 @@ def config_bool(name, default=False):
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config_bool('DEBUG', default=False)
+DEBUG = config_bool('DEBUG', default=True)
+DEVELOPMENT = config_bool('DEVELOPMENT', default=False)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
 
@@ -230,9 +231,9 @@ DEFAULT_FROM_EMAIL = config(
 EMAIL_BACKEND = config(
     'EMAIL_BACKEND',
     default=(
-        'django.core.mail.backends.smtp.EmailBackend'
-        if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD
-        else 'django.core.mail.backends.console.EmailBackend'
+        'django.core.mail.backends.console.EmailBackend'
+        if DEVELOPMENT
+        else 'django.core.mail.backends.smtp.EmailBackend'
     ),
 )
 
