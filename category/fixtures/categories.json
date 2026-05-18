@@ -1,0 +1,82 @@
+[
+  {
+    "model": "category.category",
+    "pk": 1,
+    "fields": {
+      "category_name": "Shirts",
+      "slug": "shirts",
+      "description": "Shirts and casual tops.",
+      "cat_image": "photos/categories/shirt.jpg"
+    }
+  },
+  {
+    "model": "category.category",
+    "pk": 2,
+    "fields": {
+      "category_name": "Bags",
+      "slug": "bags",
+      "description": "Bags and travel products.",
+      "cat_image": "photos/categories/bags.jpg"
+    }
+  },
+  {
+    "model": "category.category",
+    "pk": 3,
+    "fields": {
+      "category_name": "Camera",
+      "slug": "camera",
+      "description": "Camera and photography products.",
+      "cat_image": "photos/categories/camera.jpg"
+    }
+  },
+  {
+    "model": "category.category",
+    "pk": 4,
+    "fields": {
+      "category_name": "Jackets",
+      "slug": "jackets",
+      "description": "Outerwear and jacket products.",
+      "cat_image": "photos/categories/jackets.jpg"
+    }
+  },
+  {
+    "model": "category.category",
+    "pk": 5,
+    "fields": {
+      "category_name": "T-shirts",
+      "slug": "t-shirts",
+      "description": "T-shirts and graphic tops.",
+      "cat_image": "photos/categories/t-shirt.jpeg"
+    }
+  },
+  {
+    "model": "category.category",
+    "pk": 6,
+    "fields": {
+      "category_name": "Shoes",
+      "slug": "shoes",
+      "description": "Footwear and shoe products.",
+      "cat_image": "photos/categories/shoes.jpg"
+    }
+  },
+  {
+    "model": "category.category",
+    "pk": 7,
+    "fields": {
+      "category_name": "Shorts",
+      "slug": "shorts",
+      "description": "Shorts and warm-weather clothing.",
+      "cat_image": "photos/categories/short.jpg"
+    }
+  },
+  {
+    "model": "category.category",
+    "pk": 8,
+    "fields": {
+      "category_name": "Electronics",
+      "slug": "electronics",
+      "description": "Electronic devices and accessories.",
+      "cat_image": "photos/categories/electronics.jpg"
+    }
+  }
+]

@@ -1,0 +1,162 @@
+[
+{
+  "model": "store.product",
+  "pk": 1,
+  "fields": {
+    "product_name": "Action 5 Camera",
+    "slug": "action-5-camera",
+    "description": "Capture every moment in stunning detail with the Action 5 camera, designed for adventure, travel, and everyday creativity. With its compact build, durable design, and high-quality recording performance, it is the perfect companion for life on the move.",
+    "price": "125.00",
+    "images": "photos/products/Action5-camera.jpg",
+    "stock": 48,
+    "is_available": true,
+    "category": 3,
+    "created_date": "2026-03-08T23:26:12.196Z",
+    "modified_date": "2026-03-08T23:26:12.196Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 2,
+  "fields": {
+    "product_name": "Jet Setters Best",
+    "slug": "bags",
+    "description": "Discover bags designed for both style and practicality, perfect for carrying your everyday essentials with ease. Whether for work, travel, shopping, or daily use, they offer the ideal balance of convenience, organisation, and modern design.",
+    "price": "55.00",
+    "images": "photos/products/Jetsetter-luggage.jpg",
+    "stock": 50,
+    "is_available": true,
+    "category": 2,
+    "created_date": "2026-03-08T23:30:42.832Z",
+    "modified_date": "2026-05-18T01:53:50.822Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 3,
+  "fields": {
+    "product_name": "Hitmars Shoes",
+    "slug": "hitmars-shoes",
+    "description": "Step into comfort and everyday style with Hitmars Shoes, designed to deliver reliable support, durability, and a modern look. Perfect for daily wear, walking, or casual outings, they combine practicality with effortless versatility.",
+    "price": "75.00",
+    "images": "photos/products/Hitmars-Shoes.jpg",
+    "stock": 48,
+    "is_available": true,
+    "category": 6,
+    "created_date": "2026-03-08T23:32:07.927Z",
+    "modified_date": "2026-05-18T01:54:00.387Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 4,
+  "fields": {
+    "product_name": "Warm Jacket",
+    "slug": "warm-jacket",
+    "description": "Stay warm and comfortable with this warm jacket, designed to provide reliable insulation during colder days. Combining practicality, comfort, and timeless style, it is perfect for everyday wear and outdoor use.",
+    "price": "125.00",
+    "images": "photos/products/Warm-Jacket.jpg",
+    "stock": 50,
+    "is_available": true,
+    "category": 4,
+    "created_date": "2026-03-08T23:33:16.973Z",
+    "modified_date": "2026-03-08T23:33:16.973Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 5,
+  "fields": {
+    "product_name": "Japanese Cherry Blossom",
+    "slug": "japan-retro-80s-90s-with-japanese-cherry-blossom-vaporwave-t-shirt",
+    "description": "Bring vintage street style to life with this Japan Retro 80’s 90’s Cherry Blossom Vaporwave T-Shirt. Featuring a bold nostalgic design inspired by Japanese aesthetics, it blends comfort, culture, and retro flair for a standout everyday look.",
+    "price": "35.00",
+    "images": "photos/products/Japanese_Cherry_Blossom_.jpeg",
+    "stock": 47,
+    "is_available": true,
+    "category": 5,
+    "created_date": "2026-03-08T23:37:13.006Z",
+    "modified_date": "2026-05-18T02:32:35.924Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 6,
+  "fields": {
+    "product_name": "COEVALS CLUB Mens Shirt",
+    "slug": "coevals-club-mens-flannel-shirt-long-sleeve-checked-snap-cotton-with-pocket-regular-fit-plaid-lumberjack-casual-work-shirt",
+    "description": "The COEVALS CLUB Men’s Flannel Shirt is a comfortable and stylish casual shirt made for everyday wear. Its soft flannel fabric provides warmth and a relaxed feel, while the classic check design makes it easy to pair with jeans",
+    "price": "75.00",
+    "images": "photos/products/Coevals_JHte0VL.jpg",
+    "stock": 49,
+    "is_available": true,
+    "category": 1,
+    "created_date": "2026-03-08T23:38:08.393Z",
+    "modified_date": "2026-05-18T03:15:51.940Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 7,
+  "fields": {
+    "product_name": "Blue Winter Jacket",
+    "slug": "blue-winter-jacket",
+    "description": "Stay warm in style with this blue winter jacket, designed for comfort, insulation, and everyday protection in cold weather. Its practical design and versatile look make it a reliable choice for daily wear and outdoor use.",
+    "price": "135.00",
+    "images": "photos/products/Winter-Jacket.jpg",
+    "stock": 50,
+    "is_available": true,
+    "category": 4,
+    "created_date": "2026-03-08T23:41:17.760Z",
+    "modified_date": "2026-03-08T23:41:17.760Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 8,
+  "fields": {
+    "product_name": "Kahel Ladies Bag",
+    "slug": "kahel-ladies-bag",
+    "description": "The Kahel Ladies Bag combines elegance and practicality in one stylish design. Perfect for daily use, work, or casual outings, it offers convenient storage, a fashionable look, and versatile everyday appeal.",
+    "price": "150.00",
+    "images": "photos/products/Yellow-bag.png",
+    "stock": 25,
+    "is_available": true,
+    "category": 2,
+    "created_date": "2026-03-08T23:42:36.751Z",
+    "modified_date": "2026-03-08T23:42:36.751Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 9,
+  "fields": {
+    "product_name": "Pula Ladies Hand Bag",
+    "slug": "pula-ladies-hand-bag",
+    "description": "The Pula Ladies Hand Bag is the perfect finishing touch for parties, dinners, and social occasions. Designed to add elegance to your outfit while keeping your essentials close, it offers a chic, sophisticated look ideal for evenings out and special events",
+    "price": "120.00",
+    "images": "photos/products/red-bag.png",
+    "stock": 25,
+    "is_available": true,
+    "category": 2,
+    "created_date": "2026-03-08T23:44:20.548Z",
+    "modified_date": "2026-03-08T23:44:20.548Z"
+  }
+},
+{
+  "model": "store.product",
+  "pk": 10,
+  "fields": {
+    "product_name": "Nintendo Switch 2",
+    "slug": "nintendo-switch-2",
+    "description": "Nintendo Switch 2 is a next-generation gaming console that lets you play at home or on the go. With a larger 1080p screen, up to 4K TV output, and support for compatible Switch games, it delivers flexible, immersive play.",
+    "price": "385.00",
+    "images": "photos/products/Nintendo_2.jpg",
+    "stock": 50,
+    "is_available": true,
+    "category": 8,
+    "created_date": "2026-03-08T23:51:10.890Z",
+    "modified_date": "2026-03-08T23:51:10.890Z"
+  }
+}
+]
