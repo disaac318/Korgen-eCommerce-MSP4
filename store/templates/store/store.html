@@ -217,13 +217,13 @@
 	                                                       {% include 'store/includes/rating_stars.html' with rating=product.averageReview rating_classes='text-warning mb-2' %}
 	                                                  </div>
 
-	                                                  <div class="mt-auto">
-                                                       <p class="mb-2">
-                                                            <span class="fw-bold">£{{ product.price }}</span>
-                                                       </p>
-                                                       <a href="{% url 'product_detail' product.category.slug product.slug %}"
-                                                            class="btn btn-warning w-100">View Details</a>
-                                                  </div>
+		                                                  <div class="mt-auto">
+	                                                       <p class="mb-2">
+	                                                            <span class="fw-bold">£{{ product.price }}</span>
+	                                                       </p>
+	                                                       {% url 'product_detail' product.category.slug product.slug as product_action_url %}
+	                                                       {% include 'store/includes/product_card_action.html' with action_url=product_action_url action_label='View Details' action_classes='btn btn-warning w-100' disabled_action_classes='btn btn-secondary w-100' %}
+	                                                  </div>
                                              </div>
                                         </div>
                                    </article>

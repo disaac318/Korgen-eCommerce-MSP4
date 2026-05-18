@@ -55,11 +55,11 @@
 	                                             {% include 'store/includes/rating_stars.html' with rating=product.averageReview rating_classes='text-warning text-center mb-2' %}
 	                                        </div>
 
-                                        <div class="mt-auto ">
-                                             <p class="mb-2 fw-bold text-center">£ {{ product.price }}</p>
-                                             <a href="{% url 'add_cart' product.id %}"
-                                                  class="price btn btn-warning w-100">Add to cart</a>
-                                        </div>
+	                                        <div class="mt-auto ">
+	                                             <p class="mb-2 fw-bold text-center">£ {{ product.price }}</p>
+	                                             {% url 'add_cart' product.id as product_action_url %}
+	                                             {% include 'store/includes/product_card_action.html' with action_url=product_action_url action_label='Add to cart' action_classes='price btn btn-warning w-100' disabled_action_classes='price btn btn-secondary w-100' %}
+	                                        </div>
                                    </div>
 
                               </div>

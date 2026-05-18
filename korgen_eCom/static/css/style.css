@@ -83,21 +83,18 @@ header.section-header.fixed-top {
 
 /* Sold out flash */
 .sold-out-flash {
-    animation: sold-out-flash 0.1s ease-in-out infinite;
-    will-change: opacity, background-color, color;
+    animation: sold-out-flash 2s ease-in-out infinite;
+    display: inline-block;
+    /* will-change: opacity; */
 }
 
 @keyframes sold-out-flash {
     0%,
-    100% {
-        background-color: var(--bs-secondary);
-        color: #fff;
+    75% {
         opacity: 1;
     }
 
-    50% {
-        background-color: #dc3545;
-        color: #fff;
+    15% {
         opacity: 0.25;
     }
 }
@@ -211,5 +208,3 @@ textarea.form-control::placeholder {
 .rate > label:hover ~ input:checked ~ label {
     color: #c59b08;
 }
-
-

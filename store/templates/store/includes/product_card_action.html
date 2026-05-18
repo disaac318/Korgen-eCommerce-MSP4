@@ -1,0 +1,9 @@
+{% if product.stock > 0 %}
+     <a href="{{ action_url }}"
+          class="{{ action_classes }}">{{ action_label }}</a>
+{% else %}
+     <button type="button"
+          class="{{ disabled_action_classes }}"
+          disabled
+          aria-disabled="true">Sold Out</button>
+{% endif %}
