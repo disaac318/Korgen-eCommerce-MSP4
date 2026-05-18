@@ -20,16 +20,6 @@ html {
   }
 
 
-
-/* .btn-size.active,
-.btn-size:active,
-.btn-size:focus.active {
-     background-color: var(--bs-primary);
-     border-color: var(--bs-primary);
-     color: #fff;
-} */
-
-
 .dropdown-overlap {
      position: relative;
      z-index: 1060;
@@ -81,12 +71,6 @@ header.section-header.fixed-top {
     }
 }
 
-/* header.section-header.fixed-top + main,
-header.section-header.fixed-top ~ main {
-    padding-top: var(--header-height, 112px);
-} */
-
-/* asset/css/style.css */
 .list-group-item {
   color: #1a1a1a;
   border-color: #e0e0e0;
@@ -144,14 +128,6 @@ textarea.form-control::placeholder {
     color: var(--bs-secondary-color) !important;
     opacity: 0.35 !important;
 }
-
-/* .message-region {
-    background-color: rgba(var(--bs-warning-rgb), 0.25);
-} */
-
-/* .message-container .alert {
-    margin-bottom: 0;
-} */
 
 .alert-flash {
     animation: alert-flash 0.8s ease-in-out 3;
@@ -236,4 +212,4 @@ textarea.form-control::placeholder {
     color: #c59b08;
 }
 
-/* rating ends */
+
