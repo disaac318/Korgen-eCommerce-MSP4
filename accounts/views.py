@@ -33,6 +33,13 @@ logger = logging.getLogger(__name__)
 
 
 def _send_multipart_email(subject, template_base, context, recipient):
+    if (
+        not settings.DEVELOPMENT
+        and settings.EMAIL_BACKEND
+        == 'django.core.mail.backends.console.EmailBackend'
+    ):
+        raise RuntimeError('Console email backend cannot send production email.')
+
     text_message = render_to_string(f'{template_base}.txt', context)
     html_message = render_to_string(f'{template_base}.html', context)
     email = EmailMultiAlternatives(
@@ -42,7 +49,9 @@ def _send_multipart_email(subject, template_base, context, recipient):
         to=[recipient],
     )
     email.attach_alternative(html_message, 'text/html')
-    email.send()
+    sent_count = email.send(fail_silently=False)
+    if sent_count != 1:
+        raise RuntimeError('Activation email was not accepted by the backend.')
 
 
 @never_cache

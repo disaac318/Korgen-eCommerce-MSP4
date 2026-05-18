@@ -1,8 +1,52 @@
 from django.conf import settings
+from django.core import mail
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .models import Account
+
+
+class RegistrationEmailTests(TestCase):
+    def test_registration_sends_activation_email(self):
+        response = self.client.post(reverse('accounts:register'), {
+            'first_name': 'Email',
+            'last_name': 'User',
+            'email': 'email-user@example.com',
+            'username': 'emailuser',
+            'password': 'StrongPass123!',
+            'password_confirm': 'StrongPass123!',
+        })
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['email-user@example.com'])
+        self.assertIn('/accounts/activate/', mail.outbox[0].body)
+
+        user = Account.objects.get(email='email-user@example.com')
+        self.assertFalse(user.is_active)
+
+    @override_settings(
+        DEVELOPMENT=False,
+        EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend',
+    )
+    def test_registration_fails_if_production_uses_console_email_backend(self):
+        response = self.client.post(reverse('accounts:register'), {
+            'first_name': 'Console',
+            'last_name': 'User',
+            'email': 'console-user@example.com',
+            'username': 'consoleuser',
+            'password': 'StrongPass123!',
+            'password_confirm': 'StrongPass123!',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(
+            Account.objects.filter(email='console-user@example.com').exists(),
+        )
+        self.assertContains(
+            response,
+            'We could not send your activation email.',
+        )
 
 
 @override_settings(REMEMBER_ME_SESSION_AGE=1209600)
