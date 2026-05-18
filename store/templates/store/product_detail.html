@@ -72,10 +72,9 @@
                                              <option value=""
                                                   disabled
                                                   selected>Choose your color</option>
-                                             {% for color in color_variations %}
-                                             <option value="{{ color.variation_value|lower }}">{{
-                                                  color.variation_value|capfirst }}</option>
-                                             {% endfor %}
+	                                             {% for color in color_variations %}
+	                                             <option value="{{ color.variation_value|lower }}">{{ color.variation_value|capfirst }}</option>
+	                                             {% endfor %}
 
                                         </select>
                                         {% endif %}
@@ -95,10 +94,9 @@
                                              <option value=""
                                                   disabled
                                                   selected>Choose your size</option>
-                                             {% for size in size_variations %}
-                                             <option value="{{ size.variation_value|lower }}">{{
-                                                  size.variation_value|capfirst }}</option>
-                                             {% endfor %}
+	                                             {% for size in size_variations %}
+	                                             <option value="{{ size.variation_value|lower }}">{{ size.variation_value|capfirst }}</option>
+	                                             {% endfor %}
                                         </select>
                                         {% endif %}
 
@@ -133,11 +131,10 @@
                     <fieldset class="mb-3">
                          <legend class="h6">How do you rate this product?</legend>
                          <div class="rate">
-                              <input type="radio"
-                                   id="star5"
-                                   name="rating"
-                                   value="5"
-                                   required>
+	                              <input type="radio"
+	                                   id="star5"
+	                                   name="rating"
+	                                   value="5">
                               <label for="star5"
                                    title="5 stars">5 stars</label>
 
@@ -227,10 +224,13 @@
                     {% if review_login_message %}
                     <p class="fw-bold mt-3 mb-4 text-danger">{{ review_login_message }}</p>
                     {% endif %}
-                    {% if review_purchase_message %}
-                    <p class="fw-bold mt-3 mb-4 text-danger">{{ review_purchase_message }}</p>
-                    {% endif %}
-                    <br>
+	                    {% if review_purchase_message %}
+	                    <p class="fw-bold mt-3 mb-4 text-danger">{{ review_purchase_message }}</p>
+	                    {% endif %}
+	                    {% if review_form_message %}
+	                    <p class="fw-bold mt-3 mb-4 text-danger">{{ review_form_message }}</p>
+	                    {% endif %}
+	                    <br>
                     <button type="submit"
                          class="btn btn-warning mb-4">Submit Review</button>
                </form>
@@ -246,14 +246,24 @@
 
                {% for review in reviews %}
 
-               <article class="card mb-3">
-                    <div class="card-body">
-                         <header class="d-flex align-items-center gap-3">
-                              <img src="{% static 'images/avatars/avatar1.jpeg' %}"
-                                   alt="Avatar of Mike John"
-                                   class="rounded-circle"
-                                   style="width:48px;height:48px;object-fit:cover;">
-                              <div class="flex-grow-1">
+	               <article class="card mb-3">
+	                    <div class="card-body">
+	                         <header class="d-flex align-items-center gap-3">
+	                              {% if review.user.userprofile.profile_picture %}
+	                              <img src="{{ review.user.userprofile.profile_picture.url }}"
+	                                   alt="Avatar of {{ review.user.full_name }}"
+	                                   class="rounded-circle"
+	                                   style="width:48px;height:48px;object-fit:cover;">
+	                              {% else %}
+	                              <span class="rounded-circle bg-secondary-subtle text-secondary d-inline-flex align-items-center justify-content-center"
+	                                   role="img"
+	                                   aria-label="Default profile image"
+	                                   style="width:48px;height:48px;">
+	                                   <i class="fa fa-user"
+	                                        aria-hidden="true"></i>
+	                              </span>
+	                              {% endif %}
+	                              <div class="flex-grow-1">
                                    <h5 class=" mb-1">{{ review.user.full_name }}</h5>
                                    {% include 'store/includes/rating_stars.html' with rating=review.rating rating_classes='text-warning' %}
 

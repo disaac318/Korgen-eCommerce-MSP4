@@ -39,6 +39,17 @@ def _user_has_purchased_product(user, product_id):
     ).exists()
 
 
+def _review_form_error_message(form):
+    if 'rating' in form.errors:
+        return 'Please select a star rating before submitting your review.'
+
+    error_messages = []
+    for field_errors in form.errors.values():
+        error_messages.extend(str(error) for error in field_errors)
+
+    return ' '.join(error_messages) or 'Please check your review and try again.'
+
+
 def store(request, category_slug=None):
     products = Product.objects.filter(is_available=True)
     selected_category = None
@@ -120,13 +131,14 @@ def product_detail(request, category_slug, product_slug):
     reviews = ReviewRating.objects.filter(
         product_id=single_product.id,
         status=True,
-    )
+    ).select_related('user', 'user__userprofile')
 
     color_variations = single_product.variation_set.colors()
     size_variations = single_product.variation_set.sizes()
     can_review = _user_has_purchased_product(request.user, single_product.id)
     review_purchase_message = request.session.pop('review_purchase_message', '')
     review_login_message = request.session.pop('review_login_message', '')
+    review_form_message = request.session.pop('review_form_message', '')
     
 
     context = {
@@ -136,6 +148,7 @@ def product_detail(request, category_slug, product_slug):
         'can_review': can_review,
         'review_purchase_message': review_purchase_message,
         'review_login_message': review_login_message,
+        'review_form_message': review_form_message,
         'reviews': reviews,
     }
 
@@ -191,9 +204,10 @@ def submit_review(request, product_id):
             form.save()
             request.session.pop('review_purchase_message', None)
             request.session.pop('review_login_message', None)
+            request.session.pop('review_form_message', None)
             messages.success(request, 'Thank you! Your review has been updated.')
         else:
-            messages.error(request, 'Please check your review and try again.')
+            request.session['review_form_message'] = _review_form_error_message(form)
     else:
         form = ReviewForm(request.POST)
         if form.is_valid():
@@ -204,8 +218,9 @@ def submit_review(request, product_id):
             data.save()
             request.session.pop('review_purchase_message', None)
             request.session.pop('review_login_message', None)
+            request.session.pop('review_form_message', None)
             messages.success(request, 'Thank you! Your review has been submitted.')
         else:
-            messages.error(request, 'Please check your review and try again.')
+            request.session['review_form_message'] = _review_form_error_message(form)
 
     return redirect(url)

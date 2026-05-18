@@ -93,6 +93,7 @@ class Order(models.Model):
     )
     ip = models.GenericIPAddressField(blank=True, null=True)
     is_ordered = models.BooleanField(default=False)
+    stock_deducted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

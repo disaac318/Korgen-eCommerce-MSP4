@@ -85,7 +85,7 @@ header.section-header.fixed-top {
 .sold-out-flash {
     animation: sold-out-flash 2s ease-in-out infinite;
     display: inline-block;
-    /* will-change: opacity; */
+   
 }
 
 @keyframes sold-out-flash {

@@ -1,7 +1,10 @@
 import base64
 import json
 import logging
+import os
+import tempfile
 from decimal import Decimal
+from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -11,6 +14,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMultiAlternatives
 from django.db import transaction
+from django.db.models import F
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -19,11 +23,16 @@ from django.views.decorators.http import require_POST
 
 from carts.models import CartItem
 from carts.pricing import calculate_delivery_total
+from store.models import Product
 
 from .models import Order, Payment
 
 
 logger = logging.getLogger(__name__)
+
+
+class InsufficientStockError(Exception):
+    pass
 
 
 def _paypal_credentials_are_configured():
@@ -77,6 +86,28 @@ def _send_order_received_email(order, request=None):
     )
     email.attach_alternative(html_message, 'text/html')
     email.send()
+
+
+def _configure_weasyprint_environment():
+    homebrew_library_paths = [
+        Path('/opt/homebrew/lib'),
+        Path('/usr/local/lib'),
+    ]
+    existing_paths = [
+        str(path) for path in homebrew_library_paths if path.exists()
+    ]
+
+    for env_name in ('DYLD_LIBRARY_PATH', 'DYLD_FALLBACK_LIBRARY_PATH'):
+        current_paths = [
+            path for path in os.environ.get(env_name, '').split(os.pathsep)
+            if path
+        ]
+        merged_paths = list(dict.fromkeys(existing_paths + current_paths))
+
+        if merged_paths:
+            os.environ[env_name] = os.pathsep.join(merged_paths)
+
+    os.environ.setdefault('XDG_CACHE_HOME', tempfile.gettempdir())
 
 
 def _paypal_json_response(error_message, status=502, details=None):
@@ -175,7 +206,55 @@ def _build_stripe_checkout_session_payload(order, success_url, cancel_url):
     }
 
 
+def _get_order_stock_errors(order):
+    errors = []
+
+    for item in order.items.select_related('product'):
+        if item.product is None:
+            errors.append('A product in this order is no longer available.')
+            continue
+
+        if item.product.stock < item.quantity:
+            errors.append(
+                f'{item.product.product_name} has only '
+                f'{item.product.stock} in stock.',
+            )
+
+    return errors
+
+
+def _deduct_order_stock(order):
+    if order.stock_deducted:
+        return
+
+    for item in order.items.select_related('product'):
+        if item.product_id is None:
+            raise InsufficientStockError(
+                'A product in this order is no longer available.',
+            )
+
+        updated = Product.objects.filter(
+            pk=item.product_id,
+            stock__gte=item.quantity,
+        ).update(stock=F('stock') - item.quantity)
+
+        if not updated:
+            product = Product.objects.filter(pk=item.product_id).first()
+            product_name = (
+                product.product_name
+                if product
+                else 'A product in this order'
+            )
+            raise InsufficientStockError(
+                f'{product_name} does not have enough stock.',
+            )
+
+    order.stock_deducted = True
+    order.save(update_fields=['stock_deducted', 'updated_at'])
+
+
 def _mark_order_paid(order, payment):
+    _deduct_order_stock(order)
     order.payment = payment
     order.status = Order.STATUS_ACCEPTED
     order.is_ordered = True
@@ -183,6 +262,7 @@ def _mark_order_paid(order, payment):
         'payment',
         'status',
         'is_ordered',
+        'stock_deducted',
         'updated_at',
     ])
     order.items.update(ordered=True)
@@ -229,6 +309,7 @@ def invoice_pdf(request, order_number):
     )
 
     try:
+        _configure_weasyprint_environment()
         from weasyprint import HTML
     except (ImportError, OSError):
         return HttpResponse(
@@ -254,6 +335,12 @@ def invoice_pdf(request, order_number):
 @login_required(login_url='accounts:login')
 def payment(request, order_number):
     order = _get_pending_order(request, order_number)
+    stock_errors = _get_order_stock_errors(order)
+    if stock_errors:
+        for error in stock_errors:
+            messages.error(request, error)
+        return redirect('cart')
+
     paypal_payment_cancelled = (
         request.GET.get('payment_status') == 'paypal_cancelled'
     )
@@ -291,6 +378,12 @@ def create_stripe_checkout_session(request, order_number):
         }, status=503)
 
     order = _get_pending_order(request, order_number)
+    stock_errors = _get_order_stock_errors(order)
+    if stock_errors:
+        return JsonResponse({
+            'error': ' '.join(stock_errors),
+        }, status=400)
+
     success_url = (
         request.build_absolute_uri(
             reverse(
@@ -356,34 +449,38 @@ def stripe_success(request, order_number):
         return redirect('orders:payment', order_number=order.order_number)
 
     should_send_order_email = False
-    with transaction.atomic():
-        order = Order.objects.select_for_update().get(pk=order.pk)
-        was_already_ordered = order.is_ordered
-        payment_id = session.get('payment_intent') or session['id']
-        payment, _ = Payment.objects.update_or_create(
-            payment_id=payment_id,
-            defaults={
-                'user': request.user,
-                'payment_method': 'Stripe',
-                'amount_paid': Decimal(str(order.grand_total)),
-                'payer_email': (
-                    session.get('customer_details', {}).get('email')
-                    or session.get('customer_email', '')
-                ),
-                'payer_name': session.get('customer_details', {}).get(
-                    'name',
-                    '',
-                ),
-                'currency': session.get(
-                    'currency',
-                    settings.STRIPE_CURRENCY,
-                ).upper(),
-                'transaction_data': session,
-                'status': Payment.STATUS_COMPLETED,
-            },
-        )
-        _mark_order_paid(order, payment)
-        should_send_order_email = not was_already_ordered
+    try:
+        with transaction.atomic():
+            order = Order.objects.select_for_update().get(pk=order.pk)
+            was_already_ordered = order.is_ordered
+            payment_id = session.get('payment_intent') or session['id']
+            payment, _ = Payment.objects.update_or_create(
+                payment_id=payment_id,
+                defaults={
+                    'user': request.user,
+                    'payment_method': 'Stripe',
+                    'amount_paid': Decimal(str(order.grand_total)),
+                    'payer_email': (
+                        session.get('customer_details', {}).get('email')
+                        or session.get('customer_email', '')
+                    ),
+                    'payer_name': session.get('customer_details', {}).get(
+                        'name',
+                        '',
+                    ),
+                    'currency': session.get(
+                        'currency',
+                        settings.STRIPE_CURRENCY,
+                    ).upper(),
+                    'transaction_data': session,
+                    'status': Payment.STATUS_COMPLETED,
+                },
+            )
+            _mark_order_paid(order, payment)
+            should_send_order_email = not was_already_ordered
+    except InsufficientStockError as error:
+        messages.error(request, str(error))
+        return redirect('cart')
 
     if should_send_order_email:
         try:
@@ -430,6 +527,10 @@ def create_paypal_order(request, order_number):
         )
 
     order = _get_pending_order(request, order_number)
+    stock_errors = _get_order_stock_errors(order)
+    if stock_errors:
+        return _paypal_json_response(' '.join(stock_errors), 400)
+
     payload = {
         'intent': 'CAPTURE',
         'purchase_units': [
@@ -518,49 +619,42 @@ def capture_paypal_order(request, order_number):
         return _paypal_json_response('PayPal capture response was invalid.')
 
     should_send_order_email = False
-    with transaction.atomic():
-        order = Order.objects.select_for_update().get(pk=order.pk)
-        was_already_ordered = order.is_ordered
-        payment, _ = Payment.objects.update_or_create(
-            payment_id=capture_id,
-            defaults={
-                'user': request.user,
-                'payment_method': 'PayPal',
-                'amount_paid': Decimal(str(order.grand_total)),
-                'paypal_order_id': paypal_order_id,
-                'payer_email': payer.get('email_address', ''),
-                'payer_name': payer_full_name,
-                'currency': capture_amount.get(
-                    'currency_code',
-                    settings.PAYPAL_CURRENCY,
-                ),
-                'transaction_data': paypal_order,
-                'status': (
-                    Payment.STATUS_COMPLETED
-                    if capture_status == Payment.STATUS_COMPLETED
-                    else Payment.STATUS_FAILED
-                ),
-            },
-        )
+    try:
+        with transaction.atomic():
+            order = Order.objects.select_for_update().get(pk=order.pk)
+            was_already_ordered = order.is_ordered
+            payment, _ = Payment.objects.update_or_create(
+                payment_id=capture_id,
+                defaults={
+                    'user': request.user,
+                    'payment_method': 'PayPal',
+                    'amount_paid': Decimal(str(order.grand_total)),
+                    'paypal_order_id': paypal_order_id,
+                    'payer_email': payer.get('email_address', ''),
+                    'payer_name': payer_full_name,
+                    'currency': capture_amount.get(
+                        'currency_code',
+                        settings.PAYPAL_CURRENCY,
+                    ),
+                    'transaction_data': paypal_order,
+                    'status': (
+                        Payment.STATUS_COMPLETED
+                        if capture_status == Payment.STATUS_COMPLETED
+                        else Payment.STATUS_FAILED
+                    ),
+                },
+            )
 
-        if payment.status == Payment.STATUS_COMPLETED:
-            order.payment = payment
-            order.status = Order.STATUS_ACCEPTED
-            order.is_ordered = True
-            order.save(update_fields=[
-                'payment',
-                'status',
-                'is_ordered',
-                'updated_at',
-            ])
-            order.items.update(ordered=True)
-            CartItem.objects.filter(user=request.user, is_active=True).delete()
-            should_send_order_email = not was_already_ordered
-        else:
-            return JsonResponse({
-                'error': 'PayPal payment was not completed.',
-                'status': payment.status,
-            }, status=400)
+            if payment.status == Payment.STATUS_COMPLETED:
+                _mark_order_paid(order, payment)
+                should_send_order_email = not was_already_ordered
+            else:
+                return JsonResponse({
+                    'error': 'PayPal payment was not completed.',
+                    'status': payment.status,
+                }, status=400)
+    except InsufficientStockError as error:
+        return JsonResponse({'error': str(error)}, status=400)
 
     if should_send_order_email:
         try:
