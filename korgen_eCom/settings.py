@@ -228,6 +228,7 @@ DEFAULT_FROM_EMAIL = config(
     'DEFAULT_FROM_EMAIL',
     default=EMAIL_HOST_USER or 'no-reply@localhost',
 )
+CONTACT_EMAIL = config('CONTACT_EMAIL', default=EMAIL_HOST_USER or DEFAULT_FROM_EMAIL)
 EMAIL_BACKEND = config(
     'EMAIL_BACKEND',
     default=(
