@@ -1,0 +1,195 @@
+{% if is_hx_request %}
+<div id="productRatingSummary" hx-swap-oob="true">
+     {% include 'store/includes/rating_stars.html' with rating=single_product.averageReview rating_classes='product-rating-stars text-warning h5 mb-2' %}
+
+     <span>{{ single_product.countReview}}  Reviews</span>
+</div>
+{% endif %}
+
+<section id="productReviews"
+     class="mt-5"
+     aria-label="Customer reviews">
+     <form action="{% url 'submit_review' single_product.id %}"
+          method="post"
+          hx-post="{% url 'submit_review' single_product.id %}"
+          hx-target="#productReviews"
+          hx-swap="outerHTML transition:true"
+          hx-indicator="#reviewSubmitLoading">
+          {% csrf_token %}
+          <h5>Write your review</h5>
+
+          <fieldset class="mb-3">
+               <legend class="h6">How do you rate this product?</legend>
+               <div class="rate">
+                    <input type="radio"
+                         id="star5"
+                         name="rating"
+                         value="5"
+                         {% if review_form_values.rating == '5' %}checked{% endif %}>
+                    <label for="star5"
+                         title="5 stars">5 stars</label>
+
+                    <input type="radio"
+                         id="star4half"
+                         name="rating"
+                         value="4.5"
+                         {% if review_form_values.rating == '4.5' %}checked{% endif %}>
+                    <label for="star4half"
+                         class="half"
+                         title="4.5 stars">4.5 stars</label>
+
+                    <input type="radio"
+                         id="star4"
+                         name="rating"
+                         value="4"
+                         {% if review_form_values.rating == '4' %}checked{% endif %}>
+                    <label for="star4"
+                         title="4 stars">4 stars</label>
+
+                    <input type="radio"
+                         id="star3half"
+                         name="rating"
+                         value="3.5"
+                         {% if review_form_values.rating == '3.5' %}checked{% endif %}>
+                    <label for="star3half"
+                         class="half"
+                         title="3.5 stars">3.5 stars</label>
+
+                    <input type="radio"
+                         id="star3"
+                         name="rating"
+                         value="3"
+                         {% if review_form_values.rating == '3' %}checked{% endif %}>
+                    <label for="star3"
+                         title="3 stars">3 stars</label>
+
+                    <input type="radio"
+                         id="star2half"
+                         name="rating"
+                         value="2.5"
+                         {% if review_form_values.rating == '2.5' %}checked{% endif %}>
+                    <label for="star2half"
+                         class="half"
+                         title="2.5 stars">2.5 stars</label>
+
+                    <input type="radio"
+                         id="star2"
+                         name="rating"
+                         value="2"
+                         {% if review_form_values.rating == '2' %}checked{% endif %}>
+                    <label for="star2"
+                         title="2 stars">2 stars</label>
+
+                    <input type="radio"
+                         id="star1half"
+                         name="rating"
+                         value="1.5"
+                         {% if review_form_values.rating == '1.5' %}checked{% endif %}>
+                    <label for="star1half"
+                         class="half"
+                         title="1.5 stars">1.5 stars</label>
+
+                    <input type="radio"
+                         id="star1"
+                         name="rating"
+                         value="1"
+                         {% if review_form_values.rating == '1' %}checked{% endif %}>
+                    <label for="star1"
+                         title="1 star">1 star</label>
+
+                    <input type="radio"
+                         id="starhalf"
+                         name="rating"
+                         value="0.5"
+                         {% if review_form_values.rating == '0.5' %}checked{% endif %}>
+                    <label for="starhalf"
+                         class="half"
+                         title="0.5 stars">0.5 stars</label>
+               </div>
+          </fieldset>
+
+          <label for="reviewSubject"
+               class="form-label">Review Title:</label>
+          <input type="text"
+               id="reviewSubject"
+               class="form-control mb-2"
+               name="subject"
+               value="{{ review_form_values.subject|default:'' }}">
+
+          <label for="reviewText"
+               class="form-label">Review:</label>
+          <textarea name="review"
+               id="reviewText"
+               class="form-control"
+               rows="4">{{ review_form_values.review|default:'' }}</textarea>
+
+          {% if review_success_message %}
+          <p class="fw-bold mt-3 mb-4 text-success">{{ review_success_message }}</p>
+          {% endif %}
+          {% if review_login_message %}
+          <p class="fw-bold mt-3 mb-4 text-danger">{{ review_login_message }}</p>
+          {% endif %}
+          {% if review_purchase_message %}
+          <p class="fw-bold mt-3 mb-4 text-danger">{{ review_purchase_message }}</p>
+          {% endif %}
+          {% if review_form_message %}
+          <p class="fw-bold mt-3 mb-4 text-danger">{{ review_form_message }}</p>
+          {% endif %}
+
+          <button type="submit"
+               class="btn btn-warning mt-3 mb-4">Submit Review</button>
+          <span id="reviewSubmitLoading"
+               class="spinner-border spinner-border-sm text-secondary htmx-indicator ms-2"
+               role="status"
+               aria-label="Submitting review"></span>
+     </form>
+
+     <header class="mb-3">
+          <h2 class="h3 mt-3 mb-0">Customer Reviews</h2>
+
+          {% include 'store/includes/rating_stars.html' with rating=single_product.averageReview rating_classes='product-rating-stars text-warning' %}
+
+          <span>{{ single_product.countReview}}  Reviews</span>
+
+     </header>
+
+     {% for review in reviews %}
+
+     <article class="card mb-3">
+          <div class="card-body">
+               <header class="d-flex align-items-center gap-3">
+                    {% if review.user.userprofile.profile_picture %}
+                    <img src="{{ review.user.userprofile.profile_picture.url }}"
+                         alt="Avatar of {{ review.user.full_name }}"
+                         class="rounded-circle"
+                         style="width:48px;height:48px;object-fit:cover;">
+                    {% else %}
+                    <span class="rounded-circle bg-secondary-subtle text-secondary d-inline-flex align-items-center justify-content-center"
+                         role="img"
+                         aria-label="Default profile image"
+                         style="width:48px;height:48px;">
+                         <i class="fa fa-user"
+                              aria-hidden="true"></i>
+                    </span>
+                    {% endif %}
+                    <div class="flex-grow-1">
+                         <h5 class=" mb-1">{{ review.user.full_name }}</h5>
+                         {% include 'store/includes/rating_stars.html' with rating=review.rating rating_classes='text-warning' %}
+
+                         <p class="small text-muted mb-0">
+                              <time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:" d M, Y, H:i"}}</time>
+                         </p>
+
+                    </div>
+               </header>
+
+               <p class="mt-3 mb-0">
+                    <span class="fw-bold">{{review.subject}}</span><br>
+                    {{ review.review }} <br>
+
+               </p>
+          </div>
+     </article>
+
+     {% endfor %}
+</section>

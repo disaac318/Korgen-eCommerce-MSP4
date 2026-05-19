@@ -50,6 +50,22 @@ def _review_form_error_message(form):
     return ' '.join(error_messages) or 'Please check your review and try again.'
 
 
+def _product_reviews_context(product, user, **messages):
+    reviews = ReviewRating.objects.filter(
+        product_id=product.id,
+        status=True,
+    ).select_related('user', 'user__userprofile')
+
+    return {
+        'single_product': product,
+        'can_review': _user_has_purchased_product(user, product.id),
+        'reviews': reviews,
+        'review_form_values': {},
+        'is_hx_request': False,
+        **messages,
+    }
+
+
 def store(request, category_slug=None):
     products = Product.objects.filter(is_available=True)
     selected_category = None
@@ -117,6 +133,9 @@ def store(request, category_slug=None):
     context['products'] = paged_products
     context['page_range'] = page_range
 
+    if request.headers.get('HX-Request') == 'true':
+        return render(request, 'store/includes/store_browser.html', context)
+
     return render(request, 'store/store.html', context)
 
 
@@ -128,14 +147,8 @@ def product_detail(request, category_slug, product_slug):
         is_available=True,
     )
 
-    reviews = ReviewRating.objects.filter(
-        product_id=single_product.id,
-        status=True,
-    ).select_related('user', 'user__userprofile')
-
     color_variations = single_product.variation_set.colors()
     size_variations = single_product.variation_set.sizes()
-    can_review = _user_has_purchased_product(request.user, single_product.id)
     review_purchase_message = request.session.pop('review_purchase_message', '')
     review_login_message = request.session.pop('review_login_message', '')
     review_form_message = request.session.pop('review_form_message', '')
@@ -145,11 +158,13 @@ def product_detail(request, category_slug, product_slug):
         'single_product': single_product,
         'color_variations': color_variations,
         'size_variations': size_variations,
-        'can_review': can_review,
-        'review_purchase_message': review_purchase_message,
-        'review_login_message': review_login_message,
-        'review_form_message': review_form_message,
-        'reviews': reviews,
+        **_product_reviews_context(
+            single_product,
+            request.user,
+            review_purchase_message=review_purchase_message,
+            review_login_message=review_login_message,
+            review_form_message=review_form_message,
+        ),
     }
 
     return render(request, 'store/product_detail.html', context)
@@ -181,11 +196,29 @@ def search(request):
 
 def submit_review(request, product_id):
     url = request.META.get('HTTP_REFERER') or 'store'
+    product = get_object_or_404(Product, id=product_id, is_available=True)
+
+    def render_reviews_partial(**context):
+        return render(
+            request,
+            'store/includes/product_reviews.html',
+            _product_reviews_context(
+                product,
+                request.user,
+                is_hx_request=True,
+                **context,
+            ),
+        )
 
     if request.method != 'POST':
         return redirect(url)
 
     if not request.user.is_authenticated:
+        if request.headers.get('HX-Request') == 'true':
+            return render_reviews_partial(
+                review_login_message='Please sign in to leave a review.',
+                review_form_values=request.POST,
+            )
         request.session['review_login_message'] = 'Please sign in to leave a review.'
         return redirect(url)
 
@@ -195,6 +228,11 @@ def submit_review(request, product_id):
     ).first()
 
     if review is None and not _user_has_purchased_product(request.user, product_id):
+        if request.headers.get('HX-Request') == 'true':
+            return render_reviews_partial(
+                review_purchase_message='You must purchase this product before reviewing it.',
+                review_form_values=request.POST,
+            )
         request.session['review_purchase_message'] = 'You must purchase this product before reviewing it.'
         return redirect(url)
 
@@ -205,8 +243,17 @@ def submit_review(request, product_id):
             request.session.pop('review_purchase_message', None)
             request.session.pop('review_login_message', None)
             request.session.pop('review_form_message', None)
+            if request.headers.get('HX-Request') == 'true':
+                return render_reviews_partial(
+                    review_success_message='Thank you! Your review has been updated.'
+                )
             messages.success(request, 'Thank you! Your review has been updated.')
         else:
+            if request.headers.get('HX-Request') == 'true':
+                return render_reviews_partial(
+                    review_form_message=_review_form_error_message(form),
+                    review_form_values=request.POST,
+                )
             request.session['review_form_message'] = _review_form_error_message(form)
     else:
         form = ReviewForm(request.POST)
@@ -219,8 +266,17 @@ def submit_review(request, product_id):
             request.session.pop('review_purchase_message', None)
             request.session.pop('review_login_message', None)
             request.session.pop('review_form_message', None)
+            if request.headers.get('HX-Request') == 'true':
+                return render_reviews_partial(
+                    review_success_message='Thank you! Your review has been submitted.'
+                )
             messages.success(request, 'Thank you! Your review has been submitted.')
         else:
+            if request.headers.get('HX-Request') == 'true':
+                return render_reviews_partial(
+                    review_form_message=_review_form_error_message(form),
+                    review_form_values=request.POST,
+                )
             request.session['review_form_message'] = _review_form_error_message(form)
 
     return redirect(url)
