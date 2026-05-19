@@ -8,6 +8,7 @@ The project demonstrates server-side Django development, relational database mod
 
 - [Project Overview](#project-overview)
 - [UX](#ux)
+- [Agile Methodology](#agile-methodology)
 - [User Stories](#user-stories)
 - [Database Design](#database-design)
 - [Diagrams](#diagrams)
@@ -392,8 +393,6 @@ Key fields:
 - `product_price`
 - `ordered`
 
-### Entity Relationship Summary
-![Entity Relationship Diagram](docs/diagrams/Entity_relationship_Summary.png)
 
 
 ## Diagrams
@@ -406,6 +405,14 @@ The diagrams below provide a visual overview of the application's data relations
 This diagram shows the core database relationships between users, products, categories, carts, orders, payments, billing details, and reviews. It demonstrates how customer activity moves from browsing and cart storage through to completed orders, payment records, and verified product reviews.
 
 ![Entity Relationship Diagram](docs/diagrams/Entity_Relationship.png)
+
+
+### Entity Relationship Summary
+
+This summary provides a simplified view of the main model relationships, making it easier to identify the key one-to-one, one-to-many, and many-to-many links without the full field-level detail shown in the complete ERD.
+
+![Entity Relationship Diagram](docs/diagrams/Entity_relationship_Summary.png)
+
 
 
 
@@ -436,8 +443,6 @@ This diagram documents the account lifecycle, including registration, activation
 ## Features
 
 ### Existing Features
-
-The following features are currently implemented in the application. They cover the main customer shopping journey, account management, store owner administration, payment handling, and supporting customer service workflows.
 
 #### Homepage
 
