@@ -8,7 +8,6 @@ The project demonstrates server-side Django development, relational database mod
 
 - [Project Overview](#project-overview)
 - [UX](#ux)
-- [Agile Methodology](#agile-methodology)
 - [User Stories](#user-stories)
 - [Database Design](#database-design)
 - [Diagrams](#diagrams)
