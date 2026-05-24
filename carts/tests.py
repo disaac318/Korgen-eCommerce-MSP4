@@ -5,12 +5,49 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import SimpleTestCase, override_settings
 from django.test import TestCase
+from django.urls import reverse
 
 from accounts.models import Account
 from category.models import Category
 from store.models import Product
 from .models import Cart, CartItem
 from .pricing import calculate_cart_totals, calculate_delivery_total
+
+
+def create_active_user(
+    email='cart-buyer@example.com',
+    username='cart-buyer',
+):
+    user = Account.objects.create_user(
+        first_name='Cart',
+        last_name='Buyer',
+        email=email,
+        username=username,
+        password='test-pass-12345',
+    )
+    user.is_active = True
+    user.save(update_fields=['is_active'])
+    return user
+
+
+def create_product(
+    name='Cart Product',
+    slug='cart-product',
+    stock=5,
+):
+    category, _ = Category.objects.get_or_create(
+        category_name='Cart Category',
+        defaults={'slug': 'cart-category'},
+    )
+    return Product.objects.create(
+        product_name=name,
+        slug=slug,
+        description='Cart product',
+        price=Decimal('10.00'),
+        images='photos/products/cart-product.jpg',
+        stock=stock,
+        category=category,
+    )
 
 
 @override_settings(
@@ -49,26 +86,8 @@ class PricingTests(SimpleTestCase):
 
 class CartItemQuantityConstraintTests(TestCase):
     def setUp(self):
-        self.user = Account.objects.create_user(
-            first_name='Cart',
-            last_name='Buyer',
-            email='cart-buyer@example.com',
-            username='cart-buyer',
-            password='test-pass-12345',
-        )
-        self.category = Category.objects.create(
-            category_name='Cart Category',
-            slug='cart-category',
-        )
-        self.product = Product.objects.create(
-            product_name='Cart Product',
-            slug='cart-product',
-            description='Cart product',
-            price=Decimal('10.00'),
-            images='photos/products/cart-product.jpg',
-            stock=5,
-            category=self.category,
-        )
+        self.user = create_active_user()
+        self.product = create_product()
         self.cart = Cart.objects.create(cart_id='test-cart')
 
     def test_cart_item_quantity_must_be_at_least_one(self):
@@ -90,3 +109,117 @@ class CartItemQuantityConstraintTests(TestCase):
                 cart=self.cart,
                 quantity=0,
             )
+
+
+class CartBehaviourTests(TestCase):
+    def setUp(self):
+        self.user = create_active_user()
+        self.product = create_product()
+
+    def create_user_cart_item(self, quantity=1):
+        return CartItem.objects.create(
+            user=self.user,
+            product=self.product,
+            cart=Cart.objects.create(cart_id='user-cart'),
+            quantity=quantity,
+        )
+
+    def test_guest_can_add_product_to_cart(self):
+        response = self.client.get(
+            reverse('add_cart', kwargs={'product_id': self.product.id}),
+        )
+
+        self.assertRedirects(response, reverse('cart'))
+        cart_item = CartItem.objects.get(product=self.product)
+        self.assertIsNone(cart_item.user)
+        self.assertEqual(cart_item.quantity, 1)
+
+    def test_authenticated_user_can_add_product_to_cart(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(
+            reverse('add_cart', kwargs={'product_id': self.product.id}),
+        )
+
+        self.assertRedirects(response, reverse('cart'))
+        cart_item = CartItem.objects.get(user=self.user, product=self.product)
+        self.assertEqual(cart_item.quantity, 1)
+
+    def test_increment_cart_item_increases_quantity(self):
+        self.client.force_login(self.user)
+        cart_item = self.create_user_cart_item(quantity=1)
+
+        response = self.client.get(
+            reverse('increment_cart_item', kwargs={
+                'cart_item_id': cart_item.id,
+            }),
+        )
+
+        self.assertRedirects(response, reverse('cart'))
+        cart_item.refresh_from_db()
+        self.assertEqual(cart_item.quantity, 2)
+
+    def test_remove_from_cart_decreases_quantity(self):
+        self.client.force_login(self.user)
+        cart_item = self.create_user_cart_item(quantity=2)
+
+        response = self.client.post(
+            reverse('remove_from_cart', kwargs={
+                'cart_item_id': cart_item.id,
+            }),
+        )
+
+        self.assertRedirects(response, reverse('cart'))
+        cart_item.refresh_from_db()
+        self.assertEqual(cart_item.quantity, 1)
+
+    def test_remove_from_cart_deletes_item_when_quantity_is_one(self):
+        self.client.force_login(self.user)
+        cart_item = self.create_user_cart_item(quantity=1)
+
+        response = self.client.post(
+            reverse('remove_from_cart', kwargs={
+                'cart_item_id': cart_item.id,
+            }),
+        )
+
+        self.assertRedirects(response, reverse('cart'))
+        self.assertFalse(CartItem.objects.filter(id=cart_item.id).exists())
+
+    def test_delete_cart_item_removes_entire_item(self):
+        self.client.force_login(self.user)
+        cart_item = self.create_user_cart_item(quantity=3)
+
+        response = self.client.post(
+            reverse('delete_cart_item', kwargs={
+                'cart_item_id': cart_item.id,
+            }),
+        )
+
+        self.assertRedirects(response, reverse('cart'))
+        self.assertFalse(CartItem.objects.filter(id=cart_item.id).exists())
+
+    def test_login_merges_matching_guest_cart_item_into_user_cart(self):
+        guest_cart = Cart.objects.create(cart_id='guest-cart')
+        CartItem.objects.create(
+            cart=guest_cart,
+            product=self.product,
+            quantity=2,
+        )
+        user_item = self.create_user_cart_item(quantity=1)
+        session = self.client.session
+        session['cart_id'] = guest_cart.cart_id
+        session.save()
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('cart'))
+
+        self.assertEqual(response.status_code, 200)
+        user_item.refresh_from_db()
+        self.assertEqual(user_item.quantity, 3)
+        self.assertFalse(
+            CartItem.objects.filter(
+                cart=guest_cart,
+                user__isnull=True,
+            ).exists(),
+        )
