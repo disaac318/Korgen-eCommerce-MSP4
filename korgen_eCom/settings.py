@@ -42,7 +42,7 @@ def config_bool(name, default=False):
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config_bool('DEBUG', default=True)
+DEBUG = config_bool('DEBUG', default=False)
 DEVELOPMENT = config_bool('DEVELOPMENT', default=False)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
@@ -162,7 +162,6 @@ DATABASES = {
 if DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3':
     DATABASES['default'].setdefault('OPTIONS', {})
     DATABASES['default']['OPTIONS'].setdefault('timeout', 20)
-    
 
 
 # Password validation
