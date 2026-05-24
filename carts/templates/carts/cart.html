@@ -91,6 +91,8 @@
                                                             value="{{ cart_item.quantity }}"
                                                             min="1"
                                                             inputmode="numeric"
+                                                            readonly
+                                                            aria-readonly="true"
                                                             aria-label="Quantity">
                                                        <a href="{% url 'increment_cart_item' cart_item.id %}"
                                                             class="btn btn-outline-secondary"

@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Avg, Count
+from django.db.models.functions import Lower
 from category.models import Category
 
 # Create your models here.
@@ -56,6 +57,17 @@ class Variation(models.Model):
     created_date = models.DateTimeField(auto_now=True)
 
     objects = VariationManager()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                'product',
+                'variation_category',
+                Lower('variation_value'),
+                name='unique_product_variation_value_ci',
+                violation_error_message='The selected variation has been chosen.',
+            ),
+        ]
 
     def __str__(self):
         return self.variation_value

@@ -1,15 +1,28 @@
 from django.conf import settings
 from django.contrib import messages
 from django.core.mail import EmailMessage
+from django.db.models import Exists, OuterRef
 from django.shortcuts import redirect, render
 
-from store.models import Product, ReviewRating
+from store.models import Product, ReviewRating, Variation
 
 from .forms import ContactForm
 
 
 def index(request):
-    products = Product.objects.filter(is_available=True).order_by('created_date')
+    products = (
+        Product.objects
+        .filter(is_available=True)
+        .annotate(
+            has_active_variations=Exists(
+                Variation.objects.filter(
+                    product=OuterRef('pk'),
+                    is_active=True,
+                ),
+            ),
+        )
+        .order_by('created_date')
+    )
 
     # Get the reviews
     reviews = None
