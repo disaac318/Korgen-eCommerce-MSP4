@@ -2,6 +2,37 @@ from django.core import mail
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
+from category.models import Category
+from store.models import Product
+
+
+class IndexViewTests(TestCase):
+    def test_product_cards_do_not_render_raw_template_tags(self):
+        category = Category.objects.create(
+            category_name='Electronics',
+            slug='electronics',
+        )
+        Product.objects.create(
+            product_name='Action Camera',
+            slug='action-camera',
+            description='Compact travel video camera.',
+            price='199.99',
+            images='photos/products/action-camera.jpg',
+            stock=5,
+            is_available=True,
+            category=category,
+        )
+
+        response = self.client.get(reverse('home'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Action Camera')
+        self.assertContains(response, 'Add to cart')
+        self.assertNotContains(response, '{{')
+        self.assertNotContains(response, '}}')
+        self.assertNotContains(response, '{%')
+        self.assertNotContains(response, '%}')
+
 
 class ContactViewTests(TestCase):
     def test_contact_page_renders(self):
