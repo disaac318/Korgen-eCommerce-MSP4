@@ -1,8 +1,15 @@
 from decimal import Decimal
 from types import SimpleNamespace
 
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.test import SimpleTestCase, override_settings
+from django.test import TestCase
 
+from accounts.models import Account
+from category.models import Category
+from store.models import Product
+from .models import Cart, CartItem
 from .pricing import calculate_cart_totals, calculate_delivery_total
 
 
@@ -38,3 +45,48 @@ class PricingTests(SimpleTestCase):
         self.assertEqual(totals['delivery_total'], Decimal('3.99'))
         self.assertEqual(totals['grand_total'], Decimal('27.99'))
         self.assertEqual(totals['quantity'], 2)
+
+
+class CartItemQuantityConstraintTests(TestCase):
+    def setUp(self):
+        self.user = Account.objects.create_user(
+            first_name='Cart',
+            last_name='Buyer',
+            email='cart-buyer@example.com',
+            username='cart-buyer',
+            password='test-pass-12345',
+        )
+        self.category = Category.objects.create(
+            category_name='Cart Category',
+            slug='cart-category',
+        )
+        self.product = Product.objects.create(
+            product_name='Cart Product',
+            slug='cart-product',
+            description='Cart product',
+            price=Decimal('10.00'),
+            images='photos/products/cart-product.jpg',
+            stock=5,
+            category=self.category,
+        )
+        self.cart = Cart.objects.create(cart_id='test-cart')
+
+    def test_cart_item_quantity_must_be_at_least_one(self):
+        cart_item = CartItem(
+            user=self.user,
+            product=self.product,
+            cart=self.cart,
+            quantity=0,
+        )
+
+        with self.assertRaises(ValidationError):
+            cart_item.full_clean()
+
+    def test_database_rejects_zero_quantity_cart_items(self):
+        with self.assertRaises(IntegrityError):
+            CartItem.objects.create(
+                user=self.user,
+                product=self.product,
+                cart=self.cart,
+                quantity=0,
+            )
