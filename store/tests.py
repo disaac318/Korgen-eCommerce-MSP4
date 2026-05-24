@@ -7,7 +7,7 @@ from accounts.models import Account, UserProfile
 from category.models import Category
 from orders.models import Order, OrderProduct
 
-from .models import Product, ReviewRating
+from .models import Product, ReviewRating, Variation
 
 
 def create_active_user(
@@ -27,19 +27,24 @@ def create_active_user(
     return user
 
 
-def create_category():
+def create_category(name='Electronics', slug='electronics'):
     return Category.objects.create(
-        category_name='Electronics',
-        slug='electronics',
+        category_name=name,
+        slug=slug,
     )
 
 
-def create_product(category, name='Action Camera', slug='action-camera'):
+def create_product(
+    category,
+    name='Action Camera',
+    slug='action-camera',
+    price=Decimal('199.99'),
+):
     return Product.objects.create(
         product_name=name,
         slug=slug,
         description='Compact travel video camera.',
-        price=Decimal('199.99'),
+        price=price,
         images='photos/products/action-camera.jpg',
         stock=5,
         is_available=True,
@@ -87,6 +92,96 @@ class SearchViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIsNone(response.context['products'])
         self.assertEqual(response.context['product_count_label'], '0 items found.')
+
+
+class StoreFilterTests(TestCase):
+    def setUp(self):
+        self.electronics = create_category()
+        self.clothing = create_category('Clothing', 'clothing')
+        self.camera = create_product(
+            self.electronics,
+            name='Action Camera',
+            slug='action-camera',
+            price=Decimal('199.99'),
+        )
+        self.shirt = create_product(
+            self.clothing,
+            name='Cotton Shirt',
+            slug='cotton-shirt',
+            price=Decimal('29.99'),
+        )
+        self.jacket = create_product(
+            self.clothing,
+            name='Winter Jacket',
+            slug='winter-jacket',
+            price=Decimal('149.99'),
+        )
+        Variation.objects.create(
+            product=self.shirt,
+            variation_category='size',
+            variation_value='M',
+        )
+        Variation.objects.create(
+            product=self.jacket,
+            variation_category='size',
+            variation_value='L',
+        )
+
+    def test_category_filter_returns_matching_products_only(self):
+        response = self.client.get(
+            reverse('products_by_category', kwargs={
+                'category_slug': self.clothing.slug,
+            }),
+        )
+
+        products = list(response.context['products'])
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.shirt, products)
+        self.assertIn(self.jacket, products)
+        self.assertNotIn(self.camera, products)
+        self.assertEqual(response.context['product_count_label'], '2 items found.')
+
+    def test_size_filter_returns_matching_products_only(self):
+        response = self.client.get(reverse('store'), {'size': 'm'})
+
+        products = list(response.context['products'])
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.shirt, products)
+        self.assertNotIn(self.jacket, products)
+        self.assertNotIn(self.camera, products)
+        self.assertEqual(response.context['selected_size'], 'm')
+
+    def test_price_filter_returns_products_inside_selected_range(self):
+        response = self.client.get(
+            reverse('store'),
+            {
+                'min_price': '100',
+                'max_price': '200',
+            },
+        )
+
+        products = list(response.context['products'])
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.camera, products)
+        self.assertIn(self.jacket, products)
+        self.assertNotIn(self.shirt, products)
+        self.assertEqual(response.context['product_count_label'], '2 items found.')
+
+    def test_invalid_price_filters_are_ignored_safely(self):
+        response = self.client.get(
+            reverse('store'),
+            {
+                'min_price': 'not-a-price',
+                'max_price': '-5',
+            },
+        )
+
+        products = list(response.context['products'])
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(self.camera, products)
+        self.assertIn(self.shirt, products)
+        self.assertIn(self.jacket, products)
+        self.assertEqual(response.context['product_count_label'], '3 items found.')
 
 
 class ReviewPermissionTests(TestCase):
