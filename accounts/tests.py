@@ -49,6 +49,30 @@ class RegistrationEmailTests(TestCase):
         )
 
 
+class AnonymousOnlyAuthPageTests(TestCase):
+    def setUp(self):
+        self.user = Account.objects.create_user(
+            first_name='Active',
+            last_name='User',
+            email='active@example.com',
+            username='activeuser',
+            password='test-pass-12345',
+        )
+        self.user.is_active = True
+        self.user.save(update_fields=['is_active'])
+        self.client.force_login(self.user)
+
+    def test_authenticated_user_cannot_access_register_page(self):
+        response = self.client.get(reverse('accounts:register'))
+
+        self.assertRedirects(response, reverse('accounts:dashboard'))
+
+    def test_authenticated_user_cannot_access_login_page(self):
+        response = self.client.get(reverse('accounts:login'))
+
+        self.assertRedirects(response, reverse('accounts:dashboard'))
+
+
 @override_settings(REMEMBER_ME_SESSION_AGE=1209600)
 class LoginRememberMeTests(TestCase):
     def setUp(self):

@@ -32,6 +32,13 @@ from orders.models import Order
 logger = logging.getLogger(__name__)
 
 
+def _redirect_authenticated_user(request):
+    if request.user.is_authenticated:
+        return redirect('accounts:dashboard')
+
+    return None
+
+
 def _send_multipart_email(subject, template_base, context, recipient):
     if (
         not settings.DEVELOPMENT
@@ -56,6 +63,10 @@ def _send_multipart_email(subject, template_base, context, recipient):
 
 @never_cache
 def register(request):
+    authenticated_redirect = _redirect_authenticated_user(request)
+    if authenticated_redirect:
+        return authenticated_redirect
+
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
 
@@ -106,6 +117,10 @@ def register(request):
 
 @never_cache
 def login(request):
+    authenticated_redirect = _redirect_authenticated_user(request)
+    if authenticated_redirect:
+        return authenticated_redirect
+
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')

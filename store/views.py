@@ -2,6 +2,7 @@ from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from category.models import Category
@@ -175,15 +176,14 @@ def search(request):
     product_count = 0
 
     if 'keyword' in request.GET:
-        keyword = request.GET['keyword']
+        keyword = request.GET.get('keyword', '').strip()
         if keyword:
             products = Product.objects.filter(
                 is_available=True,
-                product_name__icontains=keyword,
-            ).order_by('id')
-
-            products = Product.objects.order_by('-created_date').filter(description__icontains=keyword)
-            
+            ).filter(
+                Q(product_name__icontains=keyword)
+                | Q(description__icontains=keyword)
+            ).order_by('-created_date')
             product_count = products.count()
 
     context = {
