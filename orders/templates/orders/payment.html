@@ -623,9 +623,6 @@
           })
                .then(function (res) {
                     return res.json().then(function (data) {
-                         console.log('Stripe checkout HTTP status:', res.status);
-                         console.log('Stripe checkout data:', data);
-
                          if (!res.ok) {
                               throw new Error(data.error || 'Stripe checkout could not be started.');
                          }
@@ -709,13 +706,6 @@
                createOrder: function () {
                     const createOrderUrl = "{% url 'orders:create_paypal_order' order.order_number %}";
 
-                    console.log('Creating PayPal order:', {
-                         orderNumber: '{{ order.order_number }}',
-                         currency: '{{ paypal_currency|default:"GBP" }}',
-                         total: '{{ order.grand_total|floatformat:2 }}',
-                         url: createOrderUrl
-                    });
-
                     return fetch(createOrderUrl, {
                          method: 'POST',
                          credentials: 'same-origin',
@@ -725,9 +715,6 @@
                     })
                          .then(function (res) {
                               return res.json().then(function (data) {
-                                   console.log('PayPal create order HTTP status:', res.status);
-                                   console.log('PayPal create order data:', data);
-
                                    if (!res.ok) {
                                         throw new Error(getPaypalErrorMessage(data));
                                    }
@@ -750,8 +737,6 @@
                },
 
                onApprove: function (data) {
-                    console.log('PayPal approved:', data);
-
                     return fetch("{% url 'orders:capture_paypal_order' order.order_number %}", {
                          method: 'POST',
                          credentials: 'same-origin',
@@ -765,9 +750,6 @@
                     })
                          .then(function (res) {
                               return res.json().then(function (data) {
-                                   console.log('PayPal capture HTTP status:', res.status);
-                                   console.log('PayPal capture data:', data);
-
                                    if (!res.ok) {
                                         throw new Error(getPaypalErrorMessage(data));
                                    }
