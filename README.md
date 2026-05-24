@@ -181,17 +181,16 @@ The application uses Django's ORM with a relational database. SQLite is used loc
 
 Custom user model using email as the login identifier.
 
-Key fields:
+Key fields and constraints:
 
-- `first_name`
-- `last_name`
-- `username`
-- `email`
-- `phone_number`
-- `is_active`
-- `is_staff`
-- `is_admin`
-- `is_superadmin`
+- `first_name` - `CharField(max_length=50)`.
+- `last_name` - `CharField(max_length=50)`.
+- `username` - `CharField(max_length=50, unique=True)`.
+- `email` - `EmailField(max_length=100, unique=True)` and `USERNAME_FIELD`.
+- `phone_number` - optional `CharField(max_length=15)`.
+- `date_joined` - `DateTimeField(auto_now_add=True)`.
+- `last_login` - `DateTimeField(auto_now=True)`.
+- `is_active`, `is_staff`, `is_admin`, `is_superadmin` - Boolean permission/status fields.
 
 Relationships:
 
@@ -206,41 +205,45 @@ Relationships:
 
 Stores extended profile and address information.
 
-Key fields:
+Key fields and constraints:
 
-- `address_line_1`
-- `address_line_2`
-- `city`
-- `county`
-- `postcode`
-- `country`
-- `profile_picture`
+- `user` - `OneToOneField(Account, on_delete=CASCADE)`.
+- `address_line_1` - optional `CharField(max_length=100)`.
+- `address_line_2` - optional `CharField(max_length=100)`.
+- `city` - optional `CharField(max_length=50)`.
+- `county` - optional `CharField(max_length=50)`.
+- `postcode` - optional `CharField(max_length=20)`.
+- `country` - optional `CharField(max_length=50)`.
+- `profile_picture` - optional `ImageField(upload_to='userprofile')`.
 
 #### BillingDetails
 
 Stores reusable checkout details for authenticated customers.
 
-Key fields:
+Key fields and constraints:
 
-- `first_name`
-- `last_name`
-- `email`
-- `phone`
-- `address_line_1`
-- `address_line_2`
-- `county`
-- `postcode`
+- `user` - `OneToOneField(Account, on_delete=CASCADE, related_name='billing_details')`.
+- `first_name` - `CharField(max_length=50)`.
+- `last_name` - `CharField(max_length=50)`.
+- `email` - `EmailField(max_length=100)`.
+- `phone` - `CharField(max_length=20)`.
+- `address_line_1` - `CharField(max_length=100)`.
+- `address_line_2` - optional `CharField(max_length=100)`.
+- `county` - `CharField(max_length=50)`.
+- `postcode` - `CharField(max_length=20)`.
+- `created_at` - `DateTimeField(auto_now_add=True)`.
+- `updated_at` - `DateTimeField(auto_now=True)`.
 
 #### Category
 
 Groups products into browsable catalogue sections.
 
-Key fields:
+Key fields and constraints:
 
-- `category_name`
-- `slug`
-- `description`
-- `cat_image`
+- `category_name` - `CharField(max_length=50, unique=True)`.
+- `slug` - `SlugField(max_length=100, unique=True)`.
+- `description` - optional `TextField(max_length=255)`.
+- `cat_image` - optional nullable `ImageField(upload_to='photos/categories/')`.
 
 Relationships:
 
@@ -250,16 +253,18 @@ Relationships:
 
 Represents an item available for purchase.
 
-Key fields:
+Key fields and constraints:
 
-- `product_name`
-- `slug`
-- `description`
-- `price`
-- `images`
-- `stock`
-- `is_available`
-- `category`
+- `product_name` - `CharField(max_length=200, unique=True)`.
+- `slug` - `SlugField(max_length=200, unique=True)`.
+- `description` - optional `TextField(max_length=255)`.
+- `price` - `DecimalField(max_digits=10, decimal_places=2)`.
+- `images` - `ImageField(upload_to='photos/products')`.
+- `stock` - `IntegerField`.
+- `is_available` - `BooleanField(default=True)`.
+- `category` - `ForeignKey(Category, on_delete=CASCADE)`.
+- `created_date` - `DateTimeField(auto_now_add=True)`.
+- `modified_date` - `DateTimeField(auto_now=True)`.
 
 Relationships:
 
@@ -272,12 +277,14 @@ Relationships:
 
 Stores selectable product options.
 
-Key fields:
+Key fields and constraints:
 
-- `product`
-- `variation_category`
-- `variation_value`
-- `is_active`
+- `product` - `ForeignKey(Product, on_delete=CASCADE)`.
+- `variation_category` - `CharField(max_length=100, choices=('color', 'size'))`.
+- `variation_value` - `CharField(max_length=100)`.
+- `is_active` - `BooleanField(default=True)`.
+- `created_date` - `DateTimeField(auto_now=True)`.
+- Unique constraint: each product/category/value combination is unique case-insensitively through `unique_product_variation_value_ci`.
 
 Supported variation categories:
 
@@ -288,15 +295,17 @@ Supported variation categories:
 
 Stores customer reviews and ratings.
 
-Key fields:
+Key fields and constraints:
 
-- `product`
-- `user`
-- `subject`
-- `review`
-- `rating`
-- `ip`
-- `status`
+- `product` - `ForeignKey(Product, on_delete=CASCADE)`.
+- `user` - `ForeignKey(Account, on_delete=CASCADE)`.
+- `subject` - optional `CharField(max_length=100)`.
+- `review` - optional `TextField`.
+- `rating` - `FloatField`.
+- `ip` - optional `CharField(max_length=20)`.
+- `status` - `BooleanField(default=True)`.
+- `created_at` - `DateTimeField(auto_now_add=True)`.
+- `updated_at` - `DateTimeField(auto_now=True)`.
 
 Business rule:
 
@@ -306,23 +315,24 @@ Business rule:
 
 Stores a guest/session cart identifier.
 
-Key fields:
+Key fields and constraints:
 
-- `cart_id`
-- `date_added`
+- `cart_id` - optional `CharField(max_length=250)`, stores the session cart identifier.
+- `date_added` - `DateTimeField(auto_now_add=True)`.
 
 #### CartItem
 
 Stores products selected for purchase.
 
-Key fields:
+Key fields and constraints:
 
-- `user`
-- `product`
-- `variations`
-- `cart`
-- `quantity`
-- `is_active`
+- `user` - optional nullable `ForeignKey(Account, on_delete=CASCADE)`.
+- `product` - `ForeignKey(Product, on_delete=CASCADE)`.
+- `variations` - optional `ManyToManyField(Variation)`.
+- `cart` - `ForeignKey(Cart, on_delete=CASCADE)`.
+- `quantity` - `PositiveIntegerField` with `MinValueValidator(1)`.
+- `is_active` - `BooleanField(default=True)`.
+- Check constraint: `cartitem_quantity_at_least_one` enforces `quantity >= 1` at database level.
 
 Business rules:
 
@@ -334,44 +344,49 @@ Business rules:
 
 Stores payment provider transaction details.
 
-Key fields:
+Key fields and constraints:
 
-- `user`
-- `payment_id`
-- `payment_method`
-- `paypal_order_id`
-- `payer_email`
-- `payer_name`
-- `currency`
-- `amount_paid`
-- `status`
-- `transaction_data`
+- `user` - `ForeignKey(Account, on_delete=CASCADE)`.
+- `payment_id` - `CharField(max_length=100, unique=True)`.
+- `payment_method` - `CharField(max_length=100)`.
+- `paypal_order_id` - optional `CharField(max_length=100)`.
+- `payer_email` - optional `EmailField`.
+- `payer_name` - optional `CharField(max_length=150)`.
+- `currency` - optional `CharField(max_length=3)`.
+- `amount_paid` - `DecimalField(max_digits=10, decimal_places=2)`.
+- `status` - `CharField(max_length=20)` with choices `pending`, `completed`, `failed`, and `refunded`.
+- `transaction_data` - optional `JSONField(default=dict)`.
+- `created_at` - `DateTimeField(auto_now_add=True)`.
+- `updated_at` - `DateTimeField(auto_now=True)`.
 
 #### Order
 
 Stores checkout and delivery details.
 
-Key fields:
+Key fields and constraints:
 
-- `user`
-- `payment`
-- `order_number`
-- `first_name`
-- `last_name`
-- `email`
-- `phone`
-- `address_line_1`
-- `address_line_2`
-- `county`
-- `postcode`
-- `order_total`
-- `tax`
-- `delivery_total`
-- `grand_total`
-- `status`
-- `ip`
-- `is_ordered`
-- `stock_deducted`
+- `user` - `ForeignKey(Account, on_delete=CASCADE)`.
+- `payment` - optional nullable `ForeignKey(Payment, on_delete=SET_NULL)`.
+- `order_number` - optional `CharField(max_length=20, unique=True)`, generated after first save.
+- `first_name` - `CharField(max_length=50)`.
+- `last_name` - `CharField(max_length=50)`.
+- `email` - `EmailField(max_length=100)`.
+- `phone` - `CharField(max_length=20)`.
+- `address_line_1` - `CharField(max_length=100)`.
+- `address_line_2` - optional `CharField(max_length=100)`.
+- `county` - `CharField(max_length=50)`.
+- `postcode` - `CharField(max_length=20)`.
+- `order_notes` - optional `TextField`.
+- `order_total` - `DecimalField(max_digits=10, decimal_places=2)`.
+- `tax` - `DecimalField(max_digits=10, decimal_places=2)`.
+- `delivery_total` - `DecimalField(max_digits=10, decimal_places=2, default=0)`.
+- `grand_total` - `DecimalField(max_digits=10, decimal_places=2)`.
+- `status` - `CharField(max_length=20)` with choices `new`, `accepted`, `completed`, and `cancelled`.
+- `ip` - optional nullable `GenericIPAddressField`.
+- `is_ordered` - `BooleanField(default=False)`.
+- `stock_deducted` - `BooleanField(default=False)`.
+- `created_at` - `DateTimeField(auto_now_add=True)`.
+- `updated_at` - `DateTimeField(auto_now=True)`.
 
 Business rules:
 
@@ -383,15 +398,17 @@ Business rules:
 
 Stores purchased line items.
 
-Key fields:
+Key fields and constraints:
 
-- `order`
-- `user`
-- `product`
-- `variations`
-- `quantity`
-- `product_price`
-- `ordered`
+- `order` - `ForeignKey(Order, on_delete=CASCADE, related_name='items')`.
+- `user` - `ForeignKey(Account, on_delete=CASCADE)`.
+- `product` - nullable `ForeignKey(Product, on_delete=SET_NULL)`, preserving historical order lines if a product is removed.
+- `variations` - optional `ManyToManyField(Variation)`.
+- `quantity` - `PositiveIntegerField`.
+- `product_price` - `DecimalField(max_digits=10, decimal_places=2)`.
+- `ordered` - `BooleanField(default=True)`.
+- `created_at` - `DateTimeField(auto_now_add=True)`.
+- `updated_at` - `DateTimeField(auto_now=True)`.
 
 
 
