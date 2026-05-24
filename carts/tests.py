@@ -7,8 +7,9 @@ from django.test import SimpleTestCase, override_settings
 from django.test import TestCase
 from django.urls import reverse
 
-from accounts.models import Account
+from accounts.models import Account, BillingDetails
 from category.models import Category
+from orders.models import Order, OrderProduct
 from store.models import Product
 from .models import Cart, CartItem
 from .pricing import calculate_cart_totals, calculate_delivery_total
@@ -34,6 +35,7 @@ def create_product(
     name='Cart Product',
     slug='cart-product',
     stock=5,
+    price=Decimal('10.00'),
 ):
     category, _ = Category.objects.get_or_create(
         category_name='Cart Category',
@@ -43,7 +45,7 @@ def create_product(
         product_name=name,
         slug=slug,
         description='Cart product',
-        price=Decimal('10.00'),
+        price=price,
         images='photos/products/cart-product.jpg',
         stock=stock,
         category=category,
@@ -223,3 +225,109 @@ class CartBehaviourTests(TestCase):
                 user__isnull=True,
             ).exists(),
         )
+
+
+@override_settings(
+    DELIVERY_FLAT_RATE='3.99',
+    DELIVERY_FREE_THRESHOLD='50.00',
+)
+class CheckoutOrderCreationTests(TestCase):
+    def setUp(self):
+        self.user = create_active_user()
+        self.product = create_product(price=Decimal('12.50'))
+        self.cart = Cart.objects.create(cart_id='checkout-cart')
+        self.cart_item = CartItem.objects.create(
+            user=self.user,
+            product=self.product,
+            cart=self.cart,
+            quantity=2,
+        )
+        self.checkout_data = {
+            'first_name': 'Checkout',
+            'last_name': 'Buyer',
+            'email': 'checkout-buyer@example.com',
+            'phone': '07123456789',
+            'address_line_1': '1 Checkout Street',
+            'address_line_2': '',
+            'county': 'London',
+            'postcode': 'CH1 1AA',
+            'order_notes': 'Leave with reception.',
+        }
+
+    def test_checkout_requires_cart_items(self):
+        self.client.force_login(self.user)
+        CartItem.objects.filter(user=self.user).delete()
+
+        response = self.client.get(reverse('checkout'))
+
+        self.assertRedirects(response, reverse('cart'))
+
+    def test_checkout_creates_pending_order_from_cart_items(self):
+        self.client.force_login(self.user)
+
+        response = self.client.post(reverse('checkout'), self.checkout_data)
+
+        order = Order.objects.get(user=self.user)
+        self.assertRedirects(
+            response,
+            reverse('orders:payment', kwargs={
+                'order_number': order.order_number,
+            }),
+            fetch_redirect_response=False,
+        )
+        self.assertFalse(order.is_ordered)
+        self.assertEqual(order.order_total, Decimal('25.00'))
+        self.assertEqual(order.tax, Decimal('5.00'))
+        self.assertEqual(order.delivery_total, Decimal('3.99'))
+        self.assertEqual(order.grand_total, Decimal('33.99'))
+        self.assertEqual(order.first_name, self.checkout_data['first_name'])
+        self.assertEqual(order.email, self.checkout_data['email'])
+
+    def test_checkout_copies_cart_items_to_order_products(self):
+        self.client.force_login(self.user)
+
+        self.client.post(reverse('checkout'), self.checkout_data)
+
+        order_product = OrderProduct.objects.get(
+            order__user=self.user,
+            product=self.product,
+        )
+        self.assertEqual(order_product.quantity, 2)
+        self.assertEqual(order_product.product_price, self.product.price)
+        self.assertFalse(order_product.ordered)
+
+    def test_checkout_saves_billing_details_for_future_orders(self):
+        self.client.force_login(self.user)
+
+        self.client.post(reverse('checkout'), self.checkout_data)
+
+        billing_details = BillingDetails.objects.get(user=self.user)
+        self.assertEqual(
+            billing_details.address_line_1,
+            self.checkout_data['address_line_1'],
+        )
+        self.assertEqual(billing_details.email, self.checkout_data['email'])
+        self.assertEqual(billing_details.postcode, self.checkout_data['postcode'])
+
+    def test_checkout_prefills_saved_billing_details(self):
+        BillingDetails.objects.create(
+            user=self.user,
+            first_name='Saved',
+            last_name='Customer',
+            email='saved@example.com',
+            phone='07987654321',
+            address_line_1='2 Saved Street',
+            address_line_2='Flat 4',
+            county='Manchester',
+            postcode='SV1 2ED',
+        )
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('checkout'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['has_saved_billing_details'])
+        form = response.context['form']
+        self.assertEqual(form.initial['first_name'], 'Saved')
+        self.assertEqual(form.initial['email'], 'saved@example.com')
+        self.assertEqual(form.initial['address_line_1'], '2 Saved Street')
