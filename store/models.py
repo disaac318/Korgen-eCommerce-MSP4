@@ -1,10 +1,28 @@
+from pathlib import PurePosixPath
+
 from django.db import models
 from django.db.models import Avg, Count
 from django.db.models.functions import Lower
+from django.templatetags.static import static
+
 from category.models import Category
 
 # Create your models here.
 class Product(models.Model):
+    PACKAGED_IMAGE_FILES = {
+        'Action5-camera.jpg': 'Action5-camera.jpg',
+        'Coevals.jpg': 'Coevals.jpg',
+        'Coevals_JHte0VL.jpg': 'Coevals.jpg',
+        'Hitmars-Shoes.jpg': 'Hitmars-Shoes.jpg',
+        'Japanese_Cherry_Blossom_.jpeg': 'Japanese Cherry Blossom .jpeg',
+        'Jetsetter-luggage.jpg': 'Jetsetter-luggage.jpg',
+        'Nintendo_2.jpg': 'Nintendo 2.jpg',
+        'Warm-Jacket.jpg': 'Warm-Jacket.jpg',
+        'Winter-Jacket.jpg': 'Winter-Jacket.jpg',
+        'Yellow-bag.png': 'Yellow-bag.png',
+        'red-bag.png': 'red-bag.png',
+    }
+
     product_name = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=200, unique=True)
     description = models.TextField(max_length=255, blank=True)
@@ -22,6 +40,18 @@ class Product(models.Model):
 
     def __str__(self):
         return self.product_name
+
+    @property
+    def display_image_url(self):
+        if not self.images:
+            return ''
+
+        image_file = PurePosixPath(self.images.name).name
+        packaged_image_file = self.PACKAGED_IMAGE_FILES.get(image_file)
+        if packaged_image_file:
+            return static(f'images/products/{packaged_image_file}')
+
+        return self.images.url
 
     def averageReview(self):
         reviews = ReviewRating.objects.filter(product=self, status=True).aggregate(average=Avg('rating'))

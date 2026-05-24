@@ -42,7 +42,7 @@
                               <div class="card card-product-grid h-100">
                                    <a href="{% url 'product_detail' product.category.slug product.slug %}"
                                         class="img-wrap">
-                                        <img src="{{ product.images.url }}"
+                                        <img src="{{ product.display_image_url }}"
                                              class="card-img-top d-block mx-auto"
                                              alt="{{ product.product_name }}">
                                    </a>

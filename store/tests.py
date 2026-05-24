@@ -184,6 +184,45 @@ class StoreFilterTests(TestCase):
         self.assertEqual(response.context['product_count_label'], '3 items found.')
 
 
+class ProductDetailDisplayTests(TestCase):
+    def setUp(self):
+        category = create_category('Shirts', 'shirts')
+        self.product = create_product(
+            category,
+            name='Catalog Shirt',
+            slug='catalog-shirt',
+        )
+        self.product.images = 'photos/products/Coevals_JHte0VL.jpg'
+        self.product.save(update_fields=['images'])
+        Variation.objects.create(
+            product=self.product,
+            variation_category='color',
+            variation_value='Burgundy',
+        )
+
+    def test_packaged_catalog_image_is_served_from_static_assets(self):
+        self.assertEqual(
+            self.product.display_image_url,
+            '/static/images/products/Coevals.jpg',
+        )
+
+    def test_product_detail_renders_static_image_and_active_variation(self):
+        response = self.client.get(
+            reverse(
+                'product_detail',
+                kwargs={
+                    'category_slug': self.product.category.slug,
+                    'product_slug': self.product.slug,
+                },
+            ),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '/static/images/products/Coevals.jpg')
+        self.assertContains(response, 'Burgundy')
+        self.assertContains(response, 'id="colorSelect"')
+
+
 class ReviewPermissionTests(TestCase):
     def setUp(self):
         self.category = create_category()
