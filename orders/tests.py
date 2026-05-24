@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import sys
 from types import SimpleNamespace
 
-from django.test import SimpleTestCase, TestCase
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
 from accounts.models import Account
@@ -278,3 +278,128 @@ class StockDeductionTests(TestCase):
         self.assertEqual(self.product.stock, 1)
         self.assertFalse(self.order.is_ordered)
         self.assertFalse(self.order.stock_deducted)
+
+
+class PaymentErrorHandlingTests(TestCase):
+    def setUp(self):
+        self.user = Account.objects.create_user(
+            first_name='Payment',
+            last_name='Buyer',
+            email='payment-buyer@example.com',
+            username='payment-buyer',
+            password='test-pass-12345',
+        )
+        self.user.is_active = True
+        self.user.save(update_fields=['is_active'])
+
+        self.category = Category.objects.create(
+            category_name='Payment Category',
+            slug='payment-category',
+        )
+        self.product = Product.objects.create(
+            product_name='Payment Product',
+            slug='payment-product',
+            description='Payment product',
+            price=Decimal('10.00'),
+            images='photos/products/payment.jpg',
+            stock=5,
+            category=self.category,
+        )
+        self.order = Order.objects.create(
+            user=self.user,
+            first_name='Payment',
+            last_name='Buyer',
+            email='payment-buyer@example.com',
+            phone='07123456789',
+            address_line_1='1 Payment Street',
+            county='London',
+            postcode='P1 1AA',
+            order_total=Decimal('20.00'),
+            tax=Decimal('4.00'),
+            delivery_total=Decimal('0.00'),
+            grand_total=Decimal('24.00'),
+            is_ordered=False,
+        )
+        self.order_product = OrderProduct.objects.create(
+            order=self.order,
+            user=self.user,
+            product=self.product,
+            quantity=2,
+            product_price=Decimal('10.00'),
+            ordered=False,
+        )
+        self.client.force_login(self.user)
+
+    @override_settings(STRIPE_PUBLIC_KEY='', STRIPE_SECRET_KEY='')
+    def test_stripe_checkout_returns_503_when_credentials_are_missing(self):
+        response = self.client.post(
+            reverse('orders:create_stripe_checkout_session', kwargs={
+                'order_number': self.order.order_number,
+            }),
+        )
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(
+            response.json()['error'],
+            'Stripe credentials are not configured.',
+        )
+
+    @override_settings(PAYPAL_CLIENT_ID='', PAYPAL_CLIENT_SECRET='')
+    def test_paypal_create_order_returns_503_when_credentials_are_missing(self):
+        response = self.client.post(
+            reverse('orders:create_paypal_order', kwargs={
+                'order_number': self.order.order_number,
+            }),
+        )
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(
+            response.json()['error'],
+            'PayPal credentials are not configured.',
+        )
+
+    @override_settings(
+        STRIPE_PUBLIC_KEY='pk_test_example',
+        STRIPE_SECRET_KEY='sk_test_example',
+    )
+    def test_stripe_checkout_returns_400_when_stock_is_too_low(self):
+        self.product.stock = 1
+        self.product.save(update_fields=['stock'])
+
+        response = self.client.post(
+            reverse('orders:create_stripe_checkout_session', kwargs={
+                'order_number': self.order.order_number,
+            }),
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Payment Product has only 1 in stock.', response.json()['error'])
+
+    @override_settings(
+        PAYPAL_CLIENT_ID='paypal-client-id',
+        PAYPAL_CLIENT_SECRET='paypal-client-secret',
+    )
+    def test_paypal_create_order_returns_400_when_stock_is_too_low(self):
+        self.product.stock = 1
+        self.product.save(update_fields=['stock'])
+
+        response = self.client.post(
+            reverse('orders:create_paypal_order', kwargs={
+                'order_number': self.order.order_number,
+            }),
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Payment Product has only 1 in stock.', response.json()['error'])
+
+    def test_payment_page_redirects_to_cart_when_stock_is_too_low(self):
+        self.product.stock = 1
+        self.product.save(update_fields=['stock'])
+
+        response = self.client.get(
+            reverse('orders:payment', kwargs={
+                'order_number': self.order.order_number,
+            }),
+        )
+
+        self.assertRedirects(response, reverse('cart'))
