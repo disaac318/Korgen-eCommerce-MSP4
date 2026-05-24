@@ -12,8 +12,8 @@
           <div class="container">
 
                <figure class="intro-banner-wrap mb-0 mt-3 pt-2 d-none d-md-block">
-                    
-                    <img src="{% static 'images/banners/shopeeGirl.webp' %}"
+
+                    <img src="{% static 'images/banners/korgenShopper.webp' %}"
                          class="img-fluid w-100 rounded "
                          alt="Featured promotion banner">
                </figure>
@@ -46,25 +46,35 @@
                                              class="card-img-top d-block mx-auto"
                                              alt="{{ product.product_name }}">
                                    </a>
-	                                   <div class="card-body info-wrap">
-	                                        <h5 class="mb-1">
-	                                             <a href="{% url 'product_detail' product.category.slug product.slug %}"
-	                                                  class="title text-decoration-none text-center">{{ product.product_name }}</a>
-	                                        </h5>
-	                                        <div class="text-center">
-	                                             {% include 'store/includes/rating_stars.html' with rating=product.averageReview rating_classes='text-warning text-center mb-2' %}
-	                                        </div>
+                                   <div class="card-body info-wrap">
+                                        <h5 class="mb-1">
+                                             <a href="{% url 'product_detail' product.category.slug product.slug %}"
+                                                  class="title text-decoration-none text-center">{{ product.product_name
+                                                  }}</a>
+                                        </h5>
+                                        <div class="text-center">
+                                             {% include 'store/includes/rating_stars.html' with
+                                             rating=product.averageReview rating_classes='text-warning text-center mb-2'
+                                             %}
+                                        </div>
 
-	                                        <div class="mt-auto ">
-	                                             <p class="mb-2 fw-bold text-center">£ {{ product.price }}</p>
-	                                             {% if product.has_active_variations %}
-	                                             {% url 'product_detail' product.category.slug product.slug as product_action_url %}
-	                                             {% include 'store/includes/product_card_action.html' with action_url=product_action_url action_label='View details' action_classes='price btn btn-warning w-100' disabled_action_classes='price btn btn-secondary w-100' %}
-	                                             {% else %}
-	                                             {% url 'add_cart' product.id as product_action_url %}
-	                                             {% include 'store/includes/product_card_action.html' with action_url=product_action_url action_label='Add to cart' action_classes='price btn btn-warning w-100' disabled_action_classes='price btn btn-secondary w-100' %}
-	                                             {% endif %}
-	                                        </div>
+                                        <div class="mt-auto ">
+                                             <p class="mb-2 fw-bold text-center">£ {{ product.price }}</p>
+                                             {% if product.has_active_variations %}
+                                             {% url 'product_detail' product.category.slug product.slug as
+                                             product_action_url %}
+                                             {% include 'store/includes/product_card_action.html' with
+                                             action_url=product_action_url action_label='View details'
+                                             action_classes='price btn btn-warning w-100' disabled_action_classes='price
+                                             btn btn-secondary w-100' %}
+                                             {% else %}
+                                             {% url 'add_cart' product.id as product_action_url %}
+                                             {% include 'store/includes/product_card_action.html' with
+                                             action_url=product_action_url action_label='Add to cart'
+                                             action_classes='price btn btn-warning w-100' disabled_action_classes='price
+                                             btn btn-secondary w-100' %}
+                                             {% endif %}
+                                        </div>
                                    </div>
 
                               </div>
