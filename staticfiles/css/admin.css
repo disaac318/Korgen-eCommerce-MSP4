@@ -1,9 +1,0 @@
-body.model-userprofile.change-list #result_list th,
-body.model-userprofile.change-list #result_list td {
-    text-align: center;
-    vertical-align: middle;
-}
-
-body.model-userprofile.change-list #result_list td.field-thumbnail > div {
-    justify-content: center;
-}

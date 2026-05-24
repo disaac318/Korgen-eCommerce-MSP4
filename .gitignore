@@ -4,5 +4,6 @@
 *.pyc
 __pycache__
 .DS_Store
+staticfiles/
 product_detail2.html
 payment   copy.html
