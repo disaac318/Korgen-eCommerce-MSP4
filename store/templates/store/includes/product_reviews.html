@@ -1,5 +1,5 @@
 {% if is_hx_request %}
-<div id="productRatingSummary" hx-swap-oob="true">
+<div id="productRatingSummary" data-hx-swap-oob="true">
      {% include 'store/includes/rating_stars.html' with rating=single_product.averageReview rating_classes='product-rating-stars text-warning h5 mb-2' %}
 
      <span>{{ single_product.countReview}}  Reviews</span>
@@ -11,12 +11,12 @@
      aria-label="Customer reviews">
      <form action="{% url 'submit_review' single_product.id %}"
           method="post"
-          hx-post="{% url 'submit_review' single_product.id %}"
-          hx-target="#productReviews"
-          hx-swap="outerHTML transition:true"
-          hx-indicator="#reviewSubmitLoading">
+          data-hx-post="{% url 'submit_review' single_product.id %}"
+          data-hx-target="#productReviews"
+          data-hx-swap="outerHTML transition:true"
+          data-hx-indicator="#reviewSubmitLoading">
           {% csrf_token %}
-          <h5>Write your review</h5>
+          <h2 class="h5">Write your review</h2>
 
           <fieldset class="mb-3">
                <legend class="h6">How do you rate this product?</legend>
@@ -173,11 +173,11 @@
                     </span>
                     {% endif %}
                     <div class="flex-grow-1">
-                         <h5 class=" mb-1">{{ review.user.full_name }}</h5>
+                         <h3 class="h5 mb-1">{{ review.user.full_name }}</h3>
                          {% include 'store/includes/rating_stars.html' with rating=review.rating rating_classes='text-warning' %}
 
                          <p class="small text-muted mb-0">
-                              <time datetime="{{ review.created_at|date:'c' }}">{{ review.created_at|date:" d M, Y, H:i"}}</time>
+                              <time datetime="{{ review.created_at|date:'Y-m-d\TH:i:s' }}">{{ review.created_at|date:" d M, Y, H:i"}}</time>
                          </p>
 
                     </div>

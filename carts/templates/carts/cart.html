@@ -10,12 +10,16 @@
      style="min-height: 40vh;">
      <div class="container">
 
+          <h1 class="h3 mb-3">Shopping cart</h1>
+
           <div class="row g-4">
 
                <!-- Cart items -->
                <section class="col-12 {% if cart_items %}col-lg-9{% else %}col-lg-12{% endif %}"
-                    aria-label="Cart items">
+                    aria-labelledby="cart-items-title">
 
+                    <h2 id="cart-items-title"
+                         class="visually-hidden">Cart items</h2>
 
                     <div class="card border-0 shadow-sm">
 
@@ -27,28 +31,28 @@
                                         <tr class="small text-uppercase">
                                              <th scope="col"
                                                   class="ps-4">
-                                                  <h6>Product</h6>
+                                                  Product
                                              </th>
                                              <th scope="col"
                                                   style="width: 140px;">
-                                                  <h6>Quantity</h6>
+                                                  Quantity
                                              </th>
                                              <th scope="col"
                                                   class="ps-4"
                                                   style="width: 140px;">
-                                                  <h6>Price</h6>
+                                                  Price
                                              </th>
                                              <th scope="col"
                                                   style="width: 140px;"
                                                   class="text-end pe-4">
-                                                  <h6>Action</h6>
+                                                  Action
                                              </th>
                                         </tr>
                                    </thead>
 
                                    <tbody>
                                         {% for cart_item in cart_items %}
-                                        <!---------------------- Items ---------------------->
+                                        <!-- Item -->
                                         <tr>
                                              <td class="ps-4 py-4">
                                                   <article class="d-flex align-items-center gap-3">
@@ -78,6 +82,7 @@
                                              <!-- Increment and decrement quantity -->
                                              <td class="align-middle cart-qty">
                                                   <div class="input-group input-group-sm flex-nowrap cart-qty-group"
+                                                       role="group"
                                                        aria-label="Quantity controls for {{ cart_item.product.product_name }}">
                                                        <a href="{% url 'confirm_remove_from_cart' cart_item.id %}"
                                                             class="btn btn-outline-secondary"
@@ -92,7 +97,6 @@
                                                             min="1"
                                                             inputmode="numeric"
                                                             readonly
-                                                            aria-readonly="true"
                                                             aria-label="Quantity">
                                                        <a href="{% url 'increment_cart_item' cart_item.id %}"
                                                             class="btn btn-outline-secondary"
@@ -126,7 +130,7 @@
                                              </td>
                                         </tr>
                                         {% endfor %}
-                                        <!---------------------- Items ---------------------->
+                                        <!-- Items end -->
 
                                    </tbody>
 

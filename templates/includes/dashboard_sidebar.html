@@ -1,16 +1,21 @@
 <!-- Sidebar navigation -->
 <aside class="col-12 col-md-3"
      aria-label="Account navigation">
-     <nav class="list-group shadow-sm">
-          <a class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
-               aria-current="page"
-               href="{% url 'accounts:dashboard' %}">{{ user.full_name }}'s Dashboard</a>
-          <a class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'my_orders' %}active{% endif %}"
-               href="{% url 'accounts:my_orders' %}">My Orders</a>
-          <a class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'edit_profile' %}active{% endif %}"
-               href="{% url 'accounts:edit_profile' %}">Edit Profile</a>
-          <a class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'change_password' %}active{% endif %}"
-               href="{% url 'accounts:change_password' %}">Change Password</a>
+	     <nav class="list-group shadow-sm">
+	          <a class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+	               {% if request.resolver_match.url_name == 'dashboard' %}
+	               aria-current="page"
+	               {% endif %}
+	               href="{% url 'accounts:dashboard' %}">{{ user.full_name }}'s Dashboard</a>
+	          <a class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'my_orders' %}active{% endif %}"
+	               {% if request.resolver_match.url_name == 'my_orders' %}aria-current="page"{% endif %}
+	               href="{% url 'accounts:my_orders' %}">My Orders</a>
+	          <a class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'edit_profile' %}active{% endif %}"
+	               {% if request.resolver_match.url_name == 'edit_profile' %}aria-current="page"{% endif %}
+	               href="{% url 'accounts:edit_profile' %}">Edit Profile</a>
+	          <a class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'change_password' %}active{% endif %}"
+	               {% if request.resolver_match.url_name == 'change_password' %}aria-current="page"{% endif %}
+	               href="{% url 'accounts:change_password' %}">Change Password</a>
        
 
      </nav>
