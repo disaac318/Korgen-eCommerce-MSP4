@@ -210,7 +210,7 @@
                     <div class="card h-100">
                          <a class="ratio ratio-4x3"
                               href="{% url 'product_detail' product.category.slug product.slug %}">
-                              <img src="{{ product.display_image_url }}"
+                              <img src="{{ product.images.url }}"
                                    class="card-img-top object-fit-contain p-3"
                                    alt="{{ product.product_name }}">
                          </a>
