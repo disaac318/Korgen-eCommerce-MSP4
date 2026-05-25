@@ -83,6 +83,7 @@ class BillingDetails(models.Model):
     address_line_2 = models.CharField(max_length=100, blank=True)
     county = models.CharField(max_length=50)
     postcode = models.CharField(max_length=20)
+    country = models.CharField(max_length=50, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -101,6 +102,7 @@ class BillingDetails(models.Model):
             'address_line_2',
             'county',
             'postcode',
+            'country',
         )
 
     def as_order_initial(self):

@@ -251,6 +251,7 @@ class CheckoutOrderCreationTests(TestCase):
             'address_line_2': '',
             'county': 'London',
             'postcode': 'CH1 1AA',
+            'country': 'United Kingdom',
             'order_notes': 'Leave with reception.',
         }
 
@@ -282,6 +283,7 @@ class CheckoutOrderCreationTests(TestCase):
         self.assertEqual(order.grand_total, Decimal('33.99'))
         self.assertEqual(order.first_name, self.checkout_data['first_name'])
         self.assertEqual(order.email, self.checkout_data['email'])
+        self.assertEqual(order.country, self.checkout_data['country'])
 
     def test_checkout_copies_cart_items_to_order_products(self):
         self.client.force_login(self.user)
@@ -308,6 +310,7 @@ class CheckoutOrderCreationTests(TestCase):
         )
         self.assertEqual(billing_details.email, self.checkout_data['email'])
         self.assertEqual(billing_details.postcode, self.checkout_data['postcode'])
+        self.assertEqual(billing_details.country, self.checkout_data['country'])
 
     def test_checkout_prefills_saved_billing_details(self):
         BillingDetails.objects.create(
@@ -320,6 +323,7 @@ class CheckoutOrderCreationTests(TestCase):
             address_line_2='Flat 4',
             county='Manchester',
             postcode='SV1 2ED',
+            country='United Kingdom',
         )
         self.client.force_login(self.user)
 
@@ -328,6 +332,8 @@ class CheckoutOrderCreationTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['has_saved_billing_details'])
         form = response.context['form']
+        self.assertContains(response, 'id_country')
         self.assertEqual(form.initial['first_name'], 'Saved')
         self.assertEqual(form.initial['email'], 'saved@example.com')
         self.assertEqual(form.initial['address_line_1'], '2 Saved Street')
+        self.assertEqual(form.initial['country'], 'United Kingdom')

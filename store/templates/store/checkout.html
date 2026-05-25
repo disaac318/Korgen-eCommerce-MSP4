@@ -116,6 +116,16 @@
                                         </div>
 
                                         <div class="col-12">
+                                             <div class="form-floating">
+                                                  {{ form.country }}
+                                                  <label for="{{ form.country.id_for_label }}">Country</label>
+                                             </div>
+                                             <div class="text-danger small mt-1">
+                                                  {{ form.country.errors }}
+                                             </div>
+                                        </div>
+
+                                        <div class="col-12">
                                              <label for="{{ form.order_notes.id_for_label }}"
                                                   class="form-label">Order notes</label>
                                              {{ form.order_notes }}

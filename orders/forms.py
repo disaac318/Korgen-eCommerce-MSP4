@@ -15,6 +15,7 @@ class OrderForm(forms.ModelForm):
             'address_line_2',
             'county',
             'postcode',
+            'country',
             'order_notes',
         )
         widgets = {
@@ -33,6 +34,7 @@ class OrderForm(forms.ModelForm):
             'address_line_2': 'Address line 2',
             'county': 'County',
             'postcode': 'Postcode',
+            'country': 'Country',
             'order_notes': 'Order notes',
         }
 

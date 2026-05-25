@@ -77,6 +77,7 @@ class Order(models.Model):
     address_line_2 = models.CharField(max_length=100, blank=True)
     county = models.CharField(max_length=50)
     postcode = models.CharField(max_length=20)
+    country = models.CharField(max_length=50, default='')
     order_notes = models.TextField(blank=True)
     order_total = models.DecimalField(max_digits=10, decimal_places=2)
     tax = models.DecimalField(max_digits=10, decimal_places=2)
@@ -115,6 +116,7 @@ class Order(models.Model):
             self.address_line_2,
             self.county,
             self.postcode,
+            self.country,
         ]
         return ', '.join(part for part in address_parts if part)
 
