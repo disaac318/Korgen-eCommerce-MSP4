@@ -201,10 +201,9 @@ class ProductDetailDisplayTests(TestCase):
         )
 
     def test_packaged_catalog_image_is_served_from_static_assets(self):
-        self.assertTrue(
-            self.product.display_image_url.startswith(
-                '/static/images/products/Coevals',
-            ),
+        self.assertEqual(
+            self.product.display_image_url,
+            '/static/images/products/Coevals.jpg',
         )
 
     def test_product_detail_renders_static_image_and_active_variation(self):
@@ -219,7 +218,7 @@ class ProductDetailDisplayTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '/static/images/products/Coevals')
+        self.assertContains(response, '/static/images/products/Coevals.jpg')
         self.assertContains(response, 'Burgundy')
         self.assertContains(response, 'id="colorSelect"')
 

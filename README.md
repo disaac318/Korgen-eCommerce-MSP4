@@ -588,12 +588,6 @@ DEBUG
 DEVELOPMENT
 ALLOWED_HOSTS
 DATABASE_URL
-USE_S3_MEDIA
-AWS_STORAGE_BUCKET_NAME
-AWS_S3_REGION_NAME
-AWS_S3_CUSTOM_DOMAIN
-AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY
 EMAIL_HOST
 EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD
@@ -832,12 +826,6 @@ DEBUG=False
 DEVELOPMENT=False
 ALLOWED_HOSTS
 DATABASE_URL
-USE_S3_MEDIA=True
-AWS_STORAGE_BUCKET_NAME
-AWS_S3_REGION_NAME
-AWS_S3_CUSTOM_DOMAIN
-AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST
 EMAIL_PORT
@@ -896,7 +884,6 @@ web: gunicorn korgen_eCom.wsgi:application
 - Set secure `SECRET_KEY`.
 - Configure production `ALLOWED_HOSTS`.
 - Configure production database.
-- Configure S3 media storage for uploaded product and profile images.
 - Configure SMTP email credentials.
 - Configure owner `CONTACT_EMAIL`.
 - Configure Stripe and PayPal credentials.
