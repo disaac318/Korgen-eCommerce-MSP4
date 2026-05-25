@@ -205,10 +205,54 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    },
+}
+
+if not DEVELOPMENT:
+    STORAGES['staticfiles'] = {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    }
+
+USE_S3_MEDIA = config_bool('USE_S3_MEDIA', default=False)
+
+if USE_S3_MEDIA:
+    INSTALLED_APPS.append('storages')
+    AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='eu-west-2')
+    AWS_S3_CUSTOM_DOMAIN = config('AWS_S3_CUSTOM_DOMAIN', default='')
+    AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+
+    s3_media_options = {
+        'access_key': AWS_ACCESS_KEY_ID,
+        'secret_key': AWS_SECRET_ACCESS_KEY,
+        'bucket_name': AWS_STORAGE_BUCKET_NAME,
+        'region_name': AWS_S3_REGION_NAME,
+        'location': 'media',
+        'default_acl': None,
+        'file_overwrite': False,
+        'querystring_auth': False,
+        'object_parameters': {
+            'CacheControl': 'max-age=86400',
+        },
+    }
+
+    if AWS_S3_CUSTOM_DOMAIN:
+        s3_media_options['custom_domain'] = AWS_S3_CUSTOM_DOMAIN
+
+    STORAGES['default'] = {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+        'OPTIONS': s3_media_options,
+    }
 
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
