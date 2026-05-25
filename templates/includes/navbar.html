@@ -41,7 +41,7 @@
                               <img class="logo"
                                    src="{% static 'images/korgen-logo.png' %}"
                                    alt="Korgen logo"
-                                   width="150" />
+                                   width="150">
                          </a>
                     </div>
                     <!-- ========== Brand ========== -->
@@ -84,7 +84,9 @@
                     <div class="col-auto nav2 text-end">
 
                          <a href="{% url 'store' %}"
-                              class="btn btn-secondary"><i class="bi bi-shop"></i></a>
+                              class="btn btn-secondary"
+                              aria-label="Browse store"><i class="bi bi-shop"
+                                   aria-hidden="true"></i></a>
                     </div>
                     <!-- ========== Store  ======== -->
 
@@ -119,25 +121,27 @@
                     <div
                          class="col-12 col-lg-auto d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start align-items-center nav2 text-center text-lg-start">
 
-	                         {% if user.is_authenticated %}
-		                         <section class="small"
-		                              aria-label="Account">
-		                              <p class="text-muted mb-0">Welcome {{ user.first_name }}!</p>
-		                              <a href="{% url 'accounts:dashboard' %}"
-		                                   class="btn btn-link p-0 small text-secondary text-decoration-none fw-bold">Dashboard</a>
-		                              <form action="{% url 'accounts:logout' %}"
-		                                   method="post"
-		                                   class="d-inline mb-0">
-		                                   {% csrf_token %}
-		                                   <span class="text-muted px-1"
-		                                        aria-hidden="true">|</span>
-		                                   <button type="submit"
-		                                        class="btn btn-link p-0 small text-secondary text-decoration-none fw-bold">Sign
-		                                        out</button>
-		                              </form>
-	                         </section>
+                         {% if user.is_authenticated %}
+                         <div class="small"
+                              role="group"
+                              aria-label="Account">
+                              <p class="text-muted mb-0">Welcome {{ user.first_name }}!</p>
+                              <a href="{% url 'accounts:dashboard' %}"
+                                   class="btn btn-link p-0 small text-secondary text-decoration-none fw-bold">Dashboard</a>
+                              <form action="{% url 'accounts:logout' %}"
+                                   method="post"
+                                   class="d-inline mb-0">
+                                   {% csrf_token %}
+                                   <span class="text-muted px-1"
+                                        aria-hidden="true">|</span>
+                                   <button type="submit"
+                                        class="btn btn-link p-0 small text-secondary text-decoration-none fw-bold">Sign
+                                        out</button>
+                              </form>
+                         </div>
                          {% else %}
-                         <section class="small"
+                         <div class="small"
+                              role="group"
                               aria-label="Account">
                               <p class="text-muted mb-0">Welcome guest!</p>
                               <p class="mb-0">
@@ -148,18 +152,18 @@
                                    <a href="{% url 'accounts:register' %}"
                                         class="text-secondary text-decoration-none fw-bold">Register</a>
                               </p>
-                         </section>
+                         </div>
                          {% endif %}
 
                          <a class="btn btn-secondary position-relative"
                               href="{% url 'cart' %}"
-                              aria-label="Cart">
+                              aria-label="Cart, {{ cart_count }} items">
                               <i class="bi bi-cart3 me-1"
                                    aria-hidden="true"></i>
                               Cart
                               <span id="cartCount"
                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark"
-                                   aria-label="Items in cart">
+                                   aria-hidden="true">
                                    {{ cart_count }}
                               </span>
                          </a>
