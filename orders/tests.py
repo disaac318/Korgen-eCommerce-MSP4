@@ -1,8 +1,10 @@
 from decimal import Decimal
 import builtins
+from io import BytesIO
 from unittest.mock import MagicMock, patch
 import sys
 from types import SimpleNamespace
+from urllib.error import HTTPError
 
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
@@ -374,6 +376,40 @@ class PaymentErrorHandlingTests(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertIn('Payment Product has only 1 in stock.', response.json()['error'])
+
+    @override_settings(
+        DEBUG=False,
+        STRIPE_PUBLIC_KEY='pk_test_example',
+        STRIPE_SECRET_KEY='sk_test_example',
+    )
+    def test_stripe_checkout_logs_provider_error_without_returning_details(self):
+        stripe_error = HTTPError(
+            url='https://api.stripe.com/v1/checkout/sessions',
+            code=401,
+            msg='Unauthorized',
+            hdrs=None,
+            fp=BytesIO(
+                b'{"error": {"type": "invalid_request_error", '
+                b'"code": "api_key_expired", "message": "Expired key."}}'
+            ),
+        )
+
+        with (
+            patch('orders.views._stripe_request', side_effect=stripe_error),
+            self.assertLogs('orders.views', level='ERROR') as logs,
+        ):
+            response = self.client.post(
+                reverse('orders:create_stripe_checkout_session', kwargs={
+                    'order_number': self.order.order_number,
+                }),
+            )
+
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(
+            response.json(),
+            {'error': 'Unable to create Stripe checkout session.'},
+        )
+        self.assertIn('api_key_expired', logs.output[0])
 
     @override_settings(
         PAYPAL_CLIENT_ID='paypal-client-id',

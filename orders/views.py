@@ -128,6 +128,24 @@ def _paypal_error_details(error):
     return str(error)
 
 
+def _stripe_error_details(error):
+    if not isinstance(error, HTTPError):
+        return str(error)
+
+    body = error.read().decode()
+    try:
+        data = json.loads(body)
+    except json.JSONDecodeError:
+        return body
+
+    stripe_error = data.get('error', {})
+    return {
+        'type': stripe_error.get('type', ''),
+        'code': stripe_error.get('code', ''),
+        'message': stripe_error.get('message', ''),
+    }
+
+
 def _get_paypal_access_token():
     credentials = (
         f'{settings.PAYPAL_CLIENT_ID}:{settings.PAYPAL_CLIENT_SECRET}'
@@ -409,11 +427,15 @@ def create_stripe_checkout_session(request, order_number):
     try:
         session = _stripe_request('/v1/checkout/sessions', payload)
     except (HTTPError, URLError, KeyError, json.JSONDecodeError) as error:
-        logger.exception('Unable to create Stripe checkout session')
-        return JsonResponse({
-            'error': 'Unable to create Stripe checkout session.',
-            'details': _paypal_error_details(error),
-        }, status=502)
+        details = _stripe_error_details(error)
+        logger.exception(
+            'Unable to create Stripe checkout session: %s',
+            details,
+        )
+        response_data = {'error': 'Unable to create Stripe checkout session.'}
+        if settings.DEBUG:
+            response_data['details'] = details
+        return JsonResponse(response_data, status=502)
 
     return JsonResponse({
         'id': session['id'],
