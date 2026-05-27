@@ -1,9 +1,12 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core import mail
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from unittest.mock import patch
 
-from .models import Account
+from .models import Account, UserProfile
 
 
 class RegistrationEmailTests(TestCase):
@@ -108,3 +111,54 @@ class LoginRememberMeTests(TestCase):
             settings.REMEMBER_ME_SESSION_AGE,
         )
         self.assertFalse(self.client.session.get_expire_at_browser_close())
+
+
+class ProfilePictureUploadTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            first_name='Profile',
+            last_name='User',
+            email='profile@example.com',
+            username='profileuser',
+            password='test-pass-12345',
+        )
+        self.user.is_active = True
+        self.user.save(update_fields=['is_active'])
+        UserProfile.objects.create(user=self.user)
+        self.client.force_login(self.user)
+
+    def test_storage_failure_is_reported_without_server_error(self):
+        upload = SimpleUploadedFile(
+            'avatar.gif',
+            b'GIF87a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,'
+            b'\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;',
+            content_type='image/gif',
+        )
+
+        with (
+            patch.object(
+                UserProfile._meta.get_field('profile_picture').storage,
+                'save',
+                side_effect=OSError('storage unavailable'),
+            ),
+            self.assertLogs('accounts.views', level='ERROR'),
+        ):
+            response = self.client.post(reverse('accounts:edit_profile'), {
+                'first_name': 'Profile',
+                'last_name': 'User',
+                'phone_number': '',
+                'address_line_1': '',
+                'address_line_2': '',
+                'city': '',
+                'county': '',
+                'postcode': '',
+                'country': '',
+                'profile_picture': upload,
+            })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'We could not upload your profile picture.',
+        )

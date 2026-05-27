@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm, SetPasswordForm
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMultiAlternatives
+from django.db import transaction
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -274,8 +275,27 @@ def edit_profile(request):
         profile_form = UserProfileForm(request.POST, request.FILES, instance=user_profile)
 
         if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
+            try:
+                with transaction.atomic():
+                    user_form.save()
+                    profile_form.save()
+            except Exception:
+                logger.exception(
+                    'Failed to update profile for user %s',
+                    request.user.pk,
+                )
+                messages.error(
+                    request,
+                    'We could not upload your profile picture. Please try again later.',
+                    extra_tags='danger',
+                )
+                return render(request, 'accounts/edit_profile.html', {
+                    'user_form': user_form,
+                    'profile_form': profile_form,
+                    'profile': user_profile,
+                    'userprofile': user_profile,
+                })
+
             messages.success(request, 'Your profile has been updated successfully.')
             return redirect('accounts:edit_profile')
         else:

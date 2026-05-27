@@ -189,7 +189,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/London'
 
 USE_I18N = True
 
@@ -225,15 +225,20 @@ if USE_AWS:
     AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME')
     AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+    STATIC_S3_DOMAIN = (
+        f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+    )
 
-    MEDIAFILES_LOCATION = 'media'
-    STORAGES['default'] = {
-        'BACKEND': 'korgen_eCom.storage_backends.MediaStorage',
+    STORAGES = {
+        'default': {
+            'BACKEND': 'korgen_eCom.storage_backends.MediaStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'korgen_eCom.storage_backends.StaticStorage',
+        },
     }
 
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/'
-
+    STATIC_URL = f'https://{STATIC_S3_DOMAIN}/static/'
 
 
 
