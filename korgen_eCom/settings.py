@@ -227,18 +227,11 @@ if USE_AWS:
     AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
 
-    STATICFILES_LOCATION = 'static'
     MEDIAFILES_LOCATION = 'media'
-    STORAGES = {
-        'default': {
-            'BACKEND': 'korgen_eCom.storage_backends.MediaStorage',
-        },
-        'staticfiles': {
-            'BACKEND': 'korgen_eCom.storage_backends.StaticStorage',
-        },
+    STORAGES['default'] = {
+        'BACKEND': 'korgen_eCom.storage_backends.MediaStorage',
     }
 
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATICFILES_LOCATION}/'
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{MEDIAFILES_LOCATION}/'
 
 
