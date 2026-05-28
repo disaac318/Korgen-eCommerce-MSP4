@@ -183,7 +183,7 @@ The project can be represented with a Kanban workflow:
 
 ## Database Design
 
-The application uses Django's ORM with a relational database. SQLite is used locally by default, while PostgreSQL-compatible configuration is supported through `dj-database-url`.
+The application uses Django's ORM with a relational database. PostgreSQL is supported through `dj-database-url`, with SQLite kept as a local fallback option.
 
 ### Core Data Models
 
@@ -818,15 +818,25 @@ pip install -r requirements.txt
 
 4. Create `.env` and configure required variables:
 
+Use `.env.example` as a template and replace placeholder values with local credentials.
+
 ```text
 SECRET_KEY=<your-secret-key>
 DEBUG=True
 DEVELOPMENT=True
 ALLOWED_HOSTS=localhost,127.0.0.1
-DATABASE_URL=sqlite:///db.sqlite3
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DB_NAME
+DATABASE_SSL_REQUIRE=True
 EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
 DEFAULT_FROM_EMAIL=no-reply@localhost
 CONTACT_EMAIL=owner@example.com
+```
+
+For local SQLite fallback, use:
+
+```text
+DATABASE_URL=sqlite:///db.sqlite3
+DATABASE_SSL_REQUIRE=False
 ```
 
 5. Apply migrations:
@@ -857,6 +867,7 @@ DEBUG=False
 DEVELOPMENT=False
 ALLOWED_HOSTS
 DATABASE_URL
+DATABASE_SSL_REQUIRE=True
 EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
 EMAIL_HOST
 EMAIL_PORT

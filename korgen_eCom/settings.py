@@ -35,9 +35,6 @@ def config_bool(name, default=False):
     return default
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
 
@@ -152,11 +149,17 @@ DATABASE_URL = config(
     'DATABASE_URL',
     default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
 )
+DATABASE_SSL_REQUIRE = config_bool(
+    'DATABASE_SSL_REQUIRE',
+    default=not DEVELOPMENT,
+)
 
 DATABASES = {
     'default': dj_database_url.parse(
         DATABASE_URL,
         conn_max_age=600,
+        conn_health_checks=True,
+        ssl_require=DATABASE_SSL_REQUIRE,
     ),
 }
 
