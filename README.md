@@ -1,8 +1,17 @@
+
+![Mockup image](docs/WireFrames/responsiveMockUp.webp)
+
 # Korgen eCommerce
 
 Korgen eCommerce is a full-stack Django online store built for the Code Institute Milestone Project 4 assessment. The application provides a complete shopping experience: product browsing, category filtering, product variations, guest and authenticated carts, checkout, payment processing, order history, invoices, customer reviews, account management, and a contact workflow for customer enquiries.
 
 The project demonstrates server-side Django development, relational database modelling, authentication, payment integration, email workflows, progressive enhancement with htmx, and test-driven validation of critical business logic.
+
+(Developer: Dean Isaac)
+
+
+[Live webpage](https://korgen-ecomm-msp4-8729e1fef5e5.herokuapp.com/)
+
 
 ## Table of Contents
 
@@ -11,6 +20,7 @@ The project demonstrates server-side Django development, relational database mod
 - [Agile Methodology](#agile-methodology)
 - [User Stories](#user-stories)
 - [Database Design](#database-design)
+- [Wireframes](#wireframes)
 - [Diagrams](#diagrams)
 - [Features](#features)
 - [Security](#security)
@@ -410,6 +420,25 @@ Key fields and constraints:
 - `created_at` - `DateTimeField(auto_now_add=True)`.
 - `updated_at` - `DateTimeField(auto_now=True)`.
 
+## Wireframes
+
+The wireframes were created during the planning stage to map the core page structure before building the Django templates. They focus on responsive layout decisions across desktop, tablet, and mobile views, including the main navigation, homepage content, product browsing, and shopping flow.
+
+These early layouts helped define the placement of key e-commerce elements such as product cards, category browsing, calls to action, cart access, and account navigation before visual styling and Bootstrap components were applied.
+
+
+### Desktop Wireframe
+
+![Desktop Wireframe](docs/WireFrames/WireFrame%20Desktop.svg)
+
+### Tablet Wireframe
+
+![Tablet Wireframe](docs/WireFrames/WireFrame%20Tablet.svg)
+
+### Mobile Wireframe
+
+![Mobile Wireframe](docs/WireFrames/WireFrame%20Phone.svg)
+
 
 
 ## Diagrams
@@ -761,7 +790,7 @@ Recommended validation tools:
 
 ## Deployment
 
-The project is deployment-ready for a platform such as Heroku, Render, Railway, or another WSGI-compatible host.
+The project is deployment-ready for a platform such as Heroku.
 
 ### Local Setup
 
@@ -856,13 +885,32 @@ DELIVERY_FLAT_RATE
 DELIVERY_FREE_THRESHOLD
 ```
 
-### Static Files
+For optional AWS S3 static and media storage:
+
+```text
+USE_AWS=True
+AWS_STORAGE_BUCKET_NAME
+AWS_S3_REGION_NAME
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+```
+
+When `USE_AWS=True`, Django uses the custom S3 storage backends in `korgen_eCom/storage_backends.py`:
+
+- `StaticStorage` stores collected static files under the `static` prefix.
+- `MediaStorage` stores uploaded media files under the `media` prefix with authenticated querystring URLs.
+
+When `USE_AWS=False`, the project falls back to local filesystem media storage and WhiteNoise static file storage.
+
+### Static and Media Files
 
 Static configuration:
 
 - `STATIC_URL = '/static/'`
 - `STATIC_ROOT = BASE_DIR / 'staticfiles'`
 - Whitenoise storage: `whitenoise.storage.CompressedManifestStaticFilesStorage`
+- Local media storage: `MEDIA_ROOT = BASE_DIR / 'media'`
+- Optional AWS S3 storage through `django-storages` and `boto3`
 
 Collect static files:
 
@@ -896,45 +944,48 @@ web: gunicorn korgen_eCom.wsgi:application
 
 ### Languages
 
-- Python
-- HTML
-- CSS
-- JavaScript
+- [Python](https://www.python.org/) - backend programming language.
+- [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML) - template structure.
+- [CSS](https://developer.mozilla.org/en-US/docs/Web/CSS) - custom styling.
+- [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript) - client-side behaviour and progressive enhancement.
 
 ### Frameworks and Libraries
 
-- Django 6.0.2
-- Django Allauth
-- Bootstrap 5
-- Bootstrap Icons
-- Font Awesome
-- htmx
-- GSAP
-- Whitenoise
-- Gunicorn
-- Pillow
-- WeasyPrint
-- dj-database-url
-- python-decouple
+- [Django 6.0.2](https://www.djangoproject.com/) - main Python web framework.
+- [Django Allauth](https://docs.allauth.org/) - authentication, account management, and email verification.
+- [Bootstrap 5](https://getbootstrap.com/) - responsive layout and UI components.
+- [Bootstrap Icons](https://icons.getbootstrap.com/) - interface icons.
+- [Font Awesome](https://fontawesome.com/) - additional interface icons.
+- [htmx](https://htmx.org/) - progressive enhancement for partial page updates.
+- [GSAP](https://gsap.com/) - front-end animation support.
+- [WhiteNoise](https://whitenoise.readthedocs.io/) - static file serving for deployment.
+- [django-storages](https://django-storages.readthedocs.io/) - optional AWS S3 storage backend integration.
+- [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) - AWS SDK used by django-storages.
+- [Gunicorn](https://gunicorn.org/) - production WSGI server.
+- [Pillow](https://python-pillow.org/) - image handling.
+- [WeasyPrint](https://weasyprint.org/) - PDF invoice generation.
+- [dj-database-url](https://pypi.org/project/dj-database-url/) - database URL configuration.
+- [python-decouple](https://pypi.org/project/python-decouple/) - environment variable management.
 
 ### Payment and External Services
 
-- Stripe Checkout
-- PayPal Checkout
+- [Stripe Checkout](https://docs.stripe.com/payments/checkout) - card payment checkout flow.
+- [PayPal Checkout](https://developer.paypal.com/docs/checkout/) - PayPal payment flow.
+- [AWS S3](https://aws.amazon.com/s3/) - optional cloud storage for production static and media files.
 - SMTP email provider
 
 ### Database
 
 - SQLite for local development.
-- PostgreSQL-compatible deployment through `DATABASE_URL`.
+- [PostgreSQL](https://www.postgresql.org/) - compatible deployment database through `DATABASE_URL`.
 
 ### Development Tools
 
-- Git
+- [Git](https://git-scm.com/) - version control.
 - Django TestCase and SimpleTestCase
-- Browser developer tools
-- W3C validators
-- Lighthouse
+- Browser developer tools - manual debugging and responsive checks.
+- [W3C validators](https://validator.w3.org/) - HTML and CSS validation.
+- [Lighthouse](https://developer.chrome.com/docs/lighthouse/overview/) - performance, accessibility, and best-practice checks.
 
 ## Bugs and Fixes
 
@@ -1001,14 +1052,16 @@ web: gunicorn korgen_eCom.wsgi:application
 
 ### Frameworks and Documentation
 
-- Django documentation
-- Django Allauth documentation
-- Bootstrap documentation
-- htmx documentation
-- Stripe API documentation
-- PayPal API documentation
-- WeasyPrint documentation
-- Whitenoise documentation
+- [Django documentation](https://docs.djangoproject.com/)
+- [Django Allauth documentation](https://docs.allauth.org/)
+- [Bootstrap documentation](https://getbootstrap.com/docs/5.3/getting-started/introduction/)
+- [htmx documentation](https://htmx.org/docs/)
+- [Stripe API documentation](https://docs.stripe.com/)
+- [PayPal API documentation](https://developer.paypal.com/docs/)
+- [WeasyPrint documentation](https://doc.courtbouillon.org/weasyprint/stable/)
+- [WhiteNoise documentation](https://whitenoise.readthedocs.io/)
+- [django-storages documentation](https://django-storages.readthedocs.io/)
+- [AWS S3 documentation](https://docs.aws.amazon.com/s3/)
 
 ### Assets
 
@@ -1034,5 +1087,4 @@ web: gunicorn korgen_eCom.wsgi:application
 - Webhook-based payment confirmation.
 - Automated accessibility test integration.
 - More comprehensive test coverage for store and review views.
-- Cloud media storage for production uploads.
 - Customer support ticket tracking.
