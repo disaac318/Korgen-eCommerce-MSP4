@@ -125,6 +125,3 @@ class UserProfileForm(forms.ModelForm):
         super(UserProfileForm, self).__init__(*args, **kwargs)
         for field in self.fields:
             self.fields[field].widget.attrs['class'] = 'form-control'
-        # super().__init__(*args, **kwargs)
-        # for field in self.fields.values():
-        #     field.widget.attrs.setdefault('class', 'form-control')

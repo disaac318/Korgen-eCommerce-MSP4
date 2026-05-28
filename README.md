@@ -660,6 +660,8 @@ STRIPE_ALLOW_LIVE_PAYMENTS
 
 Testing combines automated Django tests, request-level smoke checks, and manual user journey validation.
 
+As a student developer, I used testing to guide and verify important parts of the build rather than relying only on manual browser checks. Where practical, expected behaviour was first captured in Django tests, then the implementation was adjusted until the tests passed. This was especially useful for cart totals, checkout order creation, payment validation, invoice access control, stock deduction, contact form handling, and review permissions.
+
 ### Automated Tests
 
 Run the full suite:

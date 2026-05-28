@@ -19,7 +19,6 @@ class AccountAdmin(UserAdmin):
     list_filter = ()
     fieldsets = ()
 
-#     search_fields = ('email', 'username')
     readonly_fields = ('date_joined', 'last_login')
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
