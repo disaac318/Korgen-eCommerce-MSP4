@@ -6,12 +6,12 @@
           <form class="card"
                action="{{ request.path }}"
                method="get"
-               hx-get="{{ request.path }}"
-               hx-target="#storeBrowser"
-               hx-swap="outerHTML transition:true"
-               hx-push-url="true"
-               hx-trigger="submit, change delay:150ms from:input, change delay:150ms from:select"
-               hx-indicator="#storeResultsLoading">
+               data-hx-get="{{ request.path }}"
+               data-hx-target="#storeBrowser"
+               data-hx-swap="outerHTML transition:true"
+               data-hx-push-url="true"
+               data-hx-trigger="submit, change delay:150ms from:input, change delay:150ms from:select"
+               data-hx-indicator="#storeResultsLoading">
 
 
                <!-- Categories -->
@@ -38,11 +38,11 @@
                                    <li>
                                         <a class="link-secondary text-decoration-none d-block py-1 {% if not selected_category %}fw-bold{% endif %}"
                                              href="{% url 'store' %}"
-                                             hx-get="{% url 'store' %}"
-                                             hx-target="#storeBrowser"
-                                             hx-swap="outerHTML transition:true"
-                                             hx-push-url="true"
-                                             hx-indicator="#storeResultsLoading">
+                                             data-hx-get="{% url 'store' %}"
+                                             data-hx-target="#storeBrowser"
+                                             data-hx-swap="outerHTML transition:true"
+                                             data-hx-push-url="true"
+                                             data-hx-indicator="#storeResultsLoading">
                                              All Products
                                         </a>
                                    </li>
@@ -51,11 +51,11 @@
                                    <li>
                                         <a class="link-secondary text-decoration-none d-block py-1 {% if selected_category.slug == category.slug %}fw-bold{% endif %}"
                                              href="{% url 'products_by_category' category.slug %}"
-                                             hx-get="{% url 'products_by_category' category.slug %}"
-                                             hx-target="#storeBrowser"
-                                             hx-swap="outerHTML transition:true"
-                                             hx-push-url="true"
-                                             hx-indicator="#storeResultsLoading">
+                                             data-hx-get="{% url 'products_by_category' category.slug %}"
+                                             data-hx-target="#storeBrowser"
+                                             data-hx-swap="outerHTML transition:true"
+                                             data-hx-push-url="true"
+                                             data-hx-indicator="#storeResultsLoading">
                                              {{ category.category_name }}
                                         </a>
                                    </li>
@@ -177,11 +177,11 @@
                               {% if filter_query %}
                               <a href="{{ request.path }}"
                                    class="btn btn-link text-decoration-none w-100 mt-2"
-                                   hx-get="{{ request.path }}"
-                                   hx-target="#storeBrowser"
-                                   hx-swap="outerHTML transition:true"
-                                   hx-push-url="true"
-                                   hx-indicator="#storeResultsLoading">Clear filters</a>
+                                   data-hx-get="{{ request.path }}"
+                                   data-hx-target="#storeBrowser"
+                                   data-hx-swap="outerHTML transition:true"
+                                   data-hx-push-url="true"
+                                   data-hx-indicator="#storeResultsLoading">Clear filters</a>
                               {% endif %}
                          </div>
                     </div>
@@ -256,11 +256,11 @@
                     <li class="page-item">
                          <a class="page-link"
                               href="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ products.previous_page_number }}"
-                              hx-get="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ products.previous_page_number }}"
-                              hx-target="#storeBrowser"
-                              hx-swap="outerHTML transition:true"
-                              hx-push-url="true"
-                              hx-indicator="#storeResultsLoading">Previous</a>
+                              data-hx-get="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ products.previous_page_number }}"
+                              data-hx-target="#storeBrowser"
+                              data-hx-swap="outerHTML transition:true"
+                              data-hx-push-url="true"
+                              data-hx-indicator="#storeResultsLoading">Previous</a>
                     </li>
                     {% else %}
                     <li class="page-item disabled"
@@ -284,11 +284,11 @@
                     <li class="page-item">
                          <a class="page-link"
                               href="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_number }}"
-                              hx-get="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_number }}"
-                              hx-target="#storeBrowser"
-                              hx-swap="outerHTML transition:true"
-                              hx-push-url="true"
-                              hx-indicator="#storeResultsLoading">{{ page_number }}</a>
+                              data-hx-get="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ page_number }}"
+                              data-hx-target="#storeBrowser"
+                              data-hx-swap="outerHTML transition:true"
+                              data-hx-push-url="true"
+                              data-hx-indicator="#storeResultsLoading">{{ page_number }}</a>
                     </li>
                     {% endif %}
                     {% endfor %}
@@ -297,11 +297,11 @@
                     <li class="page-item">
                          <a class="page-link"
                               href="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ products.next_page_number }}"
-                              hx-get="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ products.next_page_number }}"
-                              hx-target="#storeBrowser"
-                              hx-swap="outerHTML transition:true"
-                              hx-push-url="true"
-                              hx-indicator="#storeResultsLoading">Next</a>
+                              data-hx-get="?{% if filter_query %}{{ filter_query }}&{% endif %}page={{ products.next_page_number }}"
+                              data-hx-target="#storeBrowser"
+                              data-hx-swap="outerHTML transition:true"
+                              data-hx-push-url="true"
+                              data-hx-indicator="#storeResultsLoading">Next</a>
                     </li>
                     {% else %}
                     <li class="page-item disabled"
