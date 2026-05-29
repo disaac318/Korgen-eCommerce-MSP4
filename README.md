@@ -21,6 +21,8 @@ The project demonstrates server-side Django development, relational database mod
 - [User Stories](#user-stories)
 - [Database Design](#database-design)
 - [Wireframes](#wireframes)
+- [HTML Validation](#html-validation)
+- [CSS Validation](#css-validation)
 - [Diagrams](#diagrams)
 - [Features](#features)
 - [Security](#security)
@@ -439,6 +441,74 @@ These early layouts helped define the placement of key e-commerce elements such 
 
 ![Mobile Wireframe](docs/WireFrames/WireFrame%20Phone.svg)
 
+## HTML Validation
+
+HTML validation was completed using the W3C Markup Validation Service on rendered pages from the application, rather than raw Django template files. The pages listed below passed validation, and screenshots were captured as evidence of the successful results.
+
+- Home page:
+  ![Home Page](docs/htmlValidations/homepage.png)
+
+
+- Contact page:
+  ![Contact page](docs/htmlValidations/contact-page.png)
+
+
+- Store page:
+  ![Store page](docs/htmlValidations/store-page.png)
+
+
+- Cart page:
+  ![Cart page](docs/htmlValidations/cart-page.png)
+
+
+- Checkout page:
+  ![Checkout page](docs/htmlValidations/checkout-page.png)
+
+
+- Register page:
+  ![Register page](docs/htmlValidations/register-page.png)
+
+
+- Login page:
+  ![Login page](docs/htmlValidations/login-page.png)
+
+
+- Password reset page:
+  ![Password reset page](docs/htmlValidations/Password-reset-page.png)
+
+  
+- Dashboard page:
+  ![Dashboard page](docs/htmlValidations/Dashboard-page.png)
+
+
+- My orders page:
+  ![My orders page](docs/htmlValidations/My-orders-page.png)
+
+
+- Edit profile page:
+  ![Edit profile page](docs/htmlValidations/Edit-profile-page.png)
+
+
+- Change password page:
+  ![Change password page](docs/htmlValidations/Change-password-page.png)
+
+
+## CSS Validation
+
+CSS validation was completed using the W3C CSS Validation Service on the project's custom stylesheets. The custom CSS files passed validation, and screenshots were captured as evidence of the successful results.
+
+
+- style.css:
+  ![style.css](docs/cssValidations/style-css.png)
+
+- ui.css:
+  ![ui.css](docs/cssValidations/ui.css.png)
+
+- admin.css:
+  ![admin.css](docs/cssValidations/admin-css.png)
+
+
+Third-party stylesheets, including Bootstrap, Bootstrap Icons, Font Awesome, and Django admin/vendor CSS, were not treated as project-authored validation issues. Any validator parse warnings against Bootstrap classes are caused by Bootstrap's modern CSS custom properties and minified CDN stylesheet, rather than errors in the project's custom CSS.
 
 
 ## Diagrams
