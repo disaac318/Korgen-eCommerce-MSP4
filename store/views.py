@@ -12,8 +12,8 @@ from .forms import ReviewForm
 from .models import Product, ReviewRating, Variation
 
 
-# Create your views here.
 def _parse_price_filter(value):
+    """Convert a query-string price filter into a safe Decimal value."""
     if not value:
         return None
 
@@ -29,6 +29,7 @@ def _parse_price_filter(value):
 
 
 def _user_has_purchased_product(user, product_id):
+    """Check whether a user may review a product based on paid orders."""
     if not user.is_authenticated:
         return False
 
@@ -41,6 +42,7 @@ def _user_has_purchased_product(user, product_id):
 
 
 def _review_form_error_message(form):
+    """Collapse form validation errors into one message for review feedback."""
     if 'rating' in form.errors:
         return 'Please select a star rating before submitting your review.'
 
@@ -52,6 +54,7 @@ def _review_form_error_message(form):
 
 
 def _product_reviews_context(product, user, **messages):
+    """Build the reusable context for the product review partial."""
     reviews = ReviewRating.objects.filter(
         product_id=product.id,
         status=True,
@@ -68,6 +71,7 @@ def _product_reviews_context(product, user, **messages):
 
 
 def store(request, category_slug=None):
+    """Render catalogue browsing with category, size, price, and pagination."""
     products = Product.objects.filter(is_available=True)
     selected_category = None
 
@@ -107,6 +111,7 @@ def store(request, category_slug=None):
     product_count = products.count()
     query_params = request.GET.copy()
     query_params.pop('page', None)
+    # Preserve active filters while preventing pagination links duplicating page.
     for key in list(query_params):
         if not query_params.get(key):
             query_params.pop(key, None)
@@ -134,6 +139,7 @@ def store(request, category_slug=None):
     context['products'] = paged_products
     context['page_range'] = page_range
 
+    # HTMX requests update only the browser fragment; normal requests render the page.
     if request.headers.get('HX-Request') == 'true':
         return render(request, 'store/includes/store_browser.html', context)
 
@@ -141,6 +147,7 @@ def store(request, category_slug=None):
 
 
 def product_detail(request, category_slug, product_slug):
+    """Render one product with active variations and review permissions."""
     single_product = get_object_or_404(
         Product,
         category__slug=category_slug,
@@ -172,6 +179,7 @@ def product_detail(request, category_slug, product_slug):
 
 
 def search(request):
+    """Search products by keyword across product names and descriptions."""
     products = None
     product_count = 0
 
@@ -195,6 +203,7 @@ def search(request):
 
 
 def submit_review(request, product_id):
+    """Create or update a product review after purchase eligibility checks."""
     url = request.META.get('HTTP_REFERER') or 'store'
     product = get_object_or_404(Product, id=product_id, is_available=True)
 

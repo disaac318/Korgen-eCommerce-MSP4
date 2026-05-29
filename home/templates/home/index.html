@@ -3,10 +3,10 @@
 
 {% block content %}
 
-<!-- ========== Main content starts ========== -->
+{# Main homepage content rendered inside the shared base layout. #}
 <main>
 
-     <!-- Hero / banner -->
+     {# Hero banner introduces the brand visually while keeping an accessible page-level h1. #}
      <section class="section-intro padding-y-sm bg-opacity-25 bg-warning"
           aria-labelledby="home-page-title">
           <div class="container">
@@ -22,7 +22,7 @@
           </div>
      </section>
 
-     <!-- Popular products -->
+     {# Featured product area displays the products supplied by the home view. #}
      <section class="section-name padding-y-sm bg-opacity-25 bg-warning"
           aria-labelledby="popular-products-title">
           <div class="container">
@@ -38,7 +38,7 @@
 
                          {% for product in products %}
 
-                         <!-- products card here -->
+                         {# Each product card links to its detail page and shows image, rating, price, and action. #}
                          <article class="col-12 col-md-4 col-lg-3">
                               <div class="card card-product-grid h-100">
                                    <a href="{% url 'product_detail' product.category.slug product.slug %}"
@@ -58,10 +58,12 @@
 
                                         <div class="mt-auto ">
                                              <p class="mb-2 fw-bold text-center">£ {{ product.price }}</p>
+                                             {# Products with variations need detail selection before they can be added to the cart. #}
                                              {% if product.has_active_variations %}
                                              {% url 'product_detail' product.category.slug product.slug as product_action_url %}
                                              {% include 'store/includes/product_card_action.html' with action_url=product_action_url action_label='View details' action_classes='price btn btn-warning w-100' disabled_action_classes='price btn btn-secondary w-100' %}
                                              {% else %}
+                                             {# Simple products can be added to the cart directly from the homepage. #}
                                              {% url 'add_cart' product.id as product_action_url %}
                                              {% include 'store/includes/product_card_action.html' with action_url=product_action_url action_label='Add to cart' action_classes='price btn btn-warning w-100' disabled_action_classes='price btn btn-secondary w-100' %}
                                              {% endif %}
@@ -70,8 +72,6 @@
 
                               </div>
                          </article>
-                         <!-- products card here -->
-
                          {% endfor %}
 
 

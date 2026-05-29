@@ -3,9 +3,11 @@ from .utils import assign_session_cart_to_user, get_cart_id
 
 
 def cart_counter(request):
+    """Expose the active cart quantity to every template via the navbar."""
     cart_count = 0
 
     if request.user.is_authenticated:
+        # Keep the navbar count accurate immediately after an anonymous login.
         assign_session_cart_to_user(request)
         cart_items = CartItem.objects.filter(user=request.user, is_active=True)
     else:

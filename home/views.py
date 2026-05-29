@@ -10,6 +10,7 @@ from .forms import ContactForm
 
 
 def index(request):
+    """Render the homepage with available products and cart-action metadata."""
     products = (
         Product.objects
         .filter(is_available=True)
@@ -38,6 +39,7 @@ def index(request):
 
 
 def contact(request):
+    """Handle customer enquiries and send them to the configured owner inbox."""
     form = ContactForm(request.POST or None)
 
     if request.method == 'POST' and form.is_valid():

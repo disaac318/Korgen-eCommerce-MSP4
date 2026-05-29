@@ -6,6 +6,8 @@ from store.models import Product, Variation
 
 
 class Payment(models.Model):
+    """Payment provider record linked to a completed checkout attempt."""
+
     STATUS_PENDING = 'pending'
     STATUS_COMPLETED = 'completed'
     STATUS_FAILED = 'failed'
@@ -46,6 +48,8 @@ class Payment(models.Model):
 
 
 class Order(models.Model):
+    """Customer order snapshot created before payment and finalized after payment."""
+
     STATUS_NEW = 'new'
     STATUS_ACCEPTED = 'accepted'
     STATUS_COMPLETED = 'completed'
@@ -102,15 +106,18 @@ class Order(models.Model):
         ordering = ['-created_at']
 
     def save(self, *args, **kwargs):
+        """Generate an order number after the first save provides a primary key."""
         super().save(*args, **kwargs)
         if not self.order_number:
             self.order_number = f'{timezone.now():%Y%m%d}{self.pk}'
             super().save(update_fields=['order_number'])
 
     def full_name(self):
+        """Return the customer's full delivery name."""
         return f'{self.first_name} {self.last_name}'
 
     def full_address(self):
+        """Return a formatted delivery address for invoices and emails."""
         address_parts = [
             self.address_line_1,
             self.address_line_2,
@@ -125,6 +132,8 @@ class Order(models.Model):
 
 
 class OrderProduct(models.Model):
+    """Immutable order line copied from cart data at checkout time."""
+
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE,
@@ -143,6 +152,7 @@ class OrderProduct(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def sub_total(self):
+        """Return line subtotal based on captured price and quantity."""
         return self.product_price * self.quantity
 
     def __str__(self):

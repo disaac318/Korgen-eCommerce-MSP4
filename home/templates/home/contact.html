@@ -2,6 +2,7 @@
 
 {% block content %}
 
+{# Contact page lets customers send an enquiry handled by the contact view. #}
 <main class="bg-opacity-10 bg-warning py-5">
      <div class="container">
           <header class="mb-4">
@@ -13,6 +14,7 @@
           </header>
 
           <div class="row g-4 align-items-start">
+               {# Contact form renders Django form fields and per-field validation errors. #}
                <div class="col-12 col-lg-7">
                     <form action="{% url 'contact' %}"
                          method="post"
@@ -68,6 +70,7 @@
                     </form>
                </div>
 
+               {# Support details provide direct email and phone alternatives. #}
                <aside class="col-12 col-lg-5"
                     aria-label="Contact details">
                     <div class="card shadow-sm border-0">

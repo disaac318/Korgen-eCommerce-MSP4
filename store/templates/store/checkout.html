@@ -3,6 +3,7 @@
 
 {% block content %}
 
+{# Checkout collects billing details and displays totals from cart pricing logic. #}
 <main class="pt-5 bg-opacity-25 bg-warning pb-5"
      style="min-height: 40vh;">
      <div class="container">
@@ -12,6 +13,7 @@
                {% csrf_token %}
 
                <div class="row g-4">
+                    {# Billing form is pre-filled from saved billing details when available. #}
                     <div class="col-lg-6">
                          <section class="card shadow-sm">
                               <div class="card-body p-4">
@@ -140,6 +142,7 @@
 
                     <aside class="col-lg-6"
                          aria-label="Order summary">
+                         {# Order summary confirms line items before an unpaid order is created. #}
                          <section class="card shadow-sm">
                               <div class="card-body p-4">
                                    <h2 class="h5 fw-bold mb-3">Order Summary</h2>

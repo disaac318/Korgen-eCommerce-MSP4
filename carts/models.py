@@ -7,6 +7,8 @@ from store.models import Product, Variation
 
 # Create your models here.
 class Cart(models.Model):
+    """Anonymous shopping cart identified by the user's session id."""
+
     cart_id = models.CharField(max_length=250, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
@@ -15,6 +17,8 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
+    """Product line in either an anonymous cart or authenticated user's cart."""
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -36,6 +40,7 @@ class CartItem(models.Model):
         ]
 
     def sub_total(self):
+        """Return the line subtotal for cart and checkout totals."""
         return self.product.price * self.quantity
 
     def __str__(self):

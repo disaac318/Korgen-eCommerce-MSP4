@@ -1,6 +1,6 @@
 <div id="storeBrowser" class="row g-4">
 
-     <!-- Filters -->
+     {# Filters are progressively enhanced with htmx but still work as a GET form. #}
      <aside class="col-12 col-md-3"
           aria-label="Product filters">
           <form class="card"
@@ -14,7 +14,7 @@
                data-hx-indicator="#storeResultsLoading">
 
 
-               <!-- Categories -->
+               {# Category links update the catalogue and preserve normal href navigation. #}
                <section class="border-top">
 
                     <h2 class="h6 m-0">
@@ -67,7 +67,7 @@
 
                </section>
 
-               <!-- Sizes (Bootstrap 5 toggle buttons) -->
+               {# Size filter uses radio buttons so only one size is active at a time. #}
                <section class="border-top">
                     <h2 class="h6 m-0">
                          <button
@@ -117,7 +117,7 @@
                     </div>
                </section>
 
-               <!-- Price range -->
+               {# Price filters are validated in the store view before applying queryset filters. #}
                <section class="border-top">
                     <h2 class="h6 m-0">
                          <button
@@ -204,6 +204,7 @@
 
           <!-- ==================== Products content starts ==================== -->
 
+          {# Product cards are paginated in the view and re-rendered for htmx requests. #}
           <div class="row g-3">
                {% for product in products %}
                <article class="col-12 col-md-4 col-lg-3">
@@ -250,7 +251,8 @@
 
           <nav class="mt-4"
                aria-label="Product pages">
-               {% if products.has_other_pages %}
+          {# Pagination links keep the active filter query string while changing page. #}
+          {% if products.has_other_pages %}
                <ul class="pagination mb-0">
                     {% if products.has_previous %}
                     <li class="page-item">

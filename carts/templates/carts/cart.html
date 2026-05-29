@@ -4,8 +4,7 @@
 {% block content %}
 
 
-<!-- ========== Main content starts ========== -->
-
+{# Cart page displays active line items and totals calculated by the cart view. #}
 <main class="pt-5 bg-opacity-10 bg-warning pb-5"
      style="min-height: 40vh;">
      <div class="container">
@@ -14,13 +13,14 @@
 
           <div class="row g-4">
 
-               <!-- Cart items -->
+               {# Cart line items are rendered in a table for clear quantity and price comparison. #}
                <section class="col-12 {% if cart_items %}col-lg-9{% else %}col-lg-12{% endif %}"
                     aria-labelledby="cart-items-title">
 
                     <h2 id="cart-items-title"
                          class="visually-hidden">Cart items</h2>
 
+                    {# Quantity controls route through confirmation views before changing cart state. #}
                     <div class="card border-0 shadow-sm">
 
                          <div class="table-responsive border rounded-3">
@@ -141,7 +141,7 @@
 
                </section>
 
-               <!-- Order Summary -->
+               {# Order summary is shown only when there are items to purchase. #}
                {% if cart_items %}
 
                <aside class="col-12 col-lg-3"

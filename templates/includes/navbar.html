@@ -3,7 +3,7 @@
 <!-- ========== Site header starts ========== -->
 <header class="section-header sticky-top">
 
-     <!-- Utility bar / top nav starts -->
+     {# Utility bar exposes quick contact actions above the main navigation. #}
      <div class="bg-opacity-25 bg-warning py-2">
           <div class="container">
                <nav class="d-flex align-items-center justify-content-center justify-content-md-start flex-wrap gap-5 small"
@@ -25,7 +25,7 @@
      </div>
      <!-- Utility bar / top nav ends -->
 
-     <!--  ===== Primary header / main nav starts  ===== -->
+     {# Primary navigation contains brand, category browse, search, account, and cart actions. #}
      <div class="header-main  py-3 shadow-sm">
 
           <div class="container">
@@ -33,7 +33,7 @@
                <nav class="row g-3 align-items-center"
                     aria-label="Primary navigation">
 
-                    <!-- ========== Brand ========== -->
+                    {# Brand link returns shoppers to the homepage. #}
                     <div class="col-auto nav1">
                          <a href="{% url 'home' %}"
                               class="d-flex align-items-center"
@@ -46,7 +46,7 @@
                     </div>
                     <!-- ========== Brand ========== -->
 
-                    <!-- ========== Category menu ========== -->
+                    {# Category menu is populated by the category context processor. #}
                     <div class="col-auto nav2 ms-auto text-end dropdown-overlap">
                          <div class="dropdown">
                               <button type="button"
@@ -88,7 +88,7 @@
                     </div>
                     <!-- ========== Store  ======== -->
 
-                    <!-- ========== Search Bar ========== -->
+                    {# Search submits a GET query so results can be linked and revisited. #}
                     <div class="col-12 col-lg nav2">
                          <form action="{% url 'search' %}"
                               method="get"
@@ -115,7 +115,7 @@
                     </div>
                     <!-- ========== Search Bar ========== -->
 
-                    <!-- ============ Account + Cart ========== -->
+                    {# Account links switch between guest and authenticated states. #}
                     <div
                          class="col-12 col-lg-auto d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start align-items-center nav2 text-center text-lg-start">
 

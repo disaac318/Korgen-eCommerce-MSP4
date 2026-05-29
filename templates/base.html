@@ -15,6 +15,7 @@
 
 
 
+          {# Core CSS loads framework styles and the project font before page CSS. #}
           {% block corecss %}
           <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
                rel="stylesheet"
@@ -33,6 +34,7 @@
 
           {% endblock corecss %}
 
+          {# Page templates can extend this block with additional stylesheets. #}
           {% block extra_css %}
           <!-- Bootstrap Icons -->
           <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
@@ -56,13 +58,13 @@
 
      <body>
 
-          <!-- Navigation Bar -->
+          {# Shared navigation is included on all public pages. #}
           {% include 'includes/navbar.html' %}
-          <!-- Navigation Bar -->
 
 
           <header class="container-fluid sticky-top"></header>
 
+          {# Flash messages from views are rendered directly below the header. #}
           {% include 'includes/alert.html' %}
 
           {% block page_header %}{% endblock %}
@@ -72,13 +74,13 @@
 
 
 
-          <!-- Footer -->
+          {# Shared footer keeps branding and attribution consistent. #}
           {% include 'includes/footer.html' %}
-          <!-- Footer -->
 
 
           {% block post_loadjs %}
 
+          {# Core JavaScript supports Bootstrap components and htmx enhancements. #}
           {% block corejs %}
           <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
                integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
@@ -86,6 +88,7 @@
           <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
           {% endblock corejs %}
 
+          {# Page templates can append scripts without duplicating the base layout. #}
           {% block extra_js %}
           <!-- GSAP (CDN) -->
           <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>

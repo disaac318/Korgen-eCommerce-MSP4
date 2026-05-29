@@ -4,6 +4,8 @@ from .models import Order
 
 
 class OrderForm(forms.ModelForm):
+    """Checkout form for collecting delivery and order-note details."""
+
     class Meta:
         model = Order
         fields = (
@@ -23,6 +25,7 @@ class OrderForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        """Apply Bootstrap classes and placeholders to all checkout fields."""
         super().__init__(*args, **kwargs)
 
         placeholders = {

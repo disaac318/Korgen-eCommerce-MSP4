@@ -2,6 +2,8 @@ from django import forms
 
 
 class ContactForm(forms.Form):
+    """Customer enquiry form used by the contact page."""
+
     name = forms.CharField(
         max_length=100,
         widget=forms.TextInput(

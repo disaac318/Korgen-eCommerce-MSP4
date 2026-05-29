@@ -32,18 +32,23 @@ logger = logging.getLogger(__name__)
 
 
 class InsufficientStockError(Exception):
+    """Raised when an order can no longer be fulfilled from current stock."""
+
     pass
 
 
 def _paypal_credentials_are_configured():
+    """Check whether PayPal API credentials are available before checkout."""
     return bool(settings.PAYPAL_CLIENT_ID and settings.PAYPAL_CLIENT_SECRET)
 
 
 def _stripe_credentials_are_configured():
+    """Check whether Stripe API credentials are available before checkout."""
     return bool(settings.STRIPE_PUBLIC_KEY and settings.STRIPE_SECRET_KEY)
 
 
 def _stripe_live_payments_are_blocked():
+    """Prevent accidental live Stripe payments unless explicitly enabled."""
     return (
         not settings.STRIPE_ALLOW_LIVE_PAYMENTS
         and (
@@ -54,6 +59,7 @@ def _stripe_live_payments_are_blocked():
 
 
 def _send_order_received_email(order, request=None):
+    """Send the customer a multipart order confirmation with invoice link."""
     invoice_path = reverse(
         'orders:invoice',
         kwargs={'order_number': order.order_number},
@@ -89,6 +95,7 @@ def _send_order_received_email(order, request=None):
 
 
 def _configure_weasyprint_environment():
+    """Prepare local library/cache paths needed by WeasyPrint PDF rendering."""
     homebrew_library_paths = [
         Path('/opt/homebrew/lib'),
         Path('/usr/local/lib'),
@@ -111,6 +118,7 @@ def _configure_weasyprint_environment():
 
 
 def _paypal_json_response(error_message, status=502, details=None):
+    """Return safe PayPal API errors, exposing details only in debug mode."""
     data = {'error': error_message}
     if settings.DEBUG and details:
         data['details'] = details
@@ -167,6 +175,7 @@ def _get_paypal_access_token():
 
 
 def _paypal_request(path, payload, access_token):
+    """Send a JSON request to PayPal and return the decoded response."""
     request = Request(
         f'{settings.PAYPAL_API_BASE}{path}',
         data=json.dumps(payload).encode(),
@@ -182,6 +191,7 @@ def _paypal_request(path, payload, access_token):
 
 
 def _stripe_request(path, payload=None, method='POST'):
+    """Send a form-encoded request to Stripe and return the decoded response."""
     encoded_credentials = base64.b64encode(
         f'{settings.STRIPE_SECRET_KEY}:'.encode(),
     ).decode()
@@ -201,10 +211,12 @@ def _stripe_request(path, payload=None, method='POST'):
 
 
 def _stripe_amount_in_minor_units(amount):
+    """Convert a Decimal currency amount into Stripe minor units."""
     return int((Decimal(str(amount)) * Decimal('100')).quantize(Decimal('1')))
 
 
 def _build_stripe_checkout_session_payload(order, success_url, cancel_url):
+    """Build the Stripe Checkout payload from an order snapshot."""
     return {
         'mode': 'payment',
         'client_reference_id': order.order_number,
@@ -225,6 +237,7 @@ def _build_stripe_checkout_session_payload(order, success_url, cancel_url):
 
 
 def _get_order_stock_errors(order):
+    """Return user-facing stock problems before a payment attempt starts."""
     errors = []
 
     for item in order.items.select_related('product'):
@@ -242,6 +255,7 @@ def _get_order_stock_errors(order):
 
 
 def _deduct_order_stock(order):
+    """Deduct stock once, using an atomic database update to avoid overselling."""
     if order.stock_deducted:
         return
 
@@ -272,6 +286,7 @@ def _deduct_order_stock(order):
 
 
 def _mark_order_paid(order, payment):
+    """Finalize a paid order, mark lines ordered, and clear the active cart."""
     _deduct_order_stock(order)
     order.payment = payment
     order.status = Order.STATUS_ACCEPTED
@@ -288,6 +303,7 @@ def _mark_order_paid(order, payment):
 
 
 def _get_pending_order(request, order_number):
+    """Fetch an unpaid order owned by the current user."""
     return get_object_or_404(
         Order.objects.prefetch_related('items__product', 'items__variations'),
         order_number=order_number,
@@ -297,6 +313,7 @@ def _get_pending_order(request, order_number):
 
 
 def _get_paid_order(request, order_number):
+    """Fetch a completed order owned by the current user."""
     return get_object_or_404(
         Order.objects.prefetch_related('items__product', 'items__variations'),
         order_number=order_number,
@@ -307,18 +324,21 @@ def _get_paid_order(request, order_number):
 
 @login_required(login_url='accounts:login')
 def order_complete(request, order_number):
+    """Display the confirmation page for a completed order."""
     order = _get_paid_order(request, order_number)
     return render(request, 'orders/order_complete.html', {'order': order})
 
 
 @login_required(login_url='accounts:login')
 def invoice(request, order_number):
+    """Display the HTML invoice for a completed order."""
     order = _get_paid_order(request, order_number)
     return render(request, 'orders/invoice.html', {'order': order})
 
 
 @login_required(login_url='accounts:login')
 def invoice_pdf(request, order_number):
+    """Render the completed order invoice as a downloadable PDF."""
     order = _get_paid_order(request, order_number)
     html = render_to_string(
         'orders/invoice_pdf.html',
@@ -352,6 +372,7 @@ def invoice_pdf(request, order_number):
 
 @login_required(login_url='accounts:login')
 def payment(request, order_number):
+    """Render payment options for a pending order after validating stock."""
     order = _get_pending_order(request, order_number)
     stock_errors = _get_order_stock_errors(order)
     if stock_errors:
@@ -382,6 +403,7 @@ def payment(request, order_number):
 @login_required(login_url='accounts:login')
 @require_POST
 def create_stripe_checkout_session(request, order_number):
+    """Create a Stripe Checkout session for the pending order."""
     if not _stripe_credentials_are_configured():
         return JsonResponse({
             'error': 'Stripe credentials are not configured.',
@@ -445,6 +467,7 @@ def create_stripe_checkout_session(request, order_number):
 
 @login_required(login_url='accounts:login')
 def stripe_success(request, order_number):
+    """Verify Stripe payment completion and finalize the pending order."""
     session_id = request.GET.get('session_id')
     if not session_id:
         messages.error(request, 'Stripe session id was missing.')
@@ -521,12 +544,14 @@ def stripe_success(request, order_number):
 
 @login_required(login_url='accounts:login')
 def stripe_cancel(request, order_number):
+    """Return the customer to payment after a cancelled Stripe checkout."""
     messages.warning(request, 'Stripe checkout was cancelled.')
     return redirect('orders:payment', order_number=order_number)
 
 
 @login_required(login_url='accounts:login')
 def paypal_cancel(request, order_number):
+    """Return the customer to payment after a cancelled PayPal checkout."""
     _get_pending_order(request, order_number)
     messages.warning(
         request,
@@ -542,6 +567,7 @@ def paypal_cancel(request, order_number):
 @login_required(login_url='accounts:login')
 @require_POST
 def create_paypal_order(request, order_number):
+    """Create a PayPal order for the pending checkout."""
     if not _paypal_credentials_are_configured():
         return _paypal_json_response(
             'PayPal credentials are not configured.',
@@ -587,6 +613,7 @@ def create_paypal_order(request, order_number):
 @login_required(login_url='accounts:login')
 @require_POST
 def capture_paypal_order(request, order_number):
+    """Capture a PayPal order and finalize the local order record."""
     if not _paypal_credentials_are_configured():
         return _paypal_json_response(
             'PayPal credentials are not configured.',

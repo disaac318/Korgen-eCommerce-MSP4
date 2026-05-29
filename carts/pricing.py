@@ -7,10 +7,12 @@ VAT_RATE = Decimal('0.20')
 
 
 def _money(value):
+    """Normalize money values to two decimal places for consistent totals."""
     return Decimal(str(value)).quantize(Decimal('0.01'))
 
 
 def calculate_delivery_total(order_total):
+    """Return the delivery charge after applying the free-delivery threshold."""
     order_total = _money(order_total)
     free_threshold = _money(settings.DELIVERY_FREE_THRESHOLD)
 
@@ -21,6 +23,7 @@ def calculate_delivery_total(order_total):
 
 
 def calculate_cart_totals(cart_items):
+    """Calculate subtotal, VAT, delivery, grand total, and item count."""
     total = Decimal('0.00')
     quantity = 0
 

@@ -1,5 +1,6 @@
 {% if is_hx_request %}
 <div id="productRatingSummary" data-hx-swap-oob="true">
+     {# Summary is swapped out-of-band after review submission to refresh averages. #}
      {% include 'store/includes/rating_stars.html' with rating=single_product.averageReview rating_classes='product-rating-stars text-warning h5 mb-2' %}
 
      <span>{{ single_product.countReview}}  Reviews</span>
@@ -9,6 +10,7 @@
 <section id="productReviews"
      class="mt-5"
      aria-label="Customer reviews">
+     {# Review form posts normally and is progressively enhanced with htmx. #}
      <form action="{% url 'submit_review' single_product.id %}"
           method="post"
           data-hx-post="{% url 'submit_review' single_product.id %}"

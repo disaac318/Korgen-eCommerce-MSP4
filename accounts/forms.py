@@ -5,6 +5,8 @@ from .models import Account, UserProfile
 
 
 class RegistrationForm(forms.ModelForm):
+    """Registration form that confirms and validates the submitted password."""
+
     password = forms.CharField(
         strip=False,
         widget=forms.PasswordInput(attrs={
@@ -65,6 +67,7 @@ class RegistrationForm(forms.ModelForm):
             field.widget.attrs.setdefault('class', 'form-control')
 
     def clean(self):
+        """Validate password confirmation and Django password-strength rules."""
         cleaned_data = super().clean()
         password = cleaned_data.get('password')
         password_confirm = cleaned_data.get('password_confirm')
@@ -87,6 +90,7 @@ class RegistrationForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
+        """Store a hashed password and leave activation to the email workflow."""
         user = super().save(commit=False)
         user.set_password(self.cleaned_data['password'])
         user.is_active = False
@@ -97,6 +101,8 @@ class RegistrationForm(forms.ModelForm):
         return user
     
 class UserForm(forms.ModelForm):
+    """Editable account fields shown on the profile page."""
+
     class Meta:
         model = Account
         fields = ('first_name', 'last_name', 'phone_number')
@@ -108,6 +114,8 @@ class UserForm(forms.ModelForm):
 
 
 class UserProfileForm(forms.ModelForm):
+    """Profile address and image upload form for authenticated users."""
+
     profile_picture = forms.ImageField(required=False, error_messages={'invalid': 'Image files only'}, widget=forms.FileInput)
     class Meta:
         model = UserProfile

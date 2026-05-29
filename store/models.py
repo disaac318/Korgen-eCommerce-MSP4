@@ -7,8 +7,10 @@ from django.templatetags.static import static
 
 from category.models import Category
 
-# Create your models here.
 class Product(models.Model):
+    """Product catalogue item shown in store listings and checkout flows."""
+
+    # Map known seeded media filenames to packaged static assets for deployment.
     PACKAGED_IMAGE_FILES = {
         'Action5-camera.jpg': 'Action5-camera.jpg',
         'Coevals.jpg': 'Coevals.jpg',
@@ -43,6 +45,7 @@ class Product(models.Model):
 
     @property
     def display_image_url(self):
+        """Return the most reliable URL for rendering the product image."""
         if not self.images:
             return ''
 
@@ -54,6 +57,7 @@ class Product(models.Model):
         return self.images.url
 
     def averageReview(self):
+        """Return the average approved review rating for display stars."""
         reviews = ReviewRating.objects.filter(product=self, status=True).aggregate(average=Avg('rating'))
         average = reviews['average']
         if average is None:
@@ -62,11 +66,14 @@ class Product(models.Model):
     
 
     def countReview(self):
+        """Return the number of approved reviews for this product."""
         reviews = ReviewRating.objects.filter(product=self, status=True).aggregate(count=Count('id'))
         return reviews['count'] or 0
 
 
 class VariationManager(models.Manager):
+    """Convenience query helpers for active product variations."""
+
     def colors(self):
         return super().filter(variation_category='color', is_active=True)
 
@@ -80,6 +87,8 @@ variation_category_choice = (
 )
 
 class Variation(models.Model):
+    """Selectable product option, such as size or color."""
+
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     variation_category = models.CharField(max_length=100, choices=variation_category_choice)
     variation_value = models.CharField(max_length=100)
@@ -104,6 +113,8 @@ class Variation(models.Model):
 
 
 class ReviewRating(models.Model):
+    """Customer product review submitted by a verified purchaser."""
+
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     user = models.ForeignKey('accounts.Account', on_delete=models.CASCADE)
     subject = models.CharField(max_length=100, blank=True)

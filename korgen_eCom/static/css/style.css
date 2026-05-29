@@ -1,4 +1,4 @@
-/* CSS RESET */
+/* CSS reset and global type defaults. */
 *,
 *::before,
 *::after {
@@ -29,6 +29,7 @@ p {
 }
 
 
+/* Header and footer stacking rules keep navigation above page content. */
 .dropdown-overlap {
      position: relative;
      z-index: 1060;
@@ -55,6 +56,7 @@ p {
      z-index: 1020;
 }
 
+/* Fixed-footer spacing is removed for printed invoices and documents. */
 @media print {
      body {
           padding-bottom: 0;
@@ -67,7 +69,7 @@ p {
 
 
 
-/* Support Bootstrap's .fixed-top utility on any breakpoint */
+/* Support Bootstrap's .fixed-top utility on any breakpoint. */
 header.section-header.fixed-top {
     position: fixed;
     top: 0;

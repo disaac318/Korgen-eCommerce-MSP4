@@ -2,6 +2,7 @@ from .models import CartItem
 
 
 def get_cart_id(request):
+    """Return a persistent cart id for anonymous users based on the session."""
     cart_id = request.session.get('cart_id')
     if cart_id:
         return cart_id
@@ -15,6 +16,7 @@ def get_cart_id(request):
 
 
 def assign_session_cart_to_user(request):
+    """Move anonymous cart items onto the authenticated user after login."""
     cart_id = request.session.get('cart_id')
     if not cart_id or not request.user.is_authenticated:
         return
@@ -26,6 +28,7 @@ def assign_session_cart_to_user(request):
     ).prefetch_related('variations')
 
     for session_item in session_items:
+        # Compare variation id sets so equivalent cart lines merge cleanly.
         session_variation_ids = sorted(
             session_item.variations.values_list('id', flat=True)
         )

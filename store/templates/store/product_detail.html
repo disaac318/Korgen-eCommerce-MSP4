@@ -4,8 +4,7 @@
 
 {% block content %}
 
-<!-- ========== Main content starts ========== -->
-
+{# Product detail page renders selected catalogue item, variations, and reviews. #}
 <main class=" bg-opacity-10 bg-warning py-5">
      <div class="container">
 
@@ -55,6 +54,7 @@
 
                               <!-- Product options -->
 
+                              {# Variation selections are submitted with the add-to-cart request. #}
                               <form action="{% url 'add_cart' single_product.id %}"
                                    method="post"
                                    aria-label="Product options">
@@ -123,6 +123,7 @@
           </div>
 
           <!-- Reviews -->
+          {# Reviews are isolated in a partial so htmx can update them independently. #}
           {% include 'store/includes/product_reviews.html' %}
 
      </div>
