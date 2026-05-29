@@ -1,4 +1,4 @@
-
+git 
 ![Mockup image](docs/WireFrames/responsiveMockUp.webp)
 
 # Korgen eCommerce
@@ -841,6 +841,24 @@ Run system checks:
 - Stock is deducted once.
 - Order confirmation email is sent.
 
+##### Stripe Sandbox Testing
+
+Stripe is currently running in test/sandbox mode, so it will only accept Stripe's dedicated test card numbers.
+
+To test the payment process:
+
+1. Go through the checkout process.
+2. Click **Pay with Stripe**.
+3. Use one of the following test card numbers:
+   - Card number: `4242 4242 4242 4242`
+   - Alternative: `5555 5555 5555 4444`
+4. Use any future expiry date, for example `12/30`.
+5. Use any 3-digit CVC, for example `123`.
+6. Use any valid postcode, for example `XX23 8XX`.
+
+Real bank cards should not be used while the application is in sandbox mode.
+
+
 #### Reviews
 
 - Unauthenticated users receive a sign-in message.
@@ -857,15 +875,6 @@ Run system checks:
 - Owner inbox receives contact enquiry.
 - Reply action uses the customer's email address.
 
-### Validation
-
-Recommended validation tools:
-
-- W3C HTML Validator
-- W3C CSS Validator
-- Lighthouse
-- Django `manage.py check`
-- Browser developer tools for console/network errors
 
 ## Deployment
 
@@ -1164,7 +1173,6 @@ web: gunicorn korgen_eCom.wsgi:application
 
 ## Future Features
 
-- Customer confirmation email after contact form submission.
 - Wishlist functionality.
 - Product comparison.
 - Product stock alerts.
