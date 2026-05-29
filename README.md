@@ -23,6 +23,7 @@ The project demonstrates server-side Django development, relational database mod
 - [Wireframes](#wireframes)
 - [HTML Validation](#html-validation)
 - [CSS Validation](#css-validation)
+- [Lighthouse Validation](#lighthouse-validation)
 - [Diagrams](#diagrams)
 - [Features](#features)
 - [Security](#security)
@@ -508,7 +509,13 @@ CSS validation was completed using the W3C CSS Validation Service on the project
   ![admin.css](docs/cssValidations/admin-css.png)
 
 
-Third-party stylesheets, including Bootstrap, Bootstrap Icons, Font Awesome, and Django admin/vendor CSS, were not treated as project-authored validation issues. Any validator parse warnings against Bootstrap classes are caused by Bootstrap's modern CSS custom properties and minified CDN stylesheet, rather than errors in the project's custom CSS.
+## Lighthouse Validation
+
+Lighthouse testing was completed using Chrome DevTools on the deployed application. The audit reviewed Performance, Accessibility, Best Practices, and SEO. The remaining performance limitations are mainly related to image payload size, third-party scripts, and framework assets used by the ecommerce interface.
+
+
+
+![Lighthouse validation report](<docs/LightHouse Validation/LightHouse.png>)
 
 
 ## Diagrams

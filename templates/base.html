@@ -20,6 +20,17 @@
                rel="stylesheet"
                integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
                crossorigin="anonymous">
+
+          <!-- google fonts -->
+          <link rel="preconnect"
+               href="https://fonts.googleapis.com">
+          <link rel="preconnect"
+               href="https://fonts.gstatic.com"
+               crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap"
+               rel="stylesheet">
+
+
           {% endblock corecss %}
 
           {% block extra_css %}
@@ -84,7 +95,7 @@
                crossorigin="anonymous"></script>
 
           <!-- local script (Django static) -->
-	          <script src="{% static 'js/script.js' %}?v=password-toggle-icon"></script>
+          <script src="{% static 'js/script.js' %}?v=password-toggle-icon"></script>
 
           <script>
                function getCookie(name) {

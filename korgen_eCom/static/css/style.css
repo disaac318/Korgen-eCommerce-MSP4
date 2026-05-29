@@ -7,7 +7,7 @@
 
 
 html {
-     font-family: Arial, Helvetica, sans-serif;
+     font-family: "Google Sans", Arial, Helvetica, sans-serif;
      line-height: 1.15;
      -webkit-text-size-adjust: 100%;
      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
@@ -18,10 +18,15 @@ body {
 }
 
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: "Lexend", "Inter", system-ui, sans-serif;
-    font-weight: 600; /* adjust as needed */
-  }
+h1,
+h2 {
+     font-family: "Oswald", Arial, Helvetica, sans-serif;
+     font-weight: 600;
+}
+
+p {
+     font-family: "Google Sans", Arial, Helvetica, sans-serif;
+}
 
 
 .dropdown-overlap {
