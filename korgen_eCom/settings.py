@@ -79,6 +79,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'korgen_eCom.middleware.NeverCacheAuthenticatedMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
@@ -133,6 +134,11 @@ REMEMBER_ME_SESSION_AGE = config(
     default=60 * 60 * 24 * 14,
     cast=int,
 )
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 DELIVERY_FLAT_RATE = config('DELIVERY_FLAT_RATE', default='3.99')
 DELIVERY_FREE_THRESHOLD = config('DELIVERY_FREE_THRESHOLD', default='50.00')
 

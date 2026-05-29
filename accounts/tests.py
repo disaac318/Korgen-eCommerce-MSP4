@@ -113,6 +113,37 @@ class LoginRememberMeTests(TestCase):
         self.assertFalse(self.client.session.get_expire_at_browser_close())
 
 
+class AuthenticatedCacheHeaderTests(TestCase):
+    def setUp(self):
+        self.user = Account.objects.create_user(
+            first_name='Cache',
+            last_name='User',
+            email='cache@example.com',
+            username='cacheuser',
+            password='test-pass-12345',
+        )
+        self.user.is_active = True
+        self.user.save(update_fields=['is_active'])
+
+    def test_anonymous_homepage_can_render_guest_state(self):
+        response = self.client.get(reverse('home'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Welcome guest!')
+        self.assertNotIn('no-store', response.headers.get('Cache-Control', ''))
+
+    def test_authenticated_homepage_is_not_cacheable(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('home'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Welcome Cache!')
+        cache_control = response.headers.get('Cache-Control', '')
+        self.assertIn('no-store', cache_control)
+        self.assertIn('no-cache', cache_control)
+
+
 class ProfilePictureUploadTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
