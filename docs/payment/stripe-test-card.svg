@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="560" height="48" viewBox="0 0 560 48" role="img" aria-labelledby="title desc">
-  <title id="title">Stripe test card number</title>
-  <desc id="desc">A visual example of the Stripe sandbox alternative test card number 5555 5555 5555 4444.</desc>
-  <rect width="560" height="48" fill="#000000"/>
-  <text x="0" y="20" fill="#7ed957" font-family="Menlo, Consolas, monospace" font-size="15" font-weight="700">
-    5555 5555 5555 4444
-  </text>
-</svg>

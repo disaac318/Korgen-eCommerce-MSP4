@@ -1,5 +1,8 @@
-git 
 ![Mockup image](docs/WireFrames/responsiveMockUp.webp)
+
+
+[Live webpage](https://korgen-ecomm-msp4-8729e1fef5e5.herokuapp.com/)
+(Developer: Dean Isaac)
 
 # Korgen eCommerce
 
@@ -7,10 +10,6 @@ Korgen eCommerce is a full-stack Django online store built for the Code Institut
 
 The project demonstrates server-side Django development, relational database modelling, authentication, payment integration, email workflows, progressive enhancement with htmx, and test-driven validation of critical business logic.
 
-(Developer: Dean Isaac)
-
-
-[Live webpage](https://korgen-ecomm-msp4-8729e1fef5e5.herokuapp.com/)
 
 
 ## Table of Contents
