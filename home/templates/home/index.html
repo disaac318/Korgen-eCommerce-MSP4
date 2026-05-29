@@ -21,12 +21,13 @@
      </section>
 
      <!-- Popular products -->
-     <section class="section-name padding-y-sm bg-opacity-25 bg-warning "
+     <section class="section-name padding-y-sm bg-opacity-25 bg-warning"
           aria-labelledby="popular-products-title">
           <div class="container">
 
-               <header class="d-flex align-items-center justify-content-end flex-wrap gap-2 mb-3">
-                   
+               <header class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <h2 id="popular-products-title"
+                         class="h3 mb-0">Popular products</h2>
                     <a href="{% url 'store' %}"
                          class="btn btn-secondary px-5">Shop now</a>
                </header>
@@ -46,10 +47,10 @@
                                              alt="{{ product.product_name }}">
                                    </a>
                                    <div class="card-body info-wrap">
-                                        <h2 class="h5 mb-1">
+                                        <h3 class="h5 mb-1">
                                              <a href="{% url 'product_detail' product.category.slug product.slug %}"
                                                   class="title text-decoration-none text-center">{{ product.product_name }}</a>
-                                        </h2>
+                                        </h3>
                                         <div class="text-center">
                                              {% include 'store/includes/rating_stars.html' with rating=product.averageReview rating_classes='text-warning text-center mb-2' %}
                                         </div>
